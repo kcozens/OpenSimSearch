@@ -1,12 +1,19 @@
 <?
+include("databaseinfo.inc");
+//establish connection to master db server
+mysql_connect ($DB_HOST, $DB_USER, $DB_PASSWORD);
+mysql_select_db ($DB_NAME);
 
-  include("databaseinfo.inc");
-  //establish connection to master db server
-  mysql_connect ($DB_HOST, $DB_USER, $DB_PASSWORD);
-  mysql_select_db ($DB_NAME);
+$hostname = $_GET['host'];
+$port = $_GET['port'];
+
+
+if ($hostname != "" && $port != "")
+{
+
 
   $objDOM = new DOMDocument();
-  $objDOM->load("http://<host>:<port>/?method=collector"); //make sure path is correct
+  $objDOM->load("http://$hostname:$port/?method=collector"); //make sure path is correct
 
   $region = $objDOM->getElementsByTagName("info");
   echo "<u>Region:</u><br>";
@@ -18,7 +25,7 @@
     $regionname = $value->getElementsByTagName("name");
     $regionname  = $regionname->item(0)->nodeValue;
 
-    $regionhandle = $value->getElementsByTagName("regionhandle");
+    $regionhandle = $value->getElementsByTagName("handle");
     $regionhandle  = $regionhandle->item(0)->nodeValue;
 
     mysql_query("insert into regions values('$regionname','$regionuuid','$regionhandle')");
@@ -57,7 +64,7 @@
 
 
     mysql_query("insert into parcels values('$regionuuid','$parcelname','$parceluuid','$parcellanding','$parceldescription','$parcelsearch','$parcelbuild','$parcelscript','$parcelpublic' )");
-    echo "$name - $description - $build<br>";
+    echo "$parcelname - $parceldescription<br>";
   }
 
   $objects = $objDOM->getElementsByTagName("object");
@@ -78,6 +85,10 @@
 
     echo "$title - $uuid - $description - $owner<br>";
   }
-
+}
+else
+{
+echo "Sorry, the parser couldn't read the server info and will now quit";
+}
 ?>
 

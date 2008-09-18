@@ -2,10 +2,10 @@
 -- version 2.7.0-beta1
 -- http://www.phpmyadmin.net
 -- 
--- Host: localhost:3308
--- Generatie Tijd: 18 Sept 2008 om 00:19
--- Server versie: 5.0.27
--- PHP Versie: 5.2.3
+-- Host: localhost
+-- Generatie Tijd: 18 Sept 2008 om 21:52
+-- Server versie: 5.0.51
+-- PHP Versie: 5.2.4-2ubuntu5.3
 -- 
 -- Database: `ossearch`
 -- 
