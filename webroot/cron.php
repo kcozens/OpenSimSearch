@@ -28,12 +28,13 @@ while ($jobs = mysql_fetch_row($jobsearch))
        // start the parser function to grab latest info from the simulator
        require_once("daemon/curl_http_client.php");
        $curl = &new Curl_HTTP_Client();
-       $html_data = $curl->fetch_url("http://localhost/ossearch/parser.php?host=$jobs[0]&port=$jobs[1]");
+       $html_data = $curl->fetch_url("http://grid/app/search/parser.php?host=$jobs[0]&port=$jobs[1]");
+       echo $html_data;
        if ($html_data != "")
        {
         // Write a logbook to disk what it did
         $fp = fopen("logbook.log","a");
-        fwrite($fp, "$now - $jobs[0]:$jobs[1] was updated succesfully");
+        fwrite($fp, "$now - $jobs[0]:$jobs[1] was updated succesfully\r\n");
         fclose($fp);
         // Set the new lastcheckdate 1 hour in front of now
         $updater = mysql_query("UPDATE hostsregister set lastcheck = $next where host = '$jobs[0]' AND port = $jobs[1]");
@@ -42,7 +43,7 @@ while ($jobs = mysql_fetch_row($jobsearch))
        {
         // Write a logbook to disk what it did
         $fp = fopen("logbook.log","a");
-        fwrite($fp, "$now - $jobs[0]:$jobs[1] failed");
+        fwrite($fp, "$now - $jobs[0]:$jobs[1] failed\r\n");
         fclose($fp);
        }
 

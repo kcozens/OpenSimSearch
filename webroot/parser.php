@@ -13,7 +13,7 @@ if ($hostname != "" && $port != "")
   $objDOM->load("http://$hostname:$port/?method=collector"); //make sure path is correct
 
   $region = $objDOM->getElementsByTagName("info");
-//  echo "<u>Region:</u><br>";
+  echo "<u>Region:</u><br>";
   foreach( $region as $value )
   {
     $regionuuid = $value->getElementsByTagName("uuid");
@@ -26,24 +26,25 @@ if ($hostname != "" && $port != "")
     $regionhandle  = $regionhandle->item(0)->nodeValue;
 
     // First, check if we already have a region that is the same
-    $check = mysql_query("SELECT FROM REGIONS WHERE regionuuid = $regionuuid");
+    $check = mysql_query("SELECT FROM REGIONS WHERE regionuuid = '$regionuuid'");
     if (mysql_num_rows($check) > 0)
     {
-     mysql_query("DELETE FROM REGIONS WHERE regionuuid = $regionuuid");
+     mysql_query("DELETE FROM REGIONS WHERE regionuuid = '$regionuuid'");
     }
     // Second, add the new info to the database
      $putregion = mysql_query("INSERT INTO regions VALUES('$regionname','$regionuuid','$regionhandle')");
      if (mysql_affected_rows() > -1);
      {
       $fp = fopen("parser.log","a");
-      fwrite($fp,"$_SERVER['REQUEST_TIME'] - $regionuuid was updated successfully");
+      $request = $_SERVER['REQUEST_TIME'];
+      fwrite($fp,"$request - $regionuuid was updated successfully\r\n");
       fclose($fp);
      }
-//    echo "$regionname - $regionuuid - $regiondescription<br>";
+    echo "$regionname - $regionuuid - $regiondescription<br>";
   }
 
   $parcel = $objDOM->getElementsByTagName("parcel");
-//  echo "<u>Parcels:</u><br>";
+  echo "<u>Parcels:</u><br>";
   foreach( $parcel as $value )
   {
     $parcelname = $value->getElementsByTagName("name");
@@ -73,7 +74,7 @@ if ($hostname != "" && $port != "")
 
 
     mysql_query("insert into parcels values('$regionuuid','$parcelname','$parceluuid','$parcellanding','$parceldescription','$parcelsearch','$parcelbuild','$parcelscript','$parcelpublic' )");
-//    echo "$parcelname - $parceldescription<br>";
+    echo "$parcelname - $parceldescription<br>";
   }
 
 // Disabled the object for now, work in progress for now
