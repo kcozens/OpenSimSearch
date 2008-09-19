@@ -2,10 +2,10 @@
 -- version 2.7.0-beta1
 -- http://www.phpmyadmin.net
 -- 
--- Host: localhost
--- Generatie Tijd: 18 Sept 2008 om 21:52
--- Server versie: 5.0.51
--- PHP Versie: 5.2.4-2ubuntu5.3
+-- Host: localhost:3308
+-- Generatie Tijd: 19 Sept 2008 om 20:26
+-- Server versie: 5.0.27
+-- PHP Versie: 5.2.3
 -- 
 -- Database: `ossearch`
 -- 
@@ -21,7 +21,6 @@ CREATE TABLE `hostsregister` (
   `port` int(5) NOT NULL,
   `register` int(10) NOT NULL,
   `lastcheck` int(10) NOT NULL,
-  `active` int(1) NOT NULL,
   PRIMARY KEY  (`host`,`port`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 

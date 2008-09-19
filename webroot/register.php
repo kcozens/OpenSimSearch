@@ -6,7 +6,7 @@
 // and checks if the simulator is new in the database or a reconnected one  //
 //                                                                          //
 // If the simulator is old, check if the lastcheck date > registration      //
-// When the date is older, make a reuqest to the Parser to grab new data    //
+// When the date is older, make a request to the Parser to grab new data    //
 //////////////////////////////////////////////////////////////////////////////
 
 include("databaseinfo.inc");
@@ -16,7 +16,6 @@ mysql_select_db ($DB_NAME);
 
 $hostname = $_GET['host'];
 $port = $_GET['port'];
-
 
 if ($hostname != "" && $port != "")
 {
@@ -40,7 +39,7 @@ if ($hostname != "" && $port != "")
      else
      {
       echo "Registering Simulator . . .";
-      $register = "INSERT INTO hostsregister VALUES ('$hostname', $port, $timestamp, 0, 1)";
+      $register = "INSERT INTO hostsregister VALUES ('$hostname', $port, $timestamp, 0)";
       $runupdate = mysql_query($register);
           if (mysql_affected_rows > -1)
           {

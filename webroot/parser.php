@@ -7,16 +7,13 @@ mysql_select_db ($DB_NAME);
 $hostname = $_GET['host'];
 $port = $_GET['port'];
 
-
 if ($hostname != "" && $port != "")
 {
-
-
   $objDOM = new DOMDocument();
   $objDOM->load("http://$hostname:$port/?method=collector"); //make sure path is correct
 
   $region = $objDOM->getElementsByTagName("info");
-  echo "<u>Region:</u><br>";
+//  echo "<u>Region:</u><br>";
   foreach( $region as $value )
   {
     $regionuuid = $value->getElementsByTagName("uuid");
@@ -28,13 +25,25 @@ if ($hostname != "" && $port != "")
     $regionhandle = $value->getElementsByTagName("handle");
     $regionhandle  = $regionhandle->item(0)->nodeValue;
 
-    mysql_query("insert into regions values('$regionname','$regionuuid','$regionhandle')");
-    echo "$regionname - $regionuuid - $regiondescription<br>";
+    // First, check if we already have a region that is the same
+    $check = mysql_query("SELECT FROM REGIONS WHERE regionuuid = $regionuuid");
+    if (mysql_num_rows($check) > 0)
+    {
+     mysql_query("DELETE FROM REGIONS WHERE regionuuid = $regionuuid");
+    }
+    // Second, add the new info to the database
+     $putregion = mysql_query("INSERT INTO regions VALUES('$regionname','$regionuuid','$regionhandle')");
+     if (mysql_affected_rows() > -1);
+     {
+      $fp = fopen("parser.log","a");
+      fwrite($fp,"$_SERVER['REQUEST_TIME'] - $regionuuid was updated successfully");
+      fclose($fp);
+     }
+//    echo "$regionname - $regionuuid - $regiondescription<br>";
   }
 
-
   $parcel = $objDOM->getElementsByTagName("parcel");
-  echo "<u>Parcels:</u><br>";
+//  echo "<u>Parcels:</u><br>";
   foreach( $parcel as $value )
   {
     $parcelname = $value->getElementsByTagName("name");
@@ -64,10 +73,12 @@ if ($hostname != "" && $port != "")
 
 
     mysql_query("insert into parcels values('$regionuuid','$parcelname','$parceluuid','$parcellanding','$parceldescription','$parcelsearch','$parcelbuild','$parcelscript','$parcelpublic' )");
-    echo "$parcelname - $parceldescription<br>";
+//    echo "$parcelname - $parceldescription<br>";
   }
 
-  $objects = $objDOM->getElementsByTagName("object");
+// Disabled the object for now, work in progress for now
+
+/*  $objects = $objDOM->getElementsByTagName("object");
   echo "<u>Objects:</u><br>";
   foreach( $objects as $value )
   {
@@ -85,6 +96,7 @@ if ($hostname != "" && $port != "")
 
     echo "$title - $uuid - $description - $owner<br>";
   }
+*/
 }
 else
 {
