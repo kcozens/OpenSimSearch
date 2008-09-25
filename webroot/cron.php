@@ -13,11 +13,6 @@ include("databaseinfo.inc");
 mysql_connect ($DB_HOST, $DB_USER, $DB_PASSWORD);
 mysql_select_db ($DB_NAME);
 
-//getting UNIX_TIMESTAMP to check with
-$now = time();
-//getting a new UNIX_TIMESTAMP 1 hour in advance of $now
-$next = time() + (60 * 60);
-
 // Checking if there are hosts that need parsing by looking $now > lastparsed field
 // in the database
 
@@ -36,8 +31,6 @@ while ($jobs = mysql_fetch_row($jobsearch))
         $fp = fopen("logbook.log","a");
         fwrite($fp, "$now - $jobs[0]:$jobs[1] was updated succesfully\r\n");
         fclose($fp);
-        // Set the new lastcheckdate 1 hour in front of now
-        $updater = mysql_query("UPDATE hostsregister set lastcheck = $next where host = '$jobs[0]' AND port = $jobs[1]");
        }
        else
        {

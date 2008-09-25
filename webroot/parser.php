@@ -7,11 +7,27 @@ mysql_select_db ($DB_NAME);
 $hostname = $_GET['host'];
 $port = $_GET['port'];
 
+//getting UNIX_TIMESTAMP to check with
+$now = time();
+
 if ($hostname != "" && $port != "")
 {
   $objDOM = new DOMDocument();
   $objDOM->load("http://$hostname:$port/?method=collector"); //make sure path is correct
 
+  // Grabbing the expire to update
+  $regiondata = $objDOM->getElementsByTagName("regiondata");
+  foreach( $regiondata as $value )
+  {
+    $expire = $value->getElementsByTagName("expire");
+    $expire  = $expire->item(0)->nodeValue;
+  }
+  //getting a new UNIX_TIMESTAMP 1 hour in advance of $now
+  $next = time() + (60 * $expire);
+  // Set the new lastcheckdate according to the expire
+  $updater = mysql_query("UPDATE hostsregister set lastcheck = $next where host = '$hostname' AND port = $port");
+
+  //Start reading the Region info
   $region = $objDOM->getElementsByTagName("info");
   echo "<u>Region:</u><br>";
   foreach( $region as $value )
@@ -43,6 +59,7 @@ if ($hostname != "" && $port != "")
     echo "$regionname - $regionuuid - $regiondescription<br>";
   }
 
+  // Start reading the parcel info
   $parcel = $objDOM->getElementsByTagName("parcel");
   echo "<u>Parcels:</u><br>";
   foreach( $parcel as $value )
@@ -104,4 +121,3 @@ else
 echo "Sorry, the parser couldn't read the server info and will now quit";
 }
 ?>
-
