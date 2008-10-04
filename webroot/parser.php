@@ -83,7 +83,12 @@ function parse($hostname, $port)
 
 			$data = $region->getElementsByTagName("data")->item(0);
 			$estate = $data->getElementsByTagName("estate")->item(0);
-			$username = $estate->getElementsByTagName("user")->item(0)->nodeValue;
+
+            $username =
+                    $estate->getElementsByTagName("name")->item(0)->nodeValue;
+            $useruuid =
+                    $estate->getElementsByTagName("uuid")->item(0)->nodeValue;
+
 
 			//
 			// Second, add the new info to the database
@@ -93,7 +98,8 @@ function parse($hostname, $port)
 					mysql_escape_string($regionuuid) . "','" .
 					mysql_escape_string($regionhandle) . "','" .
 					mysql_escape_string($url) . "','" .
-					mysql_escape_string($username) ."')");
+					mysql_escape_string($username) ."','" .
+					mysql_escape_string($useruuid) ."')");
 
 			if (mysql_affected_rows() > -1);
 			{
