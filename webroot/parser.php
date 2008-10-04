@@ -1,120 +1,186 @@
 <?
 include("databaseinfo.inc");
-//establish connection to master db server
+
+///////////////////////////////////////////////////////////////////////
+//
+// Search engine sim scanner
+//
+
+//
+// Search DB
+//
 mysql_connect ($DB_HOST, $DB_USER, $DB_PASSWORD);
 mysql_select_db ($DB_NAME);
 
+//
+// Read params
+//
 $hostname = $_GET['host'];
 $port = $_GET['port'];
+#$hostname = $argv[1];
+#$port = $argv[2];
 
-//getting UNIX_TIMESTAMP to check with
 $now = time();
 
 if ($hostname != "" && $port != "")
 {
-  $objDOM = new DOMDocument();
-  $objDOM->load("http://$hostname:$port/?method=collector"); //make sure path is correct
+	//
+	// Load XML doc from URL
+	//
+	$objDOM = new DOMDocument();
+	$objDOM->load("http://$hostname:$port/?method=collector");
 
-  // Grabbing the expire to update
-  $regiondata = $objDOM->getElementsByTagName("regiondata");
-  foreach( $regiondata as $value )
-  {
-    $expire = $value->getElementsByTagName("expire");
-    $expire  = $expire->item(0)->nodeValue;
-  }
-  //getting a new UNIX_TIMESTAMP 1 hour in advance of $now
-  $next = time() + (60 * $expire);
-  // Set the new lastcheckdate according to the expire
-  $updater = mysql_query("UPDATE hostsregister set lastcheck = $next where host = '$hostname' AND port = $port");
+	//
+	// Grabbing the expire to update
+	//
+	$regiondata = $objDOM->getElementsByTagName("regiondata")->item(0);
+	$expire = $regiondata->getElementsByTagName("expire")->item(0)->nodeValue;
 
-  //Start reading the Region info
-  $region = $objDOM->getElementsByTagName("info");
-  echo "<u>Region:</u><br>";
-  foreach( $region as $value )
-  {
-    $regionuuid = $value->getElementsByTagName("uuid");
-    $regionuuid  = $regionuuid->item(0)->nodeValue;
+	//
+	// Calculate new expire
+	//
+	$next = time() + (60 * $expire);
 
-    $regionname = $value->getElementsByTagName("name");
-    $regionname  = $regionname->item(0)->nodeValue;
+	$updater = mysql_query("UPDATE hostsregister set lastcheck = $next " .
+			"where host = '" . mysql_escape_string($hostname) . "' AND " .
+			"port = '" . mysql_escape_string($port) . "'");
 
-    $regionhandle = $value->getElementsByTagName("handle");
-    $regionhandle  = $regionhandle->item(0)->nodeValue;
+	//
+	// Start reading the Region info
+	//
+	$region = $objDOM->getElementsByTagName("info");
 
-    // First, check if we already have a region that is the same
-    $check = mysql_query("SELECT FROM REGIONS WHERE regionuuid = '$regionuuid'");
-    if (mysql_num_rows($check) > 0)
-    {
-     mysql_query("DELETE FROM REGIONS WHERE regionuuid = '$regionuuid'");
-    }
-    // Second, add the new info to the database
-     $putregion = mysql_query("INSERT INTO regions VALUES('$regionname','$regionuuid','$regionhandle')");
-     if (mysql_affected_rows() > -1);
-     {
-      $fp = fopen("parser.log","a");
-      $request = $_SERVER['REQUEST_TIME'];
-      fwrite($fp,"$request - $regionuuid was updated successfully\r\n");
-      fclose($fp);
-     }
-    echo "$regionname - $regionuuid - $regiondescription<br>";
-  }
+	echo "Region:\n";
+	foreach( $region as $value )
+	{
+		$regionuuid =
+				$value->getElementsByTagName("uuid")->item(0)->nodeValue;
 
-  // Start reading the parcel info
-  $parcel = $objDOM->getElementsByTagName("parcel");
-  echo "<u>Parcels:</u><br>";
-  foreach( $parcel as $value )
-  {
-    $parcelname = $value->getElementsByTagName("name");
-    $parcelname  = $parcelname->item(0)->nodeValue;
+		$regionname =
+				$value->getElementsByTagName("name")->item(0)->nodeValue;
 
-    $parceluuid = $value->getElementsByTagName("uuid");
-    $parceluuid  = $parceluuid->item(0)->nodeValue;
+		$regionhandle =
+				$value->getElementsByTagName("handle")->item(0)->nodeValue;
 
-    $parcellanding = $value->getElementsByTagName("location");
-    $parcellanding  = $parcellanding->item(0)->nodeValue;
+		//
+		// First, check if we already have a region that is the same
+		//
+		$check = mysql_query("SELECT * FROM regions WHERE regionuuid = '" .
+				mysql_escape_string($regionuuid) . "'");
 
-    $parceldescription = $value->getElementsByTagName("description");
-    $parceldescription  = $parceldescription->item(0)->nodeValue;
+		if (mysql_num_rows($check) > 0)
+		{
+			mysql_query("DELETE FROM regions WHERE regionuuid = '" .
+					mysql_escape_string($regionuuid) . "'");
+			mysql_query("DELETE FROM parcels WHERE regionuuid = '" .
+					mysql_escape_string($regionuuid) . "'");
+			mysql_query("DELETE FROM objects WHERE regionuuid = '" .
+					mysql_escape_string($regionuuid) . "'");
+		}
 
-    $parcelsearch = $value->getAttributeNode("category");
-    $parcelsearch = $parcelsearch->nodeValue;
+		//
+		// Second, add the new info to the database
+		//
+		mysql_query("INSERT INTO regions VALUES('" .
+				mysql_escape_string($regionname) . "','" .
+				mysql_escape_string($regionuuid) . "','" .
+				mysql_escape_string($regionhandle) ."')");
 
-    // Check bits on Public, Build, Script
-    $parcelbuild = $value->getAttributeNode("build");
-    $parcelbuild = $parcelbuild->nodeValue;
+		if (mysql_affected_rows() > -1);
+		{
+			$fp = fopen("parser.log","a");
+			$request = $_SERVER['REQUEST_TIME'];
+			fwrite($fp,"$request - $regionuuid was updated successfully\r\n");
+			fclose($fp);
+		}
 
-    $parcelscript = $value->getAttributeNode("scripts");
-    $parcelscript = $parcelscript->nodeValue;
+		echo "$regionname - $regionuuid\n";
+	}
 
-    $parcelpublic = $value->getAttributeNode("public");
-    $parcelpublic = $parcelpublic->nodeValue;
+	//
+	// Start reading the parcel info
+	//
+	$parcel = $objDOM->getElementsByTagName("parcel");
+
+	echo "Parcels:\n";
+
+	foreach( $parcel as $value )
+	{
+		$parcelname =
+				$value->getElementsByTagName("name")->item(0)->nodeValue;
+
+		$parceluuid =
+				$value->getElementsByTagName("uuid")->item(0)->nodeValue;
+
+		$parcellanding =
+				$value->getElementsByTagName("location")->item(0)->nodeValue;
+
+		$parceldescription =
+				$value->getElementsByTagName("description")->item(0)->nodeValue;
+
+		$parcelsearch = $value->getAttributeNode("category")->nodeValue;
+
+		//
+		// Check bits on Public, Build, Script
+		//
+		$parcelbuild = $value->getAttributeNode("build")->nodeValue;
+		$parcelscript = $value->getAttributeNode("scripts")->nodeValue;
+		$parcelpublic = $value->getAttributeNode("public")->nodeValue;
+
+		//
+		// Save
+		//
+		mysql_query("insert into parcels values('" .
+				mysql_escape_string($regionuuid) . "','" .
+				mysql_escape_string($parcelname) . "','" .
+				mysql_escape_string($parceluuid) . "','" .
+				mysql_escape_string($parcellanding) . "','" .
+				mysql_escape_string($parceldescription) . "','" .
+				mysql_escape_string($parcelsearch) . "','" .
+				mysql_escape_string($parcelbuild) . "','" .
+				mysql_escape_string($parcelscript) . "','" .
+				mysql_escape_string($parcelpublic) . "' )");
+
+		echo "$parcelname - $parceldescription\n";
+	}
 
 
-    mysql_query("insert into parcels values('$regionuuid','$parcelname','$parceluuid','$parcellanding','$parceldescription','$parcelsearch','$parcelbuild','$parcelscript','$parcelpublic' )");
-    echo "$parcelname - $parceldescription<br>";
-  }
+	//
+	// Handle objects
+	//
+	$objects = $objDOM->getElementsByTagName("object");
 
-// Disabled the object for now, work in progress for now
+	echo "Objects:\n";
 
-/*  $objects = $objDOM->getElementsByTagName("object");
-  echo "<u>Objects:</u><br>";
-  foreach( $objects as $value )
-  {
-    $title = $value->getElementsByTagName("title");
-    $title  = $title->item(0)->nodeValue;
+	foreach( $objects as $value )
+	{
+		$uuid =
+				$value->getElementsByTagName("uuid")->item(0)->nodeValue;
 
-    $uuid = $value->getElementsByTagName("uuid");
-    $uuid  = $uuid->item(0)->nodeValue;
+		$regionuuid =
+				$value->getElementsByTagName("regionuuid")->item(0)->nodeValue;
 
-    $description = $value->getElementsByTagName("description");
-    $description  = $description->item(0)->nodeValue;
+		$parceluuid =
+				$value->getElementsByTagName("parceluuid")->item(0)->nodeValue;
 
-    $owner = $value->getElementsByTagName("owner");
-    $owner  = $owner->item(0)->nodeValue;
+		$title =
+				$value->getElementsByTagName("title")->item(0)->nodeValue;
 
-    echo "$title - $uuid - $description - $owner<br>";
-  }
-*/
+		$description =
+				$value->getElementsByTagName("description")->item(0)->nodeValue;
+
+		$flags =
+				$value->getElementsByTagName("flags")->item(0)->nodeValue;
+
+		mysql_query("insert into objects values('" .
+				mysql_escape_string($uuid) . "','" .
+				mysql_escape_string($parceluuid) . "','','" .
+				mysql_escape_string($title) . "','" .
+				mysql_escape_string($description) . "','" .
+				mysql_escape_string($regionuuid) . "')");
+
+		echo "$title - $uuid - $description\n";
+	}
 }
 else
 {

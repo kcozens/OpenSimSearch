@@ -31,7 +31,7 @@ if ($hostname != "" && $port != "")
      echo "Simulator already registered<br>";
      $update = "UPDATE hostsregister set register = $timestamp WHERE host = '$hostname' AND port = $port";
      $runupdate = mysql_query($update);
-          if (mysql_affected_rows > -1)
+          if (mysql_affected_rows() > -1)
           {
            echo "Updating Simulator info in database succesfull";
           }
@@ -41,7 +41,7 @@ if ($hostname != "" && $port != "")
       echo "Registering Simulator . . .";
       $register = "INSERT INTO hostsregister VALUES ('$hostname', $port, $timestamp, 0)";
       $runupdate = mysql_query($register);
-          if (mysql_affected_rows > -1)
+          if (mysql_affected_rows() > -1)
           {
            echo "Updating Simulator info in database succesfull";
           }
