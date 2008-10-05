@@ -5,6 +5,6 @@ Add the following to your own OpenSim.ini file to make Search working
 ;// This is the URL needed for Search server to work					  //
 ;//																		  //
 ;// Change it to your own HTTP server to have Search inworld working      //
-;SearchURL = http://192.168.0.1/search.php
+;SearchURL = http://192.168.0.1/query.php
 ;//																		  //
 ;///////////////////////////////////////////////////////////////////////////
