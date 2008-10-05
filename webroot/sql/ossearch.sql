@@ -59,7 +59,11 @@ CREATE TABLE `parcels` (
   `script` enum('yes','no') NOT NULL,
   `public` enum('yes','no') NOT NULL,
   `dwell` float NOT NULL default '0',
-  PRIMARY KEY  (`regionUUID`,`parcelUUID`)
+  PRIMARY KEY  (`regionUUID`,`parcelUUID`),
+  KEY `name` (`parcelname`),
+  KEY `description` (`description`),
+  KEY `searchcategory` (`searchcategory`),
+  KEY `dwell` (`dwell`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
@@ -86,4 +90,4 @@ CREATE TABLE `regions` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2008-10-05 11:34:34
+-- Dump completed on 2008-10-05 12:30:41
