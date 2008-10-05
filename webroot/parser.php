@@ -119,6 +119,9 @@ function parse($hostname, $port)
 				$parceluuid =
 						$value->getElementsByTagName("uuid")->item(0)->nodeValue;
 
+				$infouuid =
+						$value->getElementsByTagName("infouuid")->item(0)->nodeValue;
+
 				$parcellanding =
 						$value->getElementsByTagName("location")->item(0)->nodeValue;
 
@@ -150,7 +153,8 @@ function parse($hostname, $port)
 						mysql_escape_string($parcelbuild) . "','" .
 						mysql_escape_string($parcelscript) . "','" .
 						mysql_escape_string($parcelpublic) . "','".
-						mysql_escape_string($dwell) . "' )");
+						mysql_escape_string($dwell) . "','".
+						mysql_escape_string($infouuid) . "' )");
 
 			}
 

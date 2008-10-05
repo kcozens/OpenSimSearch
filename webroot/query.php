@@ -68,7 +68,7 @@ function dir_places_query($method_name, $params, $app_data)
 	while (($row = mysql_fetch_assoc($result)))
 	{
 		$data[] = array(
-					"parcel_id" => $row["parcelUUID"],
+					"parcel_id" => $row["infouuid"],
 					"name" => $row["parcelname"],
 					"for_sale" => "False",
 					"auction" => "False",

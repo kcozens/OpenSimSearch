@@ -59,6 +59,7 @@ CREATE TABLE `parcels` (
   `script` enum('yes','no') NOT NULL,
   `public` enum('yes','no') NOT NULL,
   `dwell` float NOT NULL default '0',
+  `infouuid` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`regionUUID`,`parcelUUID`),
   KEY `name` (`parcelname`),
   KEY `description` (`description`),
@@ -90,4 +91,4 @@ CREATE TABLE `regions` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2008-10-05 12:30:41
+-- Dump completed on 2008-10-06  0:23:49
