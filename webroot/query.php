@@ -44,12 +44,25 @@ function dir_places_query($method_name, $params, $app_data)
 		return;
 	}
 
-	$result = mysql_query("select * from parcels where " .
-			"(searchcategory = -1 or searchcategory = '" .
-			mysql_escape_string($category) ."') and (parcelname like '%" .
-			mysql_escape_string($text) . "%' or description like '" .
-			mysql_escape_string($text) . "%') order by dwell desc, parcelname" .
-			" limit ".(0+$query_start).",100");
+	if ($category != -1)
+	{
+		$result = mysql_query("select * from parcels where " .
+				"(searchcategory = -1 or searchcategory = '" .
+				mysql_escape_string($category) ."') and (parcelname like '%" .
+				mysql_escape_string($text) . "%' or description like '" .
+				mysql_escape_string($text) . "%') order by " .
+				"dwell desc, parcelname" .
+				" limit ".(0+$query_start).",100");
+	}
+	else
+	{
+		$result = mysql_query("select * from parcels where " .
+				"parcelname like '%" .
+				mysql_escape_string($text) . "%' or description like '" .
+				mysql_escape_string($text) . "%' order by " .
+				"dwell desc, parcelname" .
+				" limit ".(0+$query_start).",100");
+	}
 
 	$data = array();
 	while (($row = mysql_fetch_assoc($result)))
