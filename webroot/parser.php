@@ -127,6 +127,9 @@ function parse($hostname, $port)
 
 				$parcelsearch = $value->getAttributeNode("category")->nodeValue;
 
+				$dwell =
+						$value->getElementsByTagName("dwell")->item(0)->nodeValue;
+
 				//
 				// Check bits on Public, Build, Script
 				//
@@ -146,7 +149,8 @@ function parse($hostname, $port)
 						mysql_escape_string($parcelsearch) . "','" .
 						mysql_escape_string($parcelbuild) . "','" .
 						mysql_escape_string($parcelscript) . "','" .
-						mysql_escape_string($parcelpublic) . "' )");
+						mysql_escape_string($parcelpublic) . "','".
+						mysql_escape_string($dwell) . "' )");
 
 			}
 
