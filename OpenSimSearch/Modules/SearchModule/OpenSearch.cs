@@ -54,6 +54,12 @@ namespace OpenSimSearch.Modules.OpenSearch
                     m_Enabled = false;
                     return;
                 }
+                else
+                {
+                    m_log.Info("[SEARCH] Search module is activated");
+                    m_Enabled = true;
+                    return;
+                }
             }
 
             if (!m_Scenes.Contains(scene))
@@ -122,7 +128,7 @@ namespace OpenSimSearch.Modules.OpenSearch
             catch (SocketException ex)
             {
                 m_log.ErrorFormat(
-                        "[MONEY]: Unable to connect to Search Server {0}. " +
+                        "[SEARCH]: Unable to connect to Search Server {0}. " +
                         "Exception {1}", m_SearchServer, ex);
 
                 Hashtable ErrorHash = new Hashtable();
@@ -135,7 +141,7 @@ namespace OpenSimSearch.Modules.OpenSearch
             catch (XmlException ex)
             {
                 m_log.ErrorFormat(
-                        "[MONEY]: Unable to connect to Search Server {0}. " +
+                        "[SEARCH]: Unable to connect to Search Server {0}. " +
                         "Exception {1}", m_SearchServer, ex);
 
                 Hashtable ErrorHash = new Hashtable();

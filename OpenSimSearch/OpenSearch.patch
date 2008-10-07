@@ -1,0 +1,45 @@
+Index: trunk/OpenSimSearch/Modules/SearchModule/OpenSearch.cs
+===================================================================
+--- trunk/OpenSimSearch/Modules/SearchModule/OpenSearch.cs	(revision 25)
++++ trunk/OpenSimSearch/Modules/SearchModule/OpenSearch.cs	(working copy)
+@@ -47,11 +47,17 @@
+                     m_Enabled = false;
+                     return;
+                 }
+-                m_SearchServer = searchConfig.GetString("SearchURL", "");
+-                if (m_SearchServer == "")
+-                {
+-                    m_log.Error("[SEARCH] No search server, disabling search");
+-                    m_Enabled = false;
++                m_SearchServer = searchConfig.GetString("SearchURL", "");
++                if (m_SearchServer == "")
++                {
++                    m_log.Error("[SEARCH] No search server, disabling search");
++                    m_Enabled = false;
++                    return;
++                }
++                else
++                {
++                    m_log.Info("[SEARCH] Search module is activated");
++                    m_Enabled = true;
+                     return;
+                 }
+             }
+@@ -122,7 +128,7 @@
+             catch (SocketException ex)
+             {
+                 m_log.ErrorFormat(
+-                        "[MONEY]: Unable to connect to Search Server {0}. " +
++                        "[SEARCH]: Unable to connect to Search Server {0}. " +
+                         "Exception {1}", m_SearchServer, ex);
+ 
+                 Hashtable ErrorHash = new Hashtable();
+@@ -135,7 +141,7 @@
+             catch (XmlException ex)
+             {
+                 m_log.ErrorFormat(
+-                        "[MONEY]: Unable to connect to Search Server {0}. " +
++                        "[SEARCH]: Unable to connect to Search Server {0}. " +
+                         "Exception {1}", m_SearchServer, ex);
+ 
+                 Hashtable ErrorHash = new Hashtable();
