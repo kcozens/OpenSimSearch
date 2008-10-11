@@ -123,6 +123,20 @@ CREATE TABLE `parcelsales` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
+-- Table structure for table `popularplaces`
+--
+
+DROP TABLE IF EXISTS `popularplaces`;
+CREATE TABLE `popularplaces` (
+  `parcelUUID` char(36) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `dwell` float NOT NULL,
+  `infoUUID` char(36) NOT NULL,
+  `has_picture` tinyint(4) NOT NULL,
+  `mature` tinyint(4) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
 -- Table structure for table `regions`
 --
 
@@ -146,4 +160,4 @@ CREATE TABLE `regions` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2008-10-11  7:46:43
+-- Dump completed on 2008-10-11 14:41:26
