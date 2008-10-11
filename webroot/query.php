@@ -104,7 +104,7 @@ function dir_popular_query($method_name, $params, $app_data)
 	if (count($terms) > 0)
 		$where = " where " . join(" and ", $terms);
 
-	$result = mysql_query("select * from popularplaces" . $where;
+	$result = mysql_query("select * from popularplaces" . $where);
 
 	$data = array();
 	while (($row = mysql_fetch_assoc($result)))
