@@ -36,7 +36,7 @@ function dir_places_query($method_name, $params, $app_data)
 	{
 		$response_xml = xmlrpc_encode(array(
 			'success'      => False,
-			'errorMessage' => "Invalid serach terms"
+			'errorMessage' => "Invalid search terms"
 		));
 
 		print $response_xml;
@@ -93,7 +93,28 @@ function dir_popular_query($method_name, $params, $app_data)
 
     $flags          = $req['flags'];
 
+	$terms = array();
+
+	if ($flags & 0x1000)
+		$terms[] = "has_picture = 1";
+	
+	if ($flags & 0x0800)
+		$terms[] = "mature = 0";
+	
+	if (count($terms) > 0)
+		$where = " where " . join(" and ", $terms);
+
+	$result = mysql_query("select * from popularplaces" . $where;
+
 	$data = array();
+	while (($row = mysql_fetch_assoc($result)))
+	{
+		$data[] = array(
+					"parcel_id" => $row["infoUUID"],
+					"name" => $row["name"],
+					"dwell" => $row["dwell"]
+				);
+	}
 
 	$response_xml = xmlrpc_encode(array(
 		'success'      => True,
