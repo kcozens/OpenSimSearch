@@ -96,6 +96,8 @@ namespace OpenSimSearch.Modules.OpenSearch
             // Subscribe to messages
             client.OnDirPlacesQuery += DirPlacesQuery;
             client.OnDirFindQuery += DirFindQuery;
+            client.OnDirPopularQuery += DirPopularQuery;
+            client.OnDirLandQuery += DirLandQuery;
         }
 
         //
