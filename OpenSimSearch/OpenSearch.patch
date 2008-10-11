@@ -1,0 +1,36 @@
+Index: trunk/OpenSimSearch/Modules/SearchModule/OpenSearch.cs
+===================================================================
+--- trunk/OpenSimSearch/Modules/SearchModule/OpenSearch.cs	(revision 40)
++++ trunk/OpenSimSearch/Modules/SearchModule/OpenSearch.cs	(working copy)
+@@ -311,7 +311,7 @@
+                 DirPeopleQuery(remoteClient, queryID, queryText, queryFlags, queryStart);
+                 return;
+             }
+-            else if ((queryfLAGS & 32) != 0)
++            else if ((queryFlags & 32) != 0)
+             {
+                 DirEventsQuery(remoteClient, queryID, queryText, queryFlags, queryStart);
+                 return;
+@@ -376,16 +376,16 @@
+                 data[i] = new DirEventsReplyData();
+                 data[i].ownerID = new UUID(d["owner_id"].ToString());
+                 data[i].name = d["name"].ToString();
+-                data[i].eventID = Convert.ToUint32(d["event_id"]);
++                data[i].eventID = Convert.ToUInt32(d["event_id"]);
+                 data[i].date = d["date"].ToString();
+-                data[i].unixTime = Convert.ToUint32(d["unix_time"]);
+-                data[i].eventFlags = Convert.ToUint32(d["event_flags"]);
++                data[i].unixTime = Convert.ToUInt32(d["unix_time"]);
++                data[i].eventFlags = Convert.ToUInt32(d["event_flags"]);
+                 i++;
+                 if (i >= count)
+                     break;
+-            }
+-
+-            remoteClient.SendEventsReply(queryID, data);
++            }
++
++            remoteClient.SendDirEventsReply(queryID, data);
+         }
+     }
+ }
