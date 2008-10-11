@@ -84,6 +84,48 @@ function dir_places_query($method_name, $params, $app_data)
 	print $response_xml;
 }
 
+xmlrpc_server_register_method($xmlrpc_server, "dir_popular_query",
+		"dir_popular_query");
+
+function dir_popular_query($method_name, $params, $app_data)
+{
+    $req            = $params[0];
+
+    $flags          = $req['flags'];
+
+	$data = array();
+
+	$response_xml = xmlrpc_encode(array(
+		'success'      => True,
+		'errorMessage' => "",
+		'data' => $data
+	));
+
+	print $response_xml;
+}
+
+xmlrpc_server_register_method($xmlrpc_server, "dir_land_query",
+		"dir_land_query");
+
+function dir_land_query($method_name, $params, $app_data)
+{
+    $req            = $params[0];
+
+    $flags          = $req['flags'];
+    $type           = $req['type'];
+    $price          = $req['price'];
+    $area           = $req['area'];
+    $query_start    = $req['query_start'];
+
+	$response_xml = xmlrpc_encode(array(
+		'success'      => True,
+		'errorMessage' => "",
+		'data' => $data
+	));
+
+	print $response_xml;
+}
+
 #
 # Process the request
 #
