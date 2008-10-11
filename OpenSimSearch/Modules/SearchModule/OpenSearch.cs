@@ -172,10 +172,10 @@ namespace OpenSimSearch.Modules.OpenSearch
         {
             Hashtable ReqHash = new Hashtable();
             ReqHash["text"] = queryText;
-            ReqHash["flags"] = queryFlags;
-            ReqHash["category"] = category;
+            ReqHash["flags"] = queryFlags.ToString();
+            ReqHash["category"] = category.ToString();
             ReqHash["sim_name"] = simName;
-            ReqHash["query_start"] = queryStart;
+            ReqHash["query_start"] = queryStart.ToString();
 
             Hashtable result = GenericXMLRPCRequest(ReqHash,
                     "dir_places_query");
@@ -184,6 +184,7 @@ namespace OpenSimSearch.Modules.OpenSearch
             {
                 remoteClient.SendAgentAlertMessage(
                         result["errorMessage"].ToString(), false);
+                return;
             }
 
             ArrayList dataArray = (ArrayList)result["data"];
@@ -217,7 +218,7 @@ namespace OpenSimSearch.Modules.OpenSearch
         public void DirPopularQuery(IClientAPI remoteClient, UUID queryID, uint queryFlags)
         {
             Hashtable ReqHash = new Hashtable();
-            ReqHash["flags"] = queryFlags;
+            ReqHash["flags"] = queryFlags.ToString();
 
             Hashtable result = GenericXMLRPCRequest(ReqHash,
                     "dir_popular_query");
@@ -226,6 +227,7 @@ namespace OpenSimSearch.Modules.OpenSearch
             {
                 remoteClient.SendAgentAlertMessage(
                         result["errorMessage"].ToString(), false);
+                return;
             }
 
             ArrayList dataArray = (ArrayList)result["data"];
@@ -257,11 +259,11 @@ namespace OpenSimSearch.Modules.OpenSearch
         public void DirLandQuery(IClientAPI remoteClient, UUID queryID, uint queryFlags, uint searchType, int price, int area, int queryStart)
         {
             Hashtable ReqHash = new Hashtable();
-            ReqHash["flags"] = queryFlags;
-            ReqHash["type"] = searchType;
-            ReqHash["price"] = price;
-            ReqHash["area"] = area;
-            ReqHash["query_start"] = queryStart;
+            ReqHash["flags"] = queryFlags.ToString();
+            ReqHash["type"] = searchType.ToString();
+            ReqHash["price"] = price.ToString();
+            ReqHash["area"] = area.ToString();
+            ReqHash["query_start"] = queryStart.ToString();
 
             Hashtable result = GenericXMLRPCRequest(ReqHash,
                     "dir_land_query");
@@ -270,6 +272,7 @@ namespace OpenSimSearch.Modules.OpenSearch
             {
                 remoteClient.SendAgentAlertMessage(
                         result["errorMessage"].ToString(), false);
+                return;
             }
 
             ArrayList dataArray = (ArrayList)result["data"];
