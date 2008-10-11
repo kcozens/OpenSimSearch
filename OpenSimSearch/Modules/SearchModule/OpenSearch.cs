@@ -58,7 +58,6 @@ namespace OpenSimSearch.Modules.OpenSearch
                 {
                     m_log.Info("[SEARCH] Search module is activated");
                     m_Enabled = true;
-                    return;
                 }
             }
 
@@ -96,6 +95,7 @@ namespace OpenSimSearch.Modules.OpenSearch
         {
             // Subscribe to messages
             client.OnDirPlacesQuery += DirPlacesQuery;
+            client.OnDirFindQuery += DirFindQuery;
         }
 
         //
@@ -196,7 +196,6 @@ namespace OpenSimSearch.Modules.OpenSearch
 
             foreach (Object o in dataArray)
             {
-            System.Console.WriteLine(o.GetType().ToString());
                 Hashtable d = (Hashtable)o;
 
                 data[i] = new DirPlacesReplyData();
@@ -211,6 +210,126 @@ namespace OpenSimSearch.Modules.OpenSearch
             }
 
             remoteClient.SendDirPlacesReply(queryID, data);
+        }
+
+        public void DirPopularQuery(IClientAPI remoteClient, UUID queryID, uint queryFlags)
+        {
+            Hashtable ReqHash = new Hashtable();
+            ReqHash["flags"] = queryFlags;
+
+            Hashtable result = GenericXMLRPCRequest(ReqHash,
+                    "dir_popular_query");
+
+            if (!Convert.ToBoolean(result["success"]))
+            {
+                remoteClient.SendAgentAlertMessage(
+                        result["errorMessage"].ToString(), false);
+            }
+
+            ArrayList dataArray = (ArrayList)result["data"];
+
+            int count = dataArray.Count;
+            if (count > 100)
+                count = 101;
+
+            DirPopularReplyData[] data = new DirPopularReplyData[count];
+
+            int i = 0;
+
+            foreach (Object o in dataArray)
+            {
+                Hashtable d = (Hashtable)o;
+
+                data[i] = new DirPopularReplyData();
+                data[i].parcelID = new UUID(d["parcel_id"].ToString());
+                data[i].name = d["name"].ToString();
+                data[i].dwell = Convert.ToSingle(d["dwell"]);
+                i++;
+                if (i >= count)
+                    break;
+            }
+
+            remoteClient.SendDirPopularReply(queryID, data);
+        }
+
+        public void DirLandQuery(IClientAPI remoteClient, UUID queryID, uint queryFlags, uint searchType, int price, int area, int queryStart)
+        {
+            Hashtable ReqHash = new Hashtable();
+            ReqHash["flags"] = queryFlags;
+            ReqHash["type"] = searchType;
+            ReqHash["price"] = price;
+            ReqHash["area"] = area;
+            ReqHash["query_start"] = queryStart;
+
+            Hashtable result = GenericXMLRPCRequest(ReqHash,
+                    "dir_land_query");
+
+            if (!Convert.ToBoolean(result["success"]))
+            {
+                remoteClient.SendAgentAlertMessage(
+                        result["errorMessage"].ToString(), false);
+            }
+
+            ArrayList dataArray = (ArrayList)result["data"];
+
+            int count = dataArray.Count;
+            if (count > 100)
+                count = 101;
+
+            DirLandReplyData[] data = new DirLandReplyData[count];
+
+            int i = 0;
+
+            foreach (Object o in dataArray)
+            {
+                Hashtable d = (Hashtable)o;
+
+                data[i] = new DirLandReplyData();
+                data[i].parcelID = new UUID(d["parcel_id"].ToString());
+                data[i].name = d["name"].ToString();
+                data[i].auction = Convert.ToBoolean(d["auction"]);
+                data[i].forSale = Convert.ToBoolean(d["for_sale"]);
+                data[i].salePrice = Convert.ToInt32(d["sale_price"]);
+                data[i].actualArea = Convert.ToInt32(d["area"]);
+                i++;
+                if (i >= count)
+                    break;
+            }
+
+            remoteClient.SendDirLandReply(queryID, data);
+        }
+
+        public void DirFindQuery(IClientAPI remoteClient, UUID queryID, string queryText, uint queryFlags, int queryStart)
+        {
+            if ((queryFlags & 1) != 0)
+            {
+                DirPeopleQuery(remoteClient, queryID, queryText, queryFlags, queryStart);
+                return;
+            }
+        }
+
+        public void DirPeopleQuery(IClientAPI remoteClient, UUID queryID, string queryText, uint queryFlags, int queryStart)
+        {
+            List<AvatarPickerAvatar> AvatarResponses = new List<AvatarPickerAvatar>();
+            AvatarResponses = m_Scenes[0].SceneGridService.GenerateAgentPickerRequestResponse(queryID, queryText);
+
+            DirPeopleReplyData[] data = new DirPeopleReplyData[AvatarResponses.Count];
+
+            int i = 0;
+            foreach (AvatarPickerAvatar item in AvatarResponses)
+            {
+                data[i] = new DirPeopleReplyData();
+
+                data[i].agentID = item.AvatarID;
+                data[i].firstName = item.firstName;
+                data[i].lastName = item.lastName;
+                data[i].group = "";
+                data[i].online = false;
+                data[i].reputation = 0;
+                i++;
+            }
+
+            remoteClient.SendDirPeopleReply(queryID, data);
         }
     }
 }
