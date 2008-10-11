@@ -41,6 +41,12 @@ function parse($hostname, $port)
 	//
 	if ($hostname != "" && $port != "")
 	{
+		$next = time() + 600; // 5 mins, so we don't get stuck
+
+		$updater = mysql_query("UPDATE hostsregister set lastcheck = $next " .
+				"where host = '" . mysql_escape_string($hostname) . "' AND " .
+				"port = '" . mysql_escape_string($port) . "'");
+
 		//
 		// Load XML doc from URL
 		//
@@ -217,7 +223,9 @@ function parse($hostname, $port)
 							mysql_escape_string($parcelsaleprice) . "','" .
 							mysql_escape_string($parcellanding) . "','" .
 							mysql_escape_string($infouuid) . "', '" .
-							mysql_escape_string($dwell) . "')";
+							mysql_escape_string($dwell) . "', '" .
+							mysql_escape_string("1") . "', '" .
+							mysql_escape_string("false") . "')";
 
 					mysql_query($sql);
 				}

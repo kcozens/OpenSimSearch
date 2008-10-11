@@ -101,6 +101,7 @@ function dir_popular_query($method_name, $params, $app_data)
 	if ($flags & 0x0800)
 		$terms[] = "mature = 0";
 	
+	$where = "";
 	if (count($terms) > 0)
 		$where = " where " . join(" and ", $terms);
 
@@ -137,6 +138,68 @@ function dir_land_query($method_name, $params, $app_data)
     $price          = $req['price'];
     $area           = $req['area'];
     $query_start    = $req['query_start'];
+
+	$terms = array();
+	$order = "lsq";
+	if ($flags & 0x80000)
+		$order = "parcelname";
+	if ($flags & 0x10000)
+		$order = "saleprice";
+	if ($flags & 0x40000)
+		$order = "area";
+	if (!($flags & 0x8000))
+		$order .= " desc";
+
+	if ($flags & 0x100000)
+		$terms[] = "saleprice <= '" . mysql_escape_string($price) . "'";
+
+	if ($flags & 0x200000)
+		$terms[] = "area >= '" . mysql_escape_string($area) . "'";
+
+	if (($type & 26) == 2) // Auction
+	{
+		$response_xml = xmlrpc_encode(array(
+			'success'      => False,
+			'errorMessage' => "No auctions listed"
+		));
+
+		print $response_xml;
+
+		return;
+	}
+	
+	if (($type & 24) == 8)
+		$terms[] = "parentestate = 1";
+	if (($type & 24) == 16)
+		$terms[] = "parentestate <> 1";
+
+	if ($flags & 0x800)
+		$terms[] = "mature = 'false'";
+	if ($flags & 0x4000)
+		$terms[] = "mature = 'true'";
+	
+	$where = "";
+	if (count($terms) > 0)
+		$where = " where " . join(" and ", $terms);
+
+	$sql = "select *, saleprice/area as lsq from parcelsales" . $where .
+			" order by " . $order . " limit " .
+			mysql_escape_string($query_start) . ",101";
+	
+	$result = mysql_query($sql);
+
+	$data = array();
+	while (($row = mysql_fetch_assoc($result)))
+	{
+		$data[] = array(
+					"parcel_id" => $row["infoUUID"],
+					"name" => $row["parcelname"],
+					"auction" => "false",
+					"for_sale" => "true",
+					"sale_price" => $row["saleprice"],
+					"area" => $row["area"]
+				);
+	}
 
 	$response_xml = xmlrpc_encode(array(
 		'success'      => True,

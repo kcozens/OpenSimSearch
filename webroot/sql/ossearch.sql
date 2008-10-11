@@ -119,6 +119,8 @@ CREATE TABLE `parcelsales` (
   `landingpoint` varchar(255) NOT NULL,
   `infoUUID` char(36) NOT NULL default '00000000-0000-0000-0000-000000000000',
   `dwell` int(11) NOT NULL,
+  `parentestate` int(11) NOT NULL default '1',
+  `mature` varchar(32) NOT NULL default 'false',
   PRIMARY KEY  (`regionUUID`,`parcelUUID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
@@ -160,4 +162,4 @@ CREATE TABLE `regions` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2008-10-11 14:41:26
+-- Dump completed on 2008-10-11 15:55:02
