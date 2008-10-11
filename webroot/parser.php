@@ -170,7 +170,7 @@ function parse($hostname, $port)
 				$parcelforsale =
 						$value->getAttributeNode("forsale")->nodeValue;
 				$parceldirectory =
-						$value->getAttributeNode("show_directory")->nodeValue;
+						$value->getAttributeNode("showinsearch")->nodeValue;
 				$parcelbuild = $value->getAttributeNode("build")->nodeValue;
 				$parcelscript = $value->getAttributeNode("scripts")->nodeValue;
 				$parcelpublic = $value->getAttributeNode("public")->nodeValue;
@@ -187,9 +187,7 @@ function parse($hostname, $port)
 						mysql_escape_string($parceluuid) . "','" .
 						mysql_escape_string($infouuid) . "' )";
 
-echo "$sql\n";
 				mysql_query($sql);
-echo mysql_error() . "\n";
 
 				if ($parceldirectory == "true")
 				{
@@ -206,9 +204,7 @@ echo mysql_error() . "\n";
 							mysql_escape_string($dwell) . "','".
 							mysql_escape_string($infouuid) . "' )";
 
-echo "$sql\n";
 					mysql_query($sql);
-echo mysql_error() . "\n";
 				}
 
 				if ($parcelforsale == "true")
@@ -223,9 +219,7 @@ echo mysql_error() . "\n";
 							mysql_escape_string($infouuid) . "', '" .
 							mysql_escape_string($dwell) . "')";
 
-echo "$sql\n";
 					mysql_query($sql);
-echo mysql_error() . "\n";
 				}
 			}
 
@@ -276,7 +270,6 @@ $jobsearch = mysql_query("SELECT host, port from hostsregister " .
 
 while ($jobs = mysql_fetch_row($jobsearch))
 {
-echo "Parse $jobs[0] $jobs[1]\n";
 	parse($jobs[0], $jobs[1]);
 }
 ?>
