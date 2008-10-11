@@ -311,6 +311,11 @@ namespace OpenSimSearch.Modules.OpenSearch
                 DirPeopleQuery(remoteClient, queryID, queryText, queryFlags, queryStart);
                 return;
             }
+            else if ((queryfLAGS & 32) != 0)
+            {
+                DirEventsQuery(remoteClient, queryID, queryText, queryFlags, queryStart);
+                return;
+            }
         }
 
         public void DirPeopleQuery(IClientAPI remoteClient, UUID queryID, string queryText, uint queryFlags, int queryStart)
@@ -335,6 +340,52 @@ namespace OpenSimSearch.Modules.OpenSearch
             }
 
             remoteClient.SendDirPeopleReply(queryID, data);
+        }
+
+        public void DirEventsQuery(IClientAPI remoteClient, UUID queryID, string queryText, uint queryFlags, int queryStart)
+        {
+            Hashtable ReqHash = new Hashtable();
+            ReqHash["text"] = queryText;
+            ReqHash["flags"] = queryFlags.ToString();
+            ReqHash["query_start"] = queryStart.ToString();
+
+            Hashtable result = GenericXMLRPCRequest(ReqHash,
+                    "dir_events_query");
+
+            if (!Convert.ToBoolean(result["success"]))
+            {
+                remoteClient.SendAgentAlertMessage(
+                        result["errorMessage"].ToString(), false);
+                return;
+            }
+
+            ArrayList dataArray = (ArrayList)result["data"];
+
+            int count = dataArray.Count;
+            if (count > 100)
+                count = 101;
+
+            DirEventsReplyData[] data = new DirEventsReplyData[count];
+
+            int i = 0;
+
+            foreach (Object o in dataArray)
+            {
+                Hashtable d = (Hashtable)o;
+
+                data[i] = new DirEventsReplyData();
+                data[i].ownerID = new UUID(d["owner_id"].ToString());
+                data[i].name = d["name"].ToString();
+                data[i].eventID = Convert.ToUint32(d["event_id"]);
+                data[i].date = d["date"].ToString();
+                data[i].unixTime = Convert.ToUint32(d["unix_time"]);
+                data[i].eventFlags = Convert.ToUint32(d["event_flags"]);
+                i++;
+                if (i >= count)
+                    break;
+            }
+
+            remoteClient.SendEventsReply(queryID, data);
         }
     }
 }
