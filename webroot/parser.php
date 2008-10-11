@@ -9,6 +9,24 @@ $now = time();
 mysql_connect ($DB_HOST, $DB_USER, $DB_PASSWORD);
 mysql_select_db ($DB_NAME);
 
+function GetURL($host, $port, $url)
+{
+    $url = "http://$host:$port/$url";
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+    $data = curl_exec($ch);
+    if (!curl_errno($ch))
+    {
+        curl_close($ch);
+        return $data;
+    }
+	return "";
+}
+
 function parse($hostname, $port)
 {
 	global $now;
@@ -27,7 +45,8 @@ function parse($hostname, $port)
 		// Load XML doc from URL
 		//
 		$objDOM = new DOMDocument();
-		$objDOM->load("http://$hostname:$port/?method=collector");
+		$objDOM->resolveExternals = false;
+		$objDOM->loadXML(GetURL($hostname, $port, "?method=collector"));
 
 		//
 		// Grabbing the expire to update
@@ -79,6 +98,10 @@ function parse($hostname, $port)
 						mysql_escape_string($regionuuid) . "'");
 				mysql_query("DELETE FROM objects WHERE regionuuid = '" .
 						mysql_escape_string($regionuuid) . "'");
+				mysql_query("DELETE FROM allparcels WHERE regionUUID = '" .
+						mysql_escape_string($regionuuid) . "'");
+				mysql_query("DELETE FROM parcelsales WHERE regionUUID = '" .
+						mysql_escape_string($regionuuid) . "'");
 			}
 
 			$data = $region->getElementsByTagName("data")->item(0);
@@ -93,18 +116,15 @@ function parse($hostname, $port)
 			//
 			// Second, add the new info to the database
 			//
-			mysql_query("INSERT INTO regions VALUES('" .
+			$sql = "INSERT INTO regions VALUES('" .
 					mysql_escape_string($regionname) . "','" .
 					mysql_escape_string($regionuuid) . "','" .
 					mysql_escape_string($regionhandle) . "','" .
 					mysql_escape_string($url) . "','" .
 					mysql_escape_string($username) ."','" .
-					mysql_escape_string($useruuid) ."')");
+					mysql_escape_string($useruuid) ."')";
 
-			if (mysql_affected_rows() > -1);
-			{
-				$request = $_SERVER['REQUEST_TIME'];
-			}
+			mysql_query($sql);
 
 			//
 			// Start reading the parcel info
@@ -128,14 +148,29 @@ function parse($hostname, $port)
 				$parceldescription =
 						$value->getElementsByTagName("description")->item(0)->nodeValue;
 
-				$parcelsearch = $value->getAttributeNode("category")->nodeValue;
+				$parcelarea =
+						$value->getElementsByTagName("area")->item(0)->nodeValue;
+
+				$parcelcategory =
+						$value->getAttributeNode("category")->nodeValue;
+
+				$parcelsaleprice =
+						$value->getAttributeNode("salesprice")->nodeValue;
 
 				$dwell =
 						$value->getElementsByTagName("dwell")->item(0)->nodeValue;
 
+				$owner = $value->getElementsByTagName("owner")->item(0);
+
+				$owneruuid = $owner->getElementsByTagName("uuid")->item(0)->nodeValue;
+
 				//
 				// Check bits on Public, Build, Script
 				//
+				$parcelforsale =
+						$value->getAttributeNode("forsale")->nodeValue;
+				$parceldirectory =
+						$value->getAttributeNode("show_directory")->nodeValue;
 				$parcelbuild = $value->getAttributeNode("build")->nodeValue;
 				$parcelscript = $value->getAttributeNode("scripts")->nodeValue;
 				$parcelpublic = $value->getAttributeNode("public")->nodeValue;
@@ -143,19 +178,55 @@ function parse($hostname, $port)
 				//
 				// Save
 				//
-				mysql_query("insert into parcels values('" .
+				$sql = "insert into allparcels values('" .
 						mysql_escape_string($regionuuid) . "','" .
 						mysql_escape_string($parcelname) . "','" .
-						mysql_escape_string($parceluuid) . "','" .
+						mysql_escape_string($owneruuid) . "','" .
+						mysql_escape_string('00000000-0000-0000-0000-000000000000') . "','" .
 						mysql_escape_string($parcellanding) . "','" .
-						mysql_escape_string($parceldescription) . "','" .
-						mysql_escape_string($parcelsearch) . "','" .
-						mysql_escape_string($parcelbuild) . "','" .
-						mysql_escape_string($parcelscript) . "','" .
-						mysql_escape_string($parcelpublic) . "','".
-						mysql_escape_string($dwell) . "','".
-						mysql_escape_string($infouuid) . "' )");
+						mysql_escape_string($parceluuid) . "','" .
+						mysql_escape_string($infouuid) . "' )";
 
+echo "$sql\n";
+				mysql_query($sql);
+echo mysql_error() . "\n";
+
+				if ($parceldirectory == "true")
+				{
+					$sql = "insert into parcels values('" .
+							mysql_escape_string($regionuuid) . "','" .
+							mysql_escape_string($parcelname) . "','" .
+							mysql_escape_string($parceluuid) . "','" .
+							mysql_escape_string($parcellanding) . "','" .
+							mysql_escape_string($parceldescription) . "','" .
+							mysql_escape_string($parcelcategory) . "','" .
+							mysql_escape_string($parcelbuild) . "','" .
+							mysql_escape_string($parcelscript) . "','" .
+							mysql_escape_string($parcelpublic) . "','".
+							mysql_escape_string($dwell) . "','".
+							mysql_escape_string($infouuid) . "' )";
+
+echo "$sql\n";
+					mysql_query($sql);
+echo mysql_error() . "\n";
+				}
+
+				if ($parcelforsale == "true")
+				{
+					$sql = "insert into parcelsales values('" .
+							mysql_escape_string($regionuuid) . "','" .
+							mysql_escape_string($parcelname) . "','" .
+							mysql_escape_string($parceluuid) . "','" .
+							mysql_escape_string($parcelarea) . "','" .
+							mysql_escape_string($parcelsaleprice) . "','" .
+							mysql_escape_string($parcellanding) . "','" .
+							mysql_escape_string($infouuid) . "', '" .
+							mysql_escape_string($dwell) . "')";
+
+echo "$sql\n";
+					mysql_query($sql);
+echo mysql_error() . "\n";
+				}
 			}
 
 			//
@@ -205,7 +276,7 @@ $jobsearch = mysql_query("SELECT host, port from hostsregister " .
 
 while ($jobs = mysql_fetch_row($jobsearch))
 {
+echo "Parse $jobs[0] $jobs[1]\n";
 	parse($jobs[0], $jobs[1]);
 }
-
 ?>

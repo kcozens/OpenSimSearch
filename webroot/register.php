@@ -20,7 +20,9 @@ $port = $_GET['port'];
 if ($hostname != "" && $port != "")
 {
     // Check if there is already a database row for this host
-    $checkhost = mysql_query("SELECT register from hostsregister where host = '$hostname'");
+    $checkhost = mysql_query("SELECT register from hostsregister where " .
+			"host = '" . mysql_escape_string($hostname) . "' and " .
+			"port = '" . mysql_escape_string($port) . "'");
 
     // Get the request time as a timestamp for later
     $timestamp = $_SERVER['REQUEST_TIME'];
@@ -28,28 +30,22 @@ if ($hostname != "" && $port != "")
     // if greater then 1, check the lastcheck date
     if (mysql_num_rows($checkhost) > 0)
     {
-     echo "Simulator already registered<br>";
-     $update = "UPDATE hostsregister set register = $timestamp WHERE host = '$hostname' AND port = $port";
-     $runupdate = mysql_query($update);
-          if (mysql_affected_rows() > -1)
-          {
-           echo "Updating Simulator info in database succesfull";
-          }
-     }
-     else
-     {
-      echo "Registering Simulator . . .";
-      $register = "INSERT INTO hostsregister VALUES ('$hostname', $port, $timestamp, 0)";
-      $runupdate = mysql_query($register);
-          if (mysql_affected_rows() > -1)
-          {
-           echo "Updating Simulator info in database succesfull";
-          }
-      }
-}
-else
-{
- echo "There was no GET data available, possible broken setting";
+		$update = "UPDATE hostsregister set " .
+				"register = '" . mysql_escape_string($timestamp) . "' " . 
+				"WHERE host = '" . mysql_escape_string($hostname) . "' AND " .
+				"port = '" . mysql_escape_string($port) . "'";
+
+		$runupdate = mysql_query($update);
+	}
+	else
+	{
+		$register = "INSERT INTO hostsregister VALUES ".
+				"('" . mysql_escape_string($hostname) . "', " .
+				"'" . mysql_escape_string($port) . "', " .
+				"'" . mysql_escape_string($timestamp) . "', 0)";
+
+		$runupdate = mysql_query($register);
+	}
 }
 
 ?>
