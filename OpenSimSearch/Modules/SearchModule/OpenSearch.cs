@@ -98,6 +98,7 @@ namespace OpenSimSearch.Modules.OpenSearch
             client.OnDirFindQuery += DirFindQuery;
             client.OnDirPopularQuery += DirPopularQuery;
             client.OnDirLandQuery += DirLandQuery;
+            client.OnEventInfoRequest += EventInfoRequest;
         }
 
         //
@@ -386,6 +387,27 @@ namespace OpenSimSearch.Modules.OpenSearch
             }
 
             remoteClient.SendDirEventsReply(queryID, data);
+        }
+        
+        private void EventInfoRequest(IClientAPI remoteClient, uint eventID)
+        {
+            // TODO that's just some example data...
+            EventData data = new EventData();
+            data.amount = 12;
+            data.category = "Category#1";
+            data.cover = 2;
+            data.creator = remoteClient.AgentId.ToString(); // strange, but it works. It isn't an UUID, but a string.
+            data.date = DateTime.Now;
+            data.dateUTC = 0; // TODO: not used?
+            data.description = "A description for the event.";
+            data.duration = 3600; // in seconds, I guess
+            data.eventFlags = 2;
+            data.eventID = eventID;
+            data.name = "The name of the event";
+            data.simName = "The sim-name";
+            data.globalPos = new Vector3(256000 + 128, 256000 + 128, 70);
+            
+            remoteClient.SendEventInfoReply(data);
         }
     }
 }
