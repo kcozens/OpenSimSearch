@@ -233,7 +233,9 @@ function dir_events_query($method_name, $params, $app_data)
                 return;
         }
 
-    if ($query_flags & 0x2000) $terms[] = "mature = 'false'";
+	$terms = array();
+
+    if ($flags & 0x2000) $terms[] = "mature = 'false'";
 
     $where = "";
     if (count($terms) > 0)
@@ -249,12 +251,12 @@ function dir_events_query($method_name, $params, $app_data)
         while (($row = mysql_fetch_assoc($result)))
         {
                 $data[] = array(
-                                        "OwnerID" => $row["OwnerID"],
-                                        "Name" => $row["Name"],
-                                        "EventID" => $row["EventID"],
-                                        "Date" => $row["Date"],
-                                        "UnixTime" => $row["UnixTime"],
-                                        "EventFlags" => $row["EventFlags"]
+                                        "owner_id" => $row["OwnerID"],
+                                        "name" => $row["Name"],
+                                        "event_id" => $row["EventID"],
+                                        "date" => $row["Date"],
+                                        "unix_time" => $row["UnixTime"],
+                                        "event_flags" => $row["EventFlags"]
                                 );
         }
 
