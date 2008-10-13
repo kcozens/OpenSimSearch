@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
@@ -388,25 +389,48 @@ namespace OpenSimSearch.Modules.OpenSearch
 
             remoteClient.SendDirEventsReply(queryID, data);
         }
-        
-        private void EventInfoRequest(IClientAPI remoteClient, uint eventID)
+
+        public void EventInfoRequest(IClientAPI remoteClient, uint queryEventID)
         {
-            // TODO that's just some example data...
+            Hashtable ReqHash = new Hashtable();
+            ReqHash["eventID"] = queryEventID;
+
+            Hashtable result = GenericXMLRPCRequest(ReqHash,
+                    "events_info_request");
+
+            if (!Convert.ToBoolean(result["success"]))
+            {
+                remoteClient.SendAgentAlertMessage(
+                        result["errorMessage"].ToString(), false);
+                return;
+            }
+
+            ArrayList dataArray = (ArrayList)result["data"];
+            if (dataArray.Count == 0)
+            {
+                // something bad happened here, if we could return an event after the search,
+                // we should be able to find it here
+                // TODO do some (more) sensible error-handling here
+                remoteClient.SendAgentAlertMessage("Couldn't find event.", false);
+                return;
+            }
+
+            Hashtable d = (Hashtable)dataArray[0];
             EventData data = new EventData();
-            data.amount = 12;
-            data.category = "Category#1";
-            data.cover = 2;
-            data.creator = remoteClient.AgentId.ToString(); // strange, but it works. It isn't an UUID, but a string.
-            data.date = DateTime.Now;
-            data.dateUTC = 0; // TODO: not used?
-            data.description = "A description for the event.";
-            data.duration = 3600; // in seconds, I guess
-            data.eventFlags = 2;
-            data.eventID = eventID;
-            data.name = "The name of the event";
-            data.simName = "The sim-name";
-            data.globalPos = new Vector3(256000 + 128, 256000 + 128, 70);
-            
+            data.eventID = Convert.ToUInt32(d["event_id"]);
+            data.creator = d["Creator"].ToString();
+            data.name = d["Name"].ToString();
+            data.category = d["Category"].ToString();
+            data.description = d["Description"].ToString();
+            data.date = DateTime.ParseExact(d["Date"].ToString(), "yyyy-MM-dd T", DateTimeFormatInfo.InvariantInfo);
+            data.dateUTC = Convert.ToUInt32(d["DateUTC"]);
+            data.duration = Convert.ToUInt32(d["Duration"]);
+            data.cover = Convert.ToUInt32(d["Cover"]);
+            data.amount = Convert.ToUInt32(d["Amount"]);
+            data.simName = d["SimName"].ToString();
+            Vector3.TryParse(d["GlobalPos"].ToString(), out data.globalPos);
+            data.eventFlags = Convert.ToUInt32(d["EventFlags"]);
+
             remoteClient.SendEventInfoReply(data);
         }
     }
