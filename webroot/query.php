@@ -278,7 +278,7 @@ function event_info_query($method_name, $params, $app_data)
 
     $eventID          = $req['eventID'];
 
-    $sql = "select * from events where eventID = $eventID"
+    $sql =  "select * from events where eventID = " .  mysql_escape_string($eventID); 
 
         $result = mysql_query($sql);
 
