@@ -233,7 +233,7 @@ function dir_events_query($method_name, $params, $app_data)
                 return;
         }
 
-	$terms = array();
+        $terms = array();
 
     if ($flags & 0x2000) $terms[] = "mature = 'false'";
 
@@ -268,6 +268,49 @@ function dir_events_query($method_name, $params, $app_data)
 
         print $response_xml;
 }
+
+xmlrpc_server_register_method($xmlrpc_server, "event_info_query",
+                "event_info_query");
+
+function event_info_query($method_name, $params, $app_data)
+{
+    $req            = $params[0];
+
+    $eventID          = $req['eventID'];
+
+    $sql = "select * from events where eventID = $eventID"
+
+        $result = mysql_query($sql);
+
+        $data = array();
+        while (($row = mysql_fetch_assoc($result)))
+        {
+                $data[] = array(
+                                "event_id" => $row["eventID"],
+                                "creator" => $row["Creator"],
+                                "name" => $row["Name"],
+                                "category" => $row["Category"],
+                                "description" => $row["Desc"],
+                                "date" => $row["Date"],
+                                "dateUTC" => $row["DateUTC"],
+                                "duration" => $row["Duration"],
+                                "covercharge" => $row["Cover"],
+                                "coveramount" => $row["Amount"],
+                                "simName" => $row["SimName"],
+                                "globalposition" => $row["GlobalPos"],
+                                "eventflags" => $row["EventFlags"]
+                                );
+        }
+
+        $response_xml = xmlrpc_encode(array(
+                'success'      => True,
+                'errorMessage' => "",
+                'data' => $data
+        ));
+
+        print $response_xml;
+}
+
 #
 # Process the request
 #
