@@ -37,15 +37,21 @@ CREATE TABLE `allparcels` (
 
 DROP TABLE IF EXISTS `events`;
 CREATE TABLE `events` (
-  `OwnerID` varchar(36) NOT NULL,
+  `EventID` int(4) unsigned NOT NULL,
+  `Creator` varchar(255) NOT NULL,
   `Name` varchar(255) NOT NULL,
-  `EventID` int(11) NOT NULL,
-  `Date` varchar(20) NOT NULL,
-  `UnixTime` int(10) NOT NULL,
-  `EventFlags` int(10) NOT NULL,
-  `Mature` enum('false','true') NOT NULL,
+  `Category` varchar(255) NOT NULL,
+  `Desc` varchar(255) NOT NULL,
+  `Date` int(4) unsigned NOT NULL,
+  `DateUTC` int(4) unsigned NOT NULL,
+  `Duration` int(4) unsigned NOT NULL,
+  `Cover` int(4) unsigned NOT NULL,
+  `Amount` int(4) unsigned NOT NULL,
+  `SimName` varchar(255) NOT NULL,
+  `GlobalPos` varchar(24) NOT NULL default '',
+  `EventFlags` int(4) unsigned NOT NULL,
   PRIMARY KEY  (`EventID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `hostsregister`
@@ -156,4 +162,4 @@ CREATE TABLE `regions` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2008-10-12 18:04:23
+-- Dump completed on 2008-10-11 15:55:02
