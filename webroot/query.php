@@ -9,9 +9,9 @@ $now = time();
 mysql_connect ($DB_HOST, $DB_USER, $DB_PASSWORD);
 mysql_select_db ($DB_NAME);
 
-# 
+#
 #  Copyright (c)Melanie Thielker (http://opensimulator.org/)
-# 
+#
 
 ###################### No user serviceable parts below #####################
 
@@ -26,17 +26,17 @@ xmlrpc_server_register_method($xmlrpc_server, "dir_places_query",
 
 function dir_places_query($method_name, $params, $app_data)
 {
-    $req            = $params[0];
+	$req 			= $params[0];
 
-    $text           = $req['text'];
-    $category       = $req['category'];
-    $query_start    = $req['query_start'];
+	$text 			= $req['text'];
+	$category 		= $req['category'];
+	$query_start 	= $req['query_start'];
 
 	if ($text == "%%%")
 	{
 		$response_xml = xmlrpc_encode(array(
-			'success'      => False,
-			'errorMessage' => "Invalid search terms"
+				'success'	  => False,
+				'errorMessage' => "Invalid search terms"
 		));
 
 		print $response_xml;
@@ -68,15 +68,14 @@ function dir_places_query($method_name, $params, $app_data)
 	while (($row = mysql_fetch_assoc($result)))
 	{
 		$data[] = array(
-					"parcel_id" => $row["infouuid"],
-					"name" => $row["parcelname"],
-					"for_sale" => "False",
-					"auction" => "False",
-					"dwell" => $row["dwell"]
-				);
+				"parcel_id" => $row["infouuid"],
+				"name" => $row["parcelname"],
+				"for_sale" => "False",
+				"auction" => "False",
+				"dwell" => $row["dwell"]);
 	}
 	$response_xml = xmlrpc_encode(array(
-		'success'      => True,
+		'success'	  => True,
 		'errorMessage' => "",
 		'data' => $data
 	));
@@ -89,18 +88,18 @@ xmlrpc_server_register_method($xmlrpc_server, "dir_popular_query",
 
 function dir_popular_query($method_name, $params, $app_data)
 {
-    $req            = $params[0];
+	$req	= $params[0];
 
-    $flags          = $req['flags'];
+	$flags	= $req['flags'];
 
-	$terms = array();
+	$terms	= array();
 
 	if ($flags & 0x1000)
 		$terms[] = "has_picture = 1";
-	
+
 	if ($flags & 0x0800)
 		$terms[] = "mature = 0";
-	
+
 	$where = "";
 	if (count($terms) > 0)
 		$where = " where " . join(" and ", $terms);
@@ -111,17 +110,15 @@ function dir_popular_query($method_name, $params, $app_data)
 	while (($row = mysql_fetch_assoc($result)))
 	{
 		$data[] = array(
-					"parcel_id" => $row["infoUUID"],
-					"name" => $row["name"],
-					"dwell" => $row["dwell"]
-				);
+				"parcel_id" => $row["infoUUID"],
+				"name" => $row["name"],
+				"dwell" => $row["dwell"]);
 	}
 
 	$response_xml = xmlrpc_encode(array(
-		'success'      => True,
-		'errorMessage' => "",
-		'data' => $data
-	));
+			'success'	  => True,
+			'errorMessage' => "",
+			'data' => $data));
 
 	print $response_xml;
 }
@@ -131,13 +128,13 @@ xmlrpc_server_register_method($xmlrpc_server, "dir_land_query",
 
 function dir_land_query($method_name, $params, $app_data)
 {
-    $req            = $params[0];
+	$req			= $params[0];
 
-    $flags          = $req['flags'];
-    $type           = $req['type'];
-    $price          = $req['price'];
-    $area           = $req['area'];
-    $query_start    = $req['query_start'];
+	$flags			= $req['flags'];
+	$type			= $req['type'];
+	$price			= $req['price'];
+	$area			= $req['area'];
+	$query_start	= $req['query_start'];
 
 	$terms = array();
 	$order = "lsq";
@@ -159,15 +156,14 @@ function dir_land_query($method_name, $params, $app_data)
 	if (($type & 26) == 2) // Auction
 	{
 		$response_xml = xmlrpc_encode(array(
-			'success'      => False,
-			'errorMessage' => "No auctions listed"
-		));
+				'success' => False,
+				'errorMessage' => "No auctions listed"));
 
 		print $response_xml;
 
 		return;
 	}
-	
+
 	if (($type & 24) == 8)
 		$terms[] = "parentestate = 1";
 	if (($type & 24) == 16)
@@ -177,35 +173,131 @@ function dir_land_query($method_name, $params, $app_data)
 		$terms[] = "mature = 'false'";
 	if ($flags & 0x4000)
 		$terms[] = "mature = 'true'";
-	
+
 	$where = "";
 	if (count($terms) > 0)
 		$where = " where " . join(" and ", $terms);
 
 	$sql = "select *, saleprice/area as lsq from parcelsales" . $where .
-			" order by " . $order . " limit " .
-			mysql_escape_string($query_start) . ",101";
-	
+				" order by " . $order . " limit " .
+				mysql_escape_string($query_start) . ",101";
+
 	$result = mysql_query($sql);
 
 	$data = array();
 	while (($row = mysql_fetch_assoc($result)))
 	{
 		$data[] = array(
-					"parcel_id" => $row["infoUUID"],
-					"name" => $row["parcelname"],
-					"auction" => "false",
-					"for_sale" => "true",
-					"sale_price" => $row["saleprice"],
-					"area" => $row["area"]
-				);
+				"parcel_id" => $row["infoUUID"],
+				"name" => $row["parcelname"],
+				"auction" => "false",
+				"for_sale" => "true",
+				"sale_price" => $row["saleprice"],
+				"area" => $row["area"]);
 	}
 
 	$response_xml = xmlrpc_encode(array(
-		'success'      => True,
-		'errorMessage' => "",
-		'data' => $data
-	));
+			'success'	  => True,
+			'errorMessage' => "",
+			'data' => $data));
+
+	print $response_xml;
+}
+
+xmlrpc_server_register_method($xmlrpc_server, "dir_events_query",
+		"dir_events_query");
+
+function dir_events_query($method_name, $params, $app_data)
+{
+	$req			= $params[0];
+
+	$text			= $req['text'];
+	$flags			= $req['flags'];
+	$query_start	= $req['query_start'];
+
+	if ($text == "%%%")
+	{
+		$response_xml = xmlrpc_encode(array(
+				'success'	  => False,
+				'errorMessage' => "Invalid search terms"
+		));
+
+		print $response_xml;
+
+		return;
+	}
+
+	$terms = array();
+
+	if ($flags & 0x2000) $terms[] = "mature = 'false'";
+
+	$where = "";
+	if (count($terms) > 0)
+	$where = " where " . join(" and ", $terms);
+
+	$sql = "select * from events". $where.
+		   " limit " . mysql_escape_string($query_start) . ",101";
+
+
+	$result = mysql_query($sql);
+
+	$data = array();
+	while (($row = mysql_fetch_assoc($result)))
+	{
+		$data[] = array(
+				"owner_id" => $row["OwnerID"],
+				"name" => $row["Name"],
+				"event_id" => $row["EventID"],
+				"date" => $row["Date"],
+				"unix_time" => $row["UnixTime"],
+				"event_flags" => $row["EventFlags"]);
+	}
+
+	$response_xml = xmlrpc_encode(array(
+			'success'	  => True,
+			'errorMessage' => "",
+			'data' => $data));
+
+	print $response_xml;
+}
+
+xmlrpc_server_register_method($xmlrpc_server, "event_info_query",
+		"event_info_query");
+
+function event_info_query($method_name, $params, $app_data)
+{
+	$req		= $params[0];
+
+	$eventID	= $req['eventID'];
+
+	$sql =  "select * from events where eventID = " .
+			mysql_escape_string($eventID); 
+
+	$result = mysql_query($sql);
+
+	$data = array();
+	while (($row = mysql_fetch_assoc($result)))
+	{
+		$data[] = array(
+				"event_id" => $row["eventID"],
+				"creator" => $row["Creator"],
+				"name" => $row["Name"],
+				"category" => $row["Category"],
+				"description" => $row["Desc"],
+				"date" => $row["Date"],
+				"dateUTC" => $row["DateUTC"],
+				"duration" => $row["Duration"],
+				"covercharge" => $row["Cover"],
+				"coveramount" => $row["Amount"],
+				"simName" => $row["SimName"],
+				"globalposition" => $row["GlobalPos"],
+				"eventflags" => $row["EventFlags"]);
+	}
+
+	$response_xml = xmlrpc_encode(array(
+			'success'	  => True,
+			'errorMessage' => "",
+			'data' => $data));
 
 	print $response_xml;
 }

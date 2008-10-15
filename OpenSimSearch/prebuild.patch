@@ -1,10 +1,10 @@
 Index: prebuild.xml
 ===================================================================
---- prebuild.xml	(revision 6673)
+--- prebuild.xml	(revision 6820)
 +++ prebuild.xml	(working copy)
-@@ -917,6 +917,44 @@
-       </Files>
-     </Project>
+@@ -2693,6 +2693,46 @@
+ 
+ 
  
 +    <Project name="OpenSimSearch.Modules" path="OpenSimSearch/Modules" type="Library">
 +      <Configuration name="Debug">
@@ -44,6 +44,8 @@ Index: prebuild.xml
 +      </Files>
 +    </Project>
 +
-     <Project name="OpenSim.Region.ClientStack" path="OpenSim/Region/ClientStack" type="Library">
-       <Configuration name="Debug">
-         <Options>
++
++
+ <!-- FORGE MODULE INSERT -->
+ 
+ 
