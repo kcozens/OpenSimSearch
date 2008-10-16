@@ -435,7 +435,7 @@ namespace OpenSimSearch.Modules.OpenSearch
 			data.category = d["Category"].ToString();
 			data.description = d["Description"].ToString();
 			data.date = DateTime.ParseExact(d["Date"].ToString(), 
-					yyyy-MM-dd T", DateTimeFormatInfo.InvariantInfo);
+					"yyyy-MM-dd T", DateTimeFormatInfo.InvariantInfo);
 			data.dateUTC = Convert.ToUInt32(d["DateUTC"]);
 			data.duration = Convert.ToUInt32(d["Duration"]);
 			data.cover = Convert.ToUInt32(d["Cover"]);
