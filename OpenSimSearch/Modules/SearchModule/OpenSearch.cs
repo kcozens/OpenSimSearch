@@ -403,7 +403,7 @@ namespace OpenSimSearch.Modules.OpenSearch
 		public void EventInfoRequest(IClientAPI remoteClient, uint queryEventID)
 		{
 			Hashtable ReqHash = new Hashtable();
-			ReqHash["eventID"] = queryEventID;
+			ReqHash["eventID"] = queryEventID.ToString();
 
 			Hashtable result = GenericXMLRPCRequest(ReqHash,
 					"events_info_request");
