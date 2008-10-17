@@ -1,0 +1,785 @@
+Index: trunk/webroot/query.php
+===================================================================
+--- trunk/webroot/query.php	(revision 63)
++++ trunk/webroot/query.php	(working copy)
+@@ -22,284 +22,343 @@
+ $xmlrpc_server = xmlrpc_server_create();
+ 
+ xmlrpc_server_register_method($xmlrpc_server, "dir_places_query",
+-		"dir_places_query");
++                "dir_places_query");
+ 
+ function dir_places_query($method_name, $params, $app_data)
+ {
+-	$req 			= $params[0];
++    $req            = $params[0];
+ 
+-	$text 			= $req['text'];
+-	$category 		= $req['category'];
+-	$query_start 	= $req['query_start'];
++    $text           = $req['text'];
++    $category       = $req['category'];
++    $query_start    = $req['query_start'];
+ 
+-	if ($text == "%%%")
+-	{
+-		$response_xml = xmlrpc_encode(array(
+-				'success'	  => False,
+-				'errorMessage' => "Invalid search terms"
+-		));
++    if ($text == "%%%")
++    {
++    $response_xml = xmlrpc_encode(array(
++                    'success'      => False,
++                    'errorMessage' => "Invalid search terms"
++                ));
+ 
+-		print $response_xml;
++    print $response_xml;
+ 
+-		return;
+-	}
++    return;
++    }
+ 
+-	if ($category != -1)
+-	{
+-		$result = mysql_query("select * from parcels where " .
+-				"(searchcategory = -1 or searchcategory = '" .
+-				mysql_escape_string($category) ."') and (parcelname like '%" .
+-				mysql_escape_string($text) . "%' or description like '" .
+-				mysql_escape_string($text) . "%') order by " .
+-				"dwell desc, parcelname" .
+-				" limit ".(0+$query_start).",100");
+-	}
+-	else
+-	{
+-		$result = mysql_query("select * from parcels where " .
+-				"parcelname like '%" .
+-				mysql_escape_string($text) . "%' or description like '" .
+-				mysql_escape_string($text) . "%' order by " .
+-				"dwell desc, parcelname" .
+-				" limit ".(0+$query_start).",100");
+-	}
++    if ($category != -1)
++    {
++    $result = mysql_query("select * from parcels where " .
++                          "(searchcategory = -1 or searchcategory = '" .
++                          mysql_escape_string($category) ."') and (parcelname like '%" .
++                          mysql_escape_string($text) . "%' or description like '" .
++                          mysql_escape_string($text) . "%') order by " .
++                          "dwell desc, parcelname" .
++                          " limit ".(0+$query_start).",100");
++    }
++    else
++    {
++    $result = mysql_query("select * from parcels where " .
++                          "parcelname like '%" .
++                          mysql_escape_string($text) . "%' or description like '" .
++                          mysql_escape_string($text) . "%' order by " .
++                          "dwell desc, parcelname" .
++                          " limit ".(0+$query_start).",100");
++    }
+ 
+-	$data = array();
+-	while (($row = mysql_fetch_assoc($result)))
+-	{
+-		$data[] = array(
+-				"parcel_id" => $row["infouuid"],
+-				"name" => $row["parcelname"],
+-				"for_sale" => "False",
+-				"auction" => "False",
+-				"dwell" => $row["dwell"]);
+-	}
+-	$response_xml = xmlrpc_encode(array(
+-		'success'	  => True,
+-		'errorMessage' => "",
+-		'data' => $data
+-	));
++    $data = array();
+ 
+-	print $response_xml;
++    while (($row = mysql_fetch_assoc($result)))
++    {
++    $data[] = array(
++              "parcel_id" => $row["infouuid"],
++              "name" => $row["parcelname"],
++              "for_sale" => "False",
++              "auction" => "False",
++              "dwell" => $row["dwell"]
++              );
++    }
++
++    $response_xml = xmlrpc_encode(array(
++                'success'      => True,
++                'errorMessage' => "",
++                'data' => $data
++        ));
++
++    print $response_xml;
+ }
+ 
+ xmlrpc_server_register_method($xmlrpc_server, "dir_popular_query",
+-		"dir_popular_query");
++                "dir_popular_query");
+ 
+ function dir_popular_query($method_name, $params, $app_data)
+ {
+-	$req	= $params[0];
++    $req            = $params[0];
+ 
+-	$flags	= $req['flags'];
++    $flags          = $req['flags'];
+ 
+-	$terms	= array();
++    $terms = array();
+ 
+-	if ($flags & 0x1000)
+-		$terms[] = "has_picture = 1";
++    if ($flags & 0x1000)
++        $terms[] = "has_picture = 1";
+ 
+-	if ($flags & 0x0800)
+-		$terms[] = "mature = 0";
++    if ($flags & 0x0800)
++        $terms[] = "mature = 0";
+ 
+-	$where = "";
+-	if (count($terms) > 0)
+-		$where = " where " . join(" and ", $terms);
++    $where = "";
+ 
+-	$result = mysql_query("select * from popularplaces" . $where);
++    if (count($terms) > 0)
++        $where = " where " . join(" and ", $terms);
+ 
+-	$data = array();
+-	while (($row = mysql_fetch_assoc($result)))
+-	{
+-		$data[] = array(
+-				"parcel_id" => $row["infoUUID"],
+-				"name" => $row["name"],
+-				"dwell" => $row["dwell"]);
+-	}
++    $result = mysql_query("select * from popularplaces" . $where);
+ 
+-	$response_xml = xmlrpc_encode(array(
+-			'success'	  => True,
+-			'errorMessage' => "",
+-			'data' => $data));
++    $data = array();
+ 
+-	print $response_xml;
++    while (($row = mysql_fetch_assoc($result)))
++    {
++    $data[] = array(
++              "parcel_id" => $row["infoUUID"],
++              "name" => $row["name"],
++              "dwell" => $row["dwell"]
++              );
++    }
++
++    $response_xml = xmlrpc_encode(array(
++                'success'      => True,
++                'errorMessage' => "",
++                'data' => $data
++        ));
++
++    print $response_xml;
+ }
+ 
+ xmlrpc_server_register_method($xmlrpc_server, "dir_land_query",
+-		"dir_land_query");
++                "dir_land_query");
+ 
+ function dir_land_query($method_name, $params, $app_data)
+ {
+-	$req			= $params[0];
++    $req            = $params[0];
+ 
+-	$flags			= $req['flags'];
+-	$type			= $req['type'];
+-	$price			= $req['price'];
+-	$area			= $req['area'];
+-	$query_start	= $req['query_start'];
++    $flags          = $req['flags'];
++    $type           = $req['type'];
++    $price          = $req['price'];
++    $area           = $req['area'];
++    $query_start    = $req['query_start'];
+ 
+-	$terms = array();
+-	$order = "lsq";
+-	if ($flags & 0x80000)
+-		$order = "parcelname";
+-	if ($flags & 0x10000)
+-		$order = "saleprice";
+-	if ($flags & 0x40000)
+-		$order = "area";
+-	if (!($flags & 0x8000))
+-		$order .= " desc";
++    $terms = array();
+ 
+-	if ($flags & 0x100000)
+-		$terms[] = "saleprice <= '" . mysql_escape_string($price) . "'";
++    $order = "lsq";
+ 
+-	if ($flags & 0x200000)
+-		$terms[] = "area >= '" . mysql_escape_string($area) . "'";
++    if ($flags & 0x80000)
++        $order = "parcelname";
+ 
+-	if (($type & 26) == 2) // Auction
+-	{
+-		$response_xml = xmlrpc_encode(array(
+-				'success' => False,
+-				'errorMessage' => "No auctions listed"));
++    if ($flags & 0x10000)
++        $order = "saleprice";
+ 
+-		print $response_xml;
++    if ($flags & 0x40000)
++        $order = "area";
+ 
+-		return;
+-	}
++    if (!($flags & 0x8000))
++        $order .= " desc";
+ 
+-	if (($type & 24) == 8)
+-		$terms[] = "parentestate = 1";
+-	if (($type & 24) == 16)
+-		$terms[] = "parentestate <> 1";
++    if ($flags & 0x100000)
++        $terms[] = "saleprice <= '" . mysql_escape_string($price) . "'";
+ 
+-	if ($flags & 0x800)
+-		$terms[] = "mature = 'false'";
+-	if ($flags & 0x4000)
+-		$terms[] = "mature = 'true'";
++    if ($flags & 0x200000)
++        $terms[] = "area >= '" . mysql_escape_string($area) . "'";
+ 
+-	$where = "";
+-	if (count($terms) > 0)
+-		$where = " where " . join(" and ", $terms);
++    if (($type & 26) == 2) // Auction
++    {
++    $response_xml = xmlrpc_encode(array(
++                    'success'      => False,
++                    'errorMessage' => "No auctions listed"
++                ));
+ 
+-	$sql = "select *, saleprice/area as lsq from parcelsales" . $where .
+-				" order by " . $order . " limit " .
+-				mysql_escape_string($query_start) . ",101";
++    print $response_xml;
+ 
+-	$result = mysql_query($sql);
++    return;
++    }
+ 
+-	$data = array();
+-	while (($row = mysql_fetch_assoc($result)))
+-	{
+-		$data[] = array(
+-				"parcel_id" => $row["infoUUID"],
+-				"name" => $row["parcelname"],
+-				"auction" => "false",
+-				"for_sale" => "true",
+-				"sale_price" => $row["saleprice"],
+-				"area" => $row["area"]);
+-	}
++    if (($type & 24) == 8)
++         $terms[] = "parentestate = 1";
+ 
+-	$response_xml = xmlrpc_encode(array(
+-			'success'	  => True,
+-			'errorMessage' => "",
+-			'data' => $data));
++    if (($type & 24) == 16)
++         $terms[] = "parentestate <> 1";
+ 
+-	print $response_xml;
++    if ($flags & 0x800)
++        $terms[] = "mature = 'false'";
++
++    if ($flags & 0x4000)
++        $terms[] = "mature = 'true'";
++
++    $where = "";
++
++    if (count($terms) > 0)
++              $where = " where " . join(" and ", $terms);
++
++    $sql = "select *, saleprice/area as lsq from parcelsales" . $where .
++           " order by " . $order . " limit " .
++           mysql_escape_string($query_start) . ",101";
++
++    $result = mysql_query($sql);
++
++    $data = array();
++
++    while (($row = mysql_fetch_assoc($result)))
++    {
++    $data[] = array(
++                    "parcel_id" => $row["infoUUID"],
++                    "name" => $row["parcelname"],
++                    "auction" => "false",
++                    "for_sale" => "true",
++                    "sale_price" => $row["saleprice"],
++                    "area" => $row["area"]
++                    );
++    }
++
++    $response_xml = xmlrpc_encode(array(
++                    'success'      => True,
++                    'errorMessage' => "",
++                    'data' => $data
++        ));
++
++    print $response_xml;
+ }
+ 
+ xmlrpc_server_register_method($xmlrpc_server, "dir_events_query",
+-		"dir_events_query");
++                "dir_events_query");
+ 
+ function dir_events_query($method_name, $params, $app_data)
+ {
+-	$req			= $params[0];
++    $req            = $params[0];
+ 
+-	$text			= $req['text'];
+-	$flags			= $req['flags'];
+-	$query_start	= $req['query_start'];
++    $text           = $req['text'];
++    $flags          = $req['flags'];
++    $query_start    = $req['query_start'];
+ 
+-	if ($text == "%%%")
+-	{
+-		$response_xml = xmlrpc_encode(array(
+-				'success'	  => False,
+-				'errorMessage' => "Invalid search terms"
+-		));
++    if ($text == "%%%")
++        {
++        $response_xml = xmlrpc_encode(array(
++                        'success'      => False,
++                        'errorMessage' => "Invalid search terms"
++                ));
+ 
+-		print $response_xml;
++        print $response_xml;
+ 
+-		return;
+-	}
++        return;
++        }
+ 
+-	$terms = array();
++    $terms = array();
+ 
+-	if ($flags & 0x2000) $terms[] = "mature = 'false'";
++    if ($flags & 0x2000) $terms[] = "mature = 'false'";
+ 
+-	$where = "";
+-	if (count($terms) > 0)
+-	$where = " where " . join(" and ", $terms);
++    $where = "";
++    if (count($terms) > 0)
++        $where = " where " . join(" and ", $terms);
+ 
+-	$sql = "select * from events". $where.
+-		   " limit " . mysql_escape_string($query_start) . ",101";
++    $sql = "select * from events". $where.
++           " limit " . mysql_escape_string($query_start) . ",101";
+ 
+ 
+-	$result = mysql_query($sql);
++    $result = mysql_query($sql);
+ 
+-	$data = array();
+-	while (($row = mysql_fetch_assoc($result)))
+-	{
+-		$data[] = array(
+-				"owner_id" => $row["OwnerID"],
+-				"name" => $row["Name"],
+-				"event_id" => $row["EventID"],
+-				"date" => $row["Date"],
+-				"unix_time" => $row["UnixTime"],
+-				"event_flags" => $row["EventFlags"]);
+-	}
++    $data = array();
+ 
+-	$response_xml = xmlrpc_encode(array(
+-			'success'	  => True,
+-			'errorMessage' => "",
+-			'data' => $data));
++    while (($row = mysql_fetch_assoc($result)))
++    {
++    $data[] = array(
++                    "owner_id" => $row["OwnerID"],
++                    "name" => $row["Name"],
++                    "event_id" => $row["EventID"],
++                    "date" => $row["Date"],
++                    "unix_time" => $row["UnixTime"],
++                    "event_flags" => $row["EventFlags"]
++                    );
++    }
+ 
+-	print $response_xml;
++    $response_xml = xmlrpc_encode(array(
++                    'success'      => True,
++                    'errorMessage' => "",
++                    'data' => $data
++        ));
++
++    print $response_xml;
+ }
+ 
++xmlrpc_server_register_method($xmlrpc_server, "dir_classified_query",
++                "dir_classified_query");
++
++function dir_classified_query ($method_name, $params, $app_data)
++{
++    $req            = $params[0];
++
++
++    $result = mysql_query($sql);
++
++    $data = array();
++
++    while (($row = mysql_fetch_assoc($result)))
++    {
++    $data[] = array(
++              "ClassifiedID" => $row["ClassifiedID"],
++              "Name" => $row["Name"],
++              "ClassifiedFlags" => $row["ClassifiedFlags"],
++              "CreationDate" => $row["CreationDate"],
++              "ExpirationDate" => $row["ExpirationDate"],
++              "PriceForListing" => $row["PriceForListing"]
++              );
++    }
++
++    $response_xml = xmlrpc_encode(array(
++                'success'      => True,
++                'errorMessage' => "",
++                'data' => $data
++        ));
++
++    print $response_xml;
++}
++
++// Events Info Query
++
+ xmlrpc_server_register_method($xmlrpc_server, "event_info_query",
+-		"event_info_query");
++                "event_info_query");
+ 
+ function event_info_query($method_name, $params, $app_data)
+ {
+-	$req		= $params[0];
++    $req            = $params[0];
+ 
+-	$eventID	= $req['eventID'];
++    $eventID          = $req['eventID'];
+ 
+-	$sql =  "select * from events where eventID = " .
+-			mysql_escape_string($eventID); 
++    $sql =  "select * from events where eventID = " .  mysql_escape_string($eventID);
+ 
+-	$result = mysql_query($sql);
++    $result = mysql_query($sql);
+ 
+-	$data = array();
+-	while (($row = mysql_fetch_assoc($result)))
+-	{
+-		$data[] = array(
+-				"event_id" => $row["eventID"],
+-				"creator" => $row["Creator"],
+-				"name" => $row["Name"],
+-				"category" => $row["Category"],
+-				"description" => $row["Desc"],
+-				"date" => $row["Date"],
+-				"dateUTC" => $row["DateUTC"],
+-				"duration" => $row["Duration"],
+-				"covercharge" => $row["Cover"],
+-				"coveramount" => $row["Amount"],
+-				"simName" => $row["SimName"],
+-				"globalposition" => $row["GlobalPos"],
+-				"eventflags" => $row["EventFlags"]);
+-	}
++    $data = array();
+ 
+-	$response_xml = xmlrpc_encode(array(
+-			'success'	  => True,
+-			'errorMessage' => "",
+-			'data' => $data));
++    while (($row = mysql_fetch_assoc($result)))
++    {
++    $data[] = array(
++                    "event_id" => $row["eventID"],
++                    "creator" => $row["Creator"],
++                    "name" => $row["Name"],
++                    "category" => $row["Category"],
++                    "description" => $row["Desc"],
++                    "date" => $row["Date"],
++                    "dateUTC" => $row["DateUTC"],
++                    "duration" => $row["Duration"],
++                    "covercharge" => $row["Cover"],
++                    "coveramount" => $row["Amount"],
++                    "simName" => $row["SimName"],
++                    "globalposition" => $row["GlobalPos"],
++                    "eventflags" => $row["EventFlags"]
++                    );
++    }
+ 
+-	print $response_xml;
++    $response_xml = xmlrpc_encode(array(
++                    'success'      => True,
++                    'errorMessage' => "",
++                    'data' => $data
++        ));
++
++    print $response_xml;
+ }
+ 
+ #
+@@ -309,4 +368,4 @@
+ $request_xml = $HTTP_RAW_POST_DATA;
+ xmlrpc_server_call_method($xmlrpc_server, $request_xml, '');
+ xmlrpc_server_destroy($xmlrpc_server);
+-?>
++?>
+\ No newline at end of file
+Index: trunk/webroot/sql/ossearch.sql
+===================================================================
+--- trunk/webroot/sql/ossearch.sql	(revision 63)
++++ trunk/webroot/sql/ossearch.sql	(working copy)
+@@ -1,25 +1,21 @@
+--- MySQL dump 10.11
+---
+--- Host: localhost    Database: search
+--- ------------------------------------------------------
+--- Server version	5.0.45-log
++-- phpMyAdmin SQL Dump
++-- version 2.7.0-beta1
++-- http://www.phpmyadmin.net
++-- 
++-- Host: localhost
++-- Generatie Tijd: 17 Oct 2008 om 23:42
++-- Server versie: 5.0.51
++-- PHP Versie: 5.2.4-2ubuntu5.3
++-- 
++-- Database: `ossearch`
++-- 
+ 
+-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+-/*!40101 SET NAMES utf8 */;
+-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+-/*!40103 SET TIME_ZONE='+00:00' */;
+-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
++-- --------------------------------------------------------
+ 
+---
+--- Table structure for table `allparcels`
+---
++-- 
++-- Tabel structuur voor tabel `allparcels`
++-- 
+ 
+-DROP TABLE IF EXISTS `allparcels`;
+ CREATE TABLE `allparcels` (
+   `regionUUID` varchar(255) NOT NULL,
+   `parcelname` varchar(255) NOT NULL,
+@@ -31,27 +27,62 @@
+   PRIMARY KEY  (`regionUUID`)
+ ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+ 
+---
+--- Table structure for table `events`
+---
++-- --------------------------------------------------------
+ 
+-DROP TABLE IF EXISTS `events`;
++-- 
++-- Tabel structuur voor tabel `classifieds`
++-- 
++
++CREATE TABLE `classifieds` (
++  `ClassifiedID` int(11) NOT NULL,
++  `CreatorID` varchar(20) NOT NULL,
++  `CreationDate` int(20) NOT NULL,
++  `ExpirationDate` int(20) NOT NULL,
++  `Category` varchar(20) NOT NULL,
++  `Name` varchar(255) NOT NULL,
++  `Desc` text NOT NULL,
++  `ParcelID` varchar(20) NOT NULL,
++  `ParentEstate` int(11) NOT NULL,
++  `SnapshotID` varchar(20) NOT NULL,
++  `SimName` varchar(255) NOT NULL,
++  `PosGlobal` varchar(255) NOT NULL,
++  `ClassifiedFlags` int(8) NOT NULL,
++  `PriceForListing` int(5) NOT NULL,
++  PRIMARY KEY  (`ClassifiedID`)
++) ENGINE=MyISAM DEFAULT CHARSET=latin1;
++
++-- --------------------------------------------------------
++
++-- 
++-- Tabel structuur voor tabel `events`
++-- 
++
+ CREATE TABLE `events` (
+   `OwnerID` varchar(36) NOT NULL,
+   `Name` varchar(255) NOT NULL,
+   `EventID` int(11) NOT NULL,
++  `Creator` varchar(255) NOT NULL,
++  `Category` varchar(255) NOT NULL,
++  `Desc` text NOT NULL,
+   `Date` varchar(20) NOT NULL,
++  `DateUTC` int(10) NOT NULL,
++  `Duration` int(10) NOT NULL,
++  `Cover` int(10) NOT NULL,
++  `Amount` int(10) NOT NULL,
++  `SimName` varchar(255) NOT NULL,
++  `GlobalPos` varchar(255) NOT NULL,
+   `UnixTime` int(10) NOT NULL,
+   `EventFlags` int(10) NOT NULL,
+   `Mature` enum('false','true') NOT NULL,
+   PRIMARY KEY  (`EventID`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ 
+---
+--- Table structure for table `hostsregister`
+---
++-- --------------------------------------------------------
+ 
+-DROP TABLE IF EXISTS `hostsregister`;
++-- 
++-- Tabel structuur voor tabel `hostsregister`
++-- 
++
+ CREATE TABLE `hostsregister` (
+   `host` varchar(255) NOT NULL,
+   `port` int(5) NOT NULL,
+@@ -60,11 +91,12 @@
+   PRIMARY KEY  (`host`,`port`)
+ ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+ 
+---
+--- Table structure for table `objects`
+---
++-- --------------------------------------------------------
+ 
+-DROP TABLE IF EXISTS `objects`;
++-- 
++-- Tabel structuur voor tabel `objects`
++-- 
++
+ CREATE TABLE `objects` (
+   `objectuuid` varchar(255) NOT NULL,
+   `parceluuid` varchar(255) NOT NULL,
+@@ -75,11 +107,12 @@
+   PRIMARY KEY  (`objectuuid`,`parceluuid`)
+ ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+ 
+---
+--- Table structure for table `parcels`
+---
++-- --------------------------------------------------------
+ 
+-DROP TABLE IF EXISTS `parcels`;
++-- 
++-- Tabel structuur voor tabel `parcels`
++-- 
++
+ CREATE TABLE `parcels` (
+   `regionUUID` varchar(255) NOT NULL,
+   `parcelname` varchar(255) NOT NULL,
+@@ -87,9 +120,9 @@
+   `landingpoint` varchar(255) NOT NULL,
+   `description` varchar(255) NOT NULL,
+   `searchcategory` varchar(50) NOT NULL,
+-  `build` enum('yes','no') NOT NULL,
+-  `script` enum('yes','no') NOT NULL,
+-  `public` enum('yes','no') NOT NULL,
++  `build` enum('true','false') NOT NULL,
++  `script` enum('true','false') NOT NULL,
++  `public` enum('true','false') NOT NULL,
+   `dwell` float NOT NULL default '0',
+   `infouuid` varchar(255) NOT NULL default '',
+   PRIMARY KEY  (`regionUUID`,`parcelUUID`),
+@@ -99,11 +132,12 @@
+   KEY `dwell` (`dwell`)
+ ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+ 
+---
+--- Table structure for table `parcelsales`
+---
++-- --------------------------------------------------------
+ 
+-DROP TABLE IF EXISTS `parcelsales`;
++-- 
++-- Tabel structuur voor tabel `parcelsales`
++-- 
++
+ CREATE TABLE `parcelsales` (
+   `regionUUID` varchar(255) NOT NULL,
+   `parcelname` varchar(255) NOT NULL,
+@@ -118,11 +152,12 @@
+   PRIMARY KEY  (`regionUUID`,`parcelUUID`)
+ ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+ 
+---
+--- Table structure for table `popularplaces`
+---
++-- --------------------------------------------------------
+ 
+-DROP TABLE IF EXISTS `popularplaces`;
++-- 
++-- Tabel structuur voor tabel `popularplaces`
++-- 
++
+ CREATE TABLE `popularplaces` (
+   `parcelUUID` char(36) NOT NULL,
+   `name` varchar(255) NOT NULL,
+@@ -132,11 +167,12 @@
+   `mature` tinyint(4) NOT NULL
+ ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+ 
+---
+--- Table structure for table `regions`
+---
++-- --------------------------------------------------------
+ 
+-DROP TABLE IF EXISTS `regions`;
++-- 
++-- Tabel structuur voor tabel `regions`
++-- 
++
+ CREATE TABLE `regions` (
+   `regionname` varchar(255) NOT NULL,
+   `regionuuid` varchar(255) NOT NULL,
+@@ -146,14 +182,3 @@
+   `owneruuid` varchar(255) NOT NULL,
+   PRIMARY KEY  (`regionuuid`)
+ ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+-
+-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+-
+--- Dump completed on 2008-10-12 18:04:23
