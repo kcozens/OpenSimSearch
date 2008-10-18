@@ -191,7 +191,8 @@ function parse($hostname, $port)
 						mysql_escape_string('00000000-0000-0000-0000-000000000000') . "','" .
 						mysql_escape_string($parcellanding) . "','" .
 						mysql_escape_string($parceluuid) . "','" .
-						mysql_escape_string($infouuid) . "' )";
+						mysql_escape_string($infouuid) . "','" .
+						mysql_escape_string($parcelarea) . "' )";
 
 				mysql_query($sql);
 
