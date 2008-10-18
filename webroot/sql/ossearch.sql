@@ -1,25 +1,21 @@
--- MySQL dump 10.11
---
--- Host: localhost    Database: search
--- ------------------------------------------------------
--- Server version	5.0.45-log
+-- phpMyAdmin SQL Dump
+-- version 2.7.0-beta1
+-- http://www.phpmyadmin.net
+-- 
+-- Host: localhost
+-- Generatie Tijd: 17 Oct 2008 om 23:42
+-- Server versie: 5.0.51
+-- PHP Versie: 5.2.4-2ubuntu5.3
+-- 
+-- Database: `ossearch`
+-- 
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+-- --------------------------------------------------------
 
---
--- Table structure for table `allparcels`
---
+-- 
+-- Tabel structuur voor tabel `allparcels`
+-- 
 
-DROP TABLE IF EXISTS `allparcels`;
 CREATE TABLE `allparcels` (
   `regionUUID` varchar(255) NOT NULL,
   `parcelname` varchar(255) NOT NULL,
@@ -31,27 +27,62 @@ CREATE TABLE `allparcels` (
   PRIMARY KEY  (`regionUUID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
---
--- Table structure for table `events`
---
+-- --------------------------------------------------------
 
-DROP TABLE IF EXISTS `events`;
+-- 
+-- Tabel structuur voor tabel `classifieds`
+-- 
+
+CREATE TABLE `classifieds` (
+  `ClassifiedID` int(11) NOT NULL,
+  `CreatorID` varchar(20) NOT NULL,
+  `CreationDate` int(20) NOT NULL,
+  `ExpirationDate` int(20) NOT NULL,
+  `Category` varchar(20) NOT NULL,
+  `Name` varchar(255) NOT NULL,
+  `Desc` text NOT NULL,
+  `ParcelID` varchar(20) NOT NULL,
+  `ParentEstate` int(11) NOT NULL,
+  `SnapshotID` varchar(20) NOT NULL,
+  `SimName` varchar(255) NOT NULL,
+  `PosGlobal` varchar(255) NOT NULL,
+  `ClassifiedFlags` int(8) NOT NULL,
+  `PriceForListing` int(5) NOT NULL,
+  PRIMARY KEY  (`ClassifiedID`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+-- 
+-- Tabel structuur voor tabel `events`
+-- 
+
 CREATE TABLE `events` (
   `OwnerID` varchar(36) NOT NULL,
   `Name` varchar(255) NOT NULL,
   `EventID` int(11) NOT NULL,
+  `Creator` varchar(255) NOT NULL,
+  `Category` varchar(255) NOT NULL,
+  `Desc` text NOT NULL,
   `Date` varchar(20) NOT NULL,
+  `DateUTC` int(10) NOT NULL,
+  `Duration` int(10) NOT NULL,
+  `Cover` int(10) NOT NULL,
+  `Amount` int(10) NOT NULL,
+  `SimName` varchar(255) NOT NULL,
+  `GlobalPos` varchar(255) NOT NULL,
   `UnixTime` int(10) NOT NULL,
   `EventFlags` int(10) NOT NULL,
   `Mature` enum('false','true') NOT NULL,
   PRIMARY KEY  (`EventID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
---
--- Table structure for table `hostsregister`
---
+-- --------------------------------------------------------
 
-DROP TABLE IF EXISTS `hostsregister`;
+-- 
+-- Tabel structuur voor tabel `hostsregister`
+-- 
+
 CREATE TABLE `hostsregister` (
   `host` varchar(255) NOT NULL,
   `port` int(5) NOT NULL,
@@ -60,11 +91,12 @@ CREATE TABLE `hostsregister` (
   PRIMARY KEY  (`host`,`port`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
---
--- Table structure for table `objects`
---
+-- --------------------------------------------------------
 
-DROP TABLE IF EXISTS `objects`;
+-- 
+-- Tabel structuur voor tabel `objects`
+-- 
+
 CREATE TABLE `objects` (
   `objectuuid` varchar(255) NOT NULL,
   `parceluuid` varchar(255) NOT NULL,
@@ -75,11 +107,12 @@ CREATE TABLE `objects` (
   PRIMARY KEY  (`objectuuid`,`parceluuid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
---
--- Table structure for table `parcels`
---
+-- --------------------------------------------------------
 
-DROP TABLE IF EXISTS `parcels`;
+-- 
+-- Tabel structuur voor tabel `parcels`
+-- 
+
 CREATE TABLE `parcels` (
   `regionUUID` varchar(255) NOT NULL,
   `parcelname` varchar(255) NOT NULL,
@@ -87,9 +120,9 @@ CREATE TABLE `parcels` (
   `landingpoint` varchar(255) NOT NULL,
   `description` varchar(255) NOT NULL,
   `searchcategory` varchar(50) NOT NULL,
-  `build` enum('yes','no') NOT NULL,
-  `script` enum('yes','no') NOT NULL,
-  `public` enum('yes','no') NOT NULL,
+  `build` enum('true','false') NOT NULL,
+  `script` enum('true','false') NOT NULL,
+  `public` enum('true','false') NOT NULL,
   `dwell` float NOT NULL default '0',
   `infouuid` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`regionUUID`,`parcelUUID`),
@@ -99,11 +132,12 @@ CREATE TABLE `parcels` (
   KEY `dwell` (`dwell`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
---
--- Table structure for table `parcelsales`
---
+-- --------------------------------------------------------
 
-DROP TABLE IF EXISTS `parcelsales`;
+-- 
+-- Tabel structuur voor tabel `parcelsales`
+-- 
+
 CREATE TABLE `parcelsales` (
   `regionUUID` varchar(255) NOT NULL,
   `parcelname` varchar(255) NOT NULL,
@@ -118,11 +152,12 @@ CREATE TABLE `parcelsales` (
   PRIMARY KEY  (`regionUUID`,`parcelUUID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
---
--- Table structure for table `popularplaces`
---
+-- --------------------------------------------------------
 
-DROP TABLE IF EXISTS `popularplaces`;
+-- 
+-- Tabel structuur voor tabel `popularplaces`
+-- 
+
 CREATE TABLE `popularplaces` (
   `parcelUUID` char(36) NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -132,11 +167,12 @@ CREATE TABLE `popularplaces` (
   `mature` tinyint(4) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
---
--- Table structure for table `regions`
---
+-- --------------------------------------------------------
 
-DROP TABLE IF EXISTS `regions`;
+-- 
+-- Tabel structuur voor tabel `regions`
+-- 
+
 CREATE TABLE `regions` (
   `regionname` varchar(255) NOT NULL,
   `regionuuid` varchar(255) NOT NULL,
@@ -146,14 +182,3 @@ CREATE TABLE `regions` (
   `owneruuid` varchar(255) NOT NULL,
   PRIMARY KEY  (`regionuuid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2008-10-12 18:04:23
