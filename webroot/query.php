@@ -261,6 +261,37 @@ function dir_events_query($method_name, $params, $app_data)
 	print $response_xml;
 }
 
+xmlrpc_server_register_method($xmlrpc_server, "dir_classified_query",
+        "dir_classified_query");
+
+function dir_classified_query ($method_name, $params, $app_data)
+{
+	$req			= $params[0];
+
+	$result = mysql_query($sql);
+
+	$data = array();
+	while (($row = mysql_fetch_assoc($result)))
+	{
+		$data[] = array(
+				"ClassifiedID" => $row["ClassifiedID"],
+				"Name" => $row["Name"],
+				"ClassifiedFlags" => $row["ClassifiedFlags"],
+				"CreationDate" => $row["CreationDate"],
+				"ExpirationDate" => $row["ExpirationDate"],
+				"PriceForListing" => $row["PriceForListing"]);
+	}
+
+	$response_xml = xmlrpc_encode(array(
+			'success'	  => True,
+			'errorMessage' => "",
+			'data' => $data));
+
+	print $response_xml;
+}
+
+// Events Queries
+
 xmlrpc_server_register_method($xmlrpc_server, "event_info_query",
 		"event_info_query");
 
