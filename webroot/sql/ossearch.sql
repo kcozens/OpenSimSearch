@@ -30,7 +30,7 @@ CREATE TABLE `allparcels` (
   `infoUUID` char(36) NOT NULL default '00000000-0000-0000-0000-000000000000',
   `parcelarea` int(11) NOT NULL,
   PRIMARY KEY  (`regionUUID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `classifieds`
@@ -91,7 +91,7 @@ CREATE TABLE `hostsregister` (
   `register` int(10) NOT NULL,
   `lastcheck` int(10) NOT NULL,
   PRIMARY KEY  (`host`,`port`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `objects`
@@ -106,7 +106,7 @@ CREATE TABLE `objects` (
   `description` varchar(255) NOT NULL,
   `regionuuid` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`objectuuid`,`parceluuid`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `parcels`
@@ -130,7 +130,7 @@ CREATE TABLE `parcels` (
   KEY `description` (`description`),
   KEY `searchcategory` (`searchcategory`),
   KEY `dwell` (`dwell`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `parcelsales`
@@ -149,7 +149,7 @@ CREATE TABLE `parcelsales` (
   `parentestate` int(11) NOT NULL default '1',
   `mature` varchar(32) NOT NULL default 'false',
   PRIMARY KEY  (`regionUUID`,`parcelUUID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `popularplaces`
@@ -163,7 +163,7 @@ CREATE TABLE `popularplaces` (
   `infoUUID` char(36) NOT NULL,
   `has_picture` tinyint(4) NOT NULL,
   `mature` tinyint(4) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `regions`
@@ -178,7 +178,7 @@ CREATE TABLE `regions` (
   `owner` varchar(255) NOT NULL,
   `owneruuid` varchar(255) NOT NULL,
   PRIMARY KEY  (`regionuuid`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
