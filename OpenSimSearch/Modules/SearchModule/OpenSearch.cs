@@ -438,7 +438,7 @@ namespace OpenSimSearch.Modules.OpenSearch
                 data[i] = new DirClassifiedReplyData();
                 data[i].classifiedID = new UUID(d["classifiedID"].ToString());
                 data[i].name = d["name"].ToString();
-				data[i].classifiedFlags = Byte(d["classifiedflags"]);
+				data[i].classifiedFlags = (byte)d["classifiedflags"];
 				data[i].creationDate = Convert.ToUInt32(d["creationdate"]);
 				data[i].expirationDate = Convert.ToUInt32(d["expirationdate"]);
                 i++;
