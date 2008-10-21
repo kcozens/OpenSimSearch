@@ -100,6 +100,7 @@ namespace OpenSimSearch.Modules.OpenSearch
 			client.OnDirPopularQuery += DirPopularQuery;
 			client.OnDirLandQuery += DirLandQuery;
 			client.OnEventInfoRequest += EventInfoRequest;
+            client.OnDirClassifiedQuery += DirClassifiedQuery;
 		}
 
 		//
@@ -399,6 +400,54 @@ namespace OpenSimSearch.Modules.OpenSearch
 
 			remoteClient.SendDirEventsReply(queryID, data);
 		}
+
+        public void DirClassifiedQuery(IClientAPI remoteClient, UUID queryID, 
+                string queryText, uint queryFlags, uint category,
+                int queryStart)
+        {
+            Hashtable ReqHash = new Hashtable();
+            ReqHash["text"] = queryText;
+            ReqHash["flags"] = queryFlags.ToString();
+			ReqHash["category"] = queryFlags.ToString();
+            ReqHash["query_start"] = queryStart.ToString();
+
+            Hashtable result = GenericXMLRPCRequest(ReqHash,
+                    "dir_classified_query");
+
+            if (!Convert.ToBoolean(result["success"]))
+            {
+                remoteClient.SendAgentAlertMessage(
+                        result["errorMessage"].ToString(), false);
+                return;
+            }
+
+            ArrayList dataArray = (ArrayList)result["data"];
+
+            int count = dataArray.Count;
+            if (count > 100)
+                count = 101;
+
+            DirClassifiedReplyData[] data = new DirClassifiedReplyData[count];
+
+            int i = 0;
+
+            foreach (Object o in dataArray)
+            {
+                Hashtable d = (Hashtable)o;
+
+                data[i] = new DirClassifiedReplyData();
+                data[i].classifiedID = new UUID(d["classifiedID"].ToString());
+                data[i].name = d["name"].ToString();
+				data[i].classifiedFlags = Byte(d["classifiedflags"]);
+				data[i].creationDate = Convert.ToUInt32(d["creationdate"]);
+				data[i].expirationDate = Convert.ToUInt32(d["expirationdate"]);
+                i++;
+                if (i >= count)
+                    break;
+            }
+
+            remoteClient.SendDirClassifiedReply(queryID, data);
+        }
 
 		public void EventInfoRequest(IClientAPI remoteClient, uint queryEventID)
 		{
