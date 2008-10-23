@@ -1,6 +1,6 @@
 Index: trunk/OpenSimSearch/Modules/SearchModule/OpenSearch.cs
 ===================================================================
---- trunk/OpenSimSearch/Modules/SearchModule/OpenSearch.cs	(revision 74)
+--- trunk/OpenSimSearch/Modules/SearchModule/OpenSearch.cs	(revision 75)
 +++ trunk/OpenSimSearch/Modules/SearchModule/OpenSearch.cs	(working copy)
 @@ -99,8 +99,10 @@
  			client.OnDirFindQuery += DirFindQuery;
@@ -14,6 +14,15 @@ Index: trunk/OpenSimSearch/Modules/SearchModule/OpenSearch.cs
  		}
  
  		//
+@@ -408,7 +410,7 @@
+             Hashtable ReqHash = new Hashtable();
+             ReqHash["text"] = queryText;
+             ReqHash["flags"] = queryFlags.ToString();
+-			ReqHash["category"] = queryFlags.ToString();
++			ReqHash["category"] = category.ToString();
+             ReqHash["query_start"] = queryStart.ToString();
+ 
+             Hashtable result = GenericXMLRPCRequest(ReqHash,
 @@ -436,11 +438,12 @@
                  Hashtable d = (Hashtable)o;
  
@@ -22,9 +31,9 @@ Index: trunk/OpenSimSearch/Modules/SearchModule/OpenSearch.cs
 +                data[i].classifiedID = new UUID(d["classifiedid"].ToString());
                  data[i].name = d["name"].ToString();
 -				data[i].classifiedFlags = (byte)d["classifiedflags"];
-+				data[i].classifiedflags = (byte)d["classifiedflags"];
-- 				data[i].creationDate = Convert.ToUInt32(d["creationdate"]);
-+ 				data[i].creationdate = Convert.ToUInt32(d["creationdate"]);
+-				data[i].creationDate = Convert.ToUInt32(d["creationdate"]);
++                data[i].classifiedFlags = (byte)d["classifiedflags"];
++                data[i].creationDate = Convert.ToUInt32(d["creationdate"]);
  				data[i].expirationDate = Convert.ToUInt32(d["expirationdate"]);
 +                data[i].price = Convert.ToInt32(d["priceforlisting"]);
                  i++;

@@ -1,0 +1,70 @@
+Index: trunk/webroot/query.php
+===================================================================
+--- trunk/webroot/query.php	(revision 75)
++++ trunk/webroot/query.php	(working copy)
+@@ -266,28 +266,49 @@
+ 
+ function dir_classified_query ($method_name, $params, $app_data)
+ {
+-	$req			= $params[0];
++    $req            = $params[0];
++    $text            = $req['text'];
++    $flags            = $req['flags'];
++    $category        = $req['category'];
++    $query_start    = $req['query_start'];
+ 
++    if ($text == "%%%")
++    {
++        $response_xml = xmlrpc_encode(array(
++                'success'      => False,
++                'errorMessage' => "Invalid search terms"
++        ));
++
++        print $response_xml;
++
++        return;
++    }
++
++    //$where = "where category = $category";
++
++	$sql = "select * from classifieds
++            limit " . mysql_escape_string($query_start) . ",101";
++
+ 	$result = mysql_query($sql);
+ 
+ 	$data = array();
+-	while (($row = mysql_fetch_assoc($result)))
+-	{
+-		$data[] = array(
+-				"ClassifiedID" => $row["ClassifiedID"],
+-				"Name" => $row["Name"],
+-				"ClassifiedFlags" => $row["ClassifiedFlags"],
+-				"CreationDate" => $row["CreationDate"],
+-				"ExpirationDate" => $row["ExpirationDate"],
+-				"PriceForListing" => $row["PriceForListing"]);
+-	}
++    while (($row = mysql_fetch_assoc($result)))
++    {
++        $data[] = array(
++                "classifiedid" => $row["classifiedid"],
++                "name" => $row["name"],
++                "classifiedflags" => $row["classifiedflags"],
++                "creationdate" => $row["creationdate"],
++                "expirationdate" => $row["expirationdate"],
++                "priceforlisting" => $row["priceforlisting"]);
++    }
+ 
+-	$response_xml = xmlrpc_encode(array(
+-			'success'	  => True,
+-			'errorMessage' => "",
+-			'data' => $data));
++    $response_xml = xmlrpc_encode(array(
++            'success'      => True,
++            'errorMessage' => "",
++            'data' => $data));
+ 
+-	print $response_xml;
++    print $response_xml;
+ }
+ 
+ // Events Queries
