@@ -1,0 +1,32 @@
+Index: trunk/OpenSimSearch/Modules/SearchModule/OpenSearch.cs
+===================================================================
+--- trunk/OpenSimSearch/Modules/SearchModule/OpenSearch.cs	(revision 74)
++++ trunk/OpenSimSearch/Modules/SearchModule/OpenSearch.cs	(working copy)
+@@ -99,8 +99,10 @@
+ 			client.OnDirFindQuery += DirFindQuery;
+ 			client.OnDirPopularQuery += DirPopularQuery;
+ 			client.OnDirLandQuery += DirLandQuery;
++            client.OnDirClassifiedQuery += DirClassifiedQuery;
++			// Response after Directory Queries
+ 			client.OnEventInfoRequest += EventInfoRequest;
+-            client.OnDirClassifiedQuery += DirClassifiedQuery;
++
+ 		}
+ 
+ 		//
+@@ -436,11 +438,12 @@
+                 Hashtable d = (Hashtable)o;
+ 
+                 data[i] = new DirClassifiedReplyData();
+-                data[i].classifiedID = new UUID(d["classifiedID"].ToString());
++                data[i].classifiedID = new UUID(d["classifiedid"].ToString());
+                 data[i].name = d["name"].ToString();
+-				data[i].classifiedFlags = (byte)d["classifiedflags"];
++				data[i].classifiedflags = (byte)d["classifiedflags"];
+- 				data[i].creationDate = Convert.ToUInt32(d["creationdate"]);
++ 				data[i].creationdate = Convert.ToUInt32(d["creationdate"]);
+ 				data[i].expirationDate = Convert.ToUInt32(d["expirationdate"]);
++                data[i].price = Convert.ToInt32(d["priceforlisting"]);
+                 i++;
+                 if (i >= count)
+                     break;
