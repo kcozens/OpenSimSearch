@@ -99,8 +99,10 @@ namespace OpenSimSearch.Modules.OpenSearch
 			client.OnDirFindQuery += DirFindQuery;
 			client.OnDirPopularQuery += DirPopularQuery;
 			client.OnDirLandQuery += DirLandQuery;
-			client.OnEventInfoRequest += EventInfoRequest;
             client.OnDirClassifiedQuery += DirClassifiedQuery;
+			// Response after Directory Queries
+			client.OnEventInfoRequest += EventInfoRequest;
+
 		}
 
 		//
@@ -408,7 +410,7 @@ namespace OpenSimSearch.Modules.OpenSearch
             Hashtable ReqHash = new Hashtable();
             ReqHash["text"] = queryText;
             ReqHash["flags"] = queryFlags.ToString();
-			ReqHash["category"] = queryFlags.ToString();
+			ReqHash["category"] = category.ToString();
             ReqHash["query_start"] = queryStart.ToString();
 
             Hashtable result = GenericXMLRPCRequest(ReqHash,
@@ -436,11 +438,12 @@ namespace OpenSimSearch.Modules.OpenSearch
                 Hashtable d = (Hashtable)o;
 
                 data[i] = new DirClassifiedReplyData();
-                data[i].classifiedID = new UUID(d["classifiedID"].ToString());
+                data[i].classifiedID = new UUID(d["classifiedid"].ToString());
                 data[i].name = d["name"].ToString();
-				data[i].classifiedFlags = (byte)d["classifiedflags"];
-				data[i].creationDate = Convert.ToUInt32(d["creationdate"]);
+                data[i].classifiedFlags = (byte)d["classifiedflags"];
+                data[i].creationDate = Convert.ToUInt32(d["creationdate"]);
 				data[i].expirationDate = Convert.ToUInt32(d["expirationdate"]);
+                data[i].price = Convert.ToInt32(d["priceforlisting"]);
                 i++;
                 if (i >= count)
                     break;
