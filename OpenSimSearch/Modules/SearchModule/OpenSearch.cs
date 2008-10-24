@@ -296,6 +296,9 @@ namespace OpenSimSearch.Modules.OpenSearch
 			{
 				Hashtable d = (Hashtable)o;
 
+                if (d["name"] == null)
+                    continue;
+
 				data[i] = new DirLandReplyData();
 				data[i].parcelID = new UUID(d["parcel_id"].ToString());
 				data[i].name = d["name"].ToString();
