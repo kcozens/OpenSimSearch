@@ -1,0 +1,33 @@
+Index: trunk/OpenSimSearch/Modules/SearchModule/OpenSearch.cs
+===================================================================
+--- trunk/OpenSimSearch/Modules/SearchModule/OpenSearch.cs	(revision 83)
++++ trunk/OpenSimSearch/Modules/SearchModule/OpenSearch.cs	(working copy)
+@@ -102,6 +102,7 @@
+             client.OnDirClassifiedQuery += DirClassifiedQuery;
+ 			// Response after Directory Queries
+ 			client.OnEventInfoRequest += EventInfoRequest;
++			client.OnEventLocationRequest += EventLocationRequest;
+ 
+ 		}
+ 
+@@ -501,5 +502,20 @@
+ 
+ 			remoteClient.SendEventInfoReply(data);
+ 		}
++
++		public void EventLocationRequest(IClientAPI remoteClient, UUID queryID, uint queryEventID)
++		{
++			Hashtable ReqHash = new Hashtable();
++			ReqHash["eventID"] = queryEventID.ToString();
++
++			Hashtable result = GenericXMLRPCRequest(ReqHash,
++					"event_location_query");
++			if (!Convert.ToBoolean(result["success"]))
++			{
++				remoteClient.SendAgentAlertMessage(
++						result["errorMessage"].ToString(), false);
++				return;
++			}
++		}
+ 	}
+ }
