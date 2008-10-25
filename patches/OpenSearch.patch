@@ -1,0 +1,13 @@
+Index: OpenSearch.cs
+===================================================================
+--- OpenSearch.cs	(revision 78)
++++ OpenSearch.cs	(working copy)
+@@ -461,7 +461,7 @@
+ 			ReqHash["eventID"] = queryEventID.ToString();
+ 
+ 			Hashtable result = GenericXMLRPCRequest(ReqHash,
+-					"events_info_request");
++					"event_info_query");
+ 
+ 			if (!Convert.ToBoolean(result["success"]))
+ 			{
