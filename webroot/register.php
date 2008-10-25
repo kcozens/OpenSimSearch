@@ -9,7 +9,7 @@
 // When the date is older, make a request to the Parser to grab new data    //
 //////////////////////////////////////////////////////////////////////////////
 
-include("databaseinfo.inc");
+include("databaseinfo.php");
 //establish connection to master db server
 mysql_connect ($DB_HOST, $DB_USER, $DB_PASSWORD);
 mysql_select_db ($DB_NAME);

@@ -1,5 +1,5 @@
 <?
-include("databaseinfo.inc");
+include("databaseinfo.php");
 
 $now = time();
 
