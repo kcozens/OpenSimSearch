@@ -1,6 +1,6 @@
 Index: query.php
 ===================================================================
---- query.php	(revision 79)
+--- query.php	(revision 80)
 +++ query.php	(working copy)
 @@ -249,7 +249,7 @@
  				"name" => $row["Name"],
@@ -11,30 +11,17 @@ Index: query.php
  				"event_flags" => $row["EventFlags"]);
  	}
  
-@@ -267,7 +267,26 @@
- function dir_classified_query ($method_name, $params, $app_data)
- {
- 	$req			= $params[0];
-+	$text			= $req['text'];
-+	$flags			= $req['flags'];
-+	$category		= $req['category'];
-+	$query_start	= $req['query_start'];
+@@ -333,11 +333,10 @@
+ 	print $response_xml;
+ }
  
-+	if ($text == "%%%")
-+	{
-+		$response_xml = xmlrpc_encode(array(
-+				'success'	  => False,
-+				'errorMessage' => "Invalid search terms"
-+		));
-+
-+		print $response_xml;
-+
-+		return;
-+	}
-+
-+	$sql = "select * from classifieds
-+			limit " . mysql_escape_string($query_start) . ",101";
-+
- 	$result = mysql_query($sql);
+-#
+ # Process the request
+ #
  
- 	$data = array();
+ $request_xml = $HTTP_RAW_POST_DATA;
+ xmlrpc_server_call_method($xmlrpc_server, $request_xml, '');
+ xmlrpc_server_destroy($xmlrpc_server);
+-?>
++?>
+\ No newline at end of file
