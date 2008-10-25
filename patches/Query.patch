@@ -1,8 +1,15 @@
-Index: query.php
+Index: trunk/webroot/query.php
 ===================================================================
---- query.php	(revision 80)
-+++ query.php	(working copy)
-@@ -249,7 +249,7 @@
+--- trunk/webroot/query.php	(revision 83)
++++ trunk/webroot/query.php	(working copy)
+@@ -244,12 +244,14 @@
+ 	$data = array();
+ 	while (($row = mysql_fetch_assoc($result)))
+ 	{
++		$row["Date"] = strftime("%m/%d %I:%M %p",$row["DateUTC"]);
++		
+ 		$data[] = array(
+ 				"owner_id" => $row["OwnerID"],
  				"name" => $row["Name"],
  				"event_id" => $row["EventID"],
  				"date" => $row["Date"],
@@ -11,17 +18,31 @@ Index: query.php
  				"event_flags" => $row["EventFlags"]);
  	}
  
-@@ -333,11 +333,10 @@
- 	print $response_xml;
- }
+@@ -274,12 +276,12 @@
+ 	while (($row = mysql_fetch_assoc($result)))
+ 	{
+ 		$data[] = array(
+-				"ClassifiedID" => $row["ClassifiedID"],
+-				"Name" => $row["Name"],
+-				"ClassifiedFlags" => $row["ClassifiedFlags"],
+-				"CreationDate" => $row["CreationDate"],
+-				"ExpirationDate" => $row["ExpirationDate"],
+-				"PriceForListing" => $row["PriceForListing"]);
++				"classifiedid" => $row["ClassifiedID"],
++				"name" => $row["Name"],
++				"classifiedFlags" => $row["ClassifiedFlags"],
++				"creationdate" => $row["CreationDate"],
++				"expirationdate" => $row["ExpirationDate"],
++				"priceforlisting" => $row["PriceForListing"]);
+ 	}
  
--#
- # Process the request
- #
- 
- $request_xml = $HTTP_RAW_POST_DATA;
- xmlrpc_server_call_method($xmlrpc_server, $request_xml, '');
- xmlrpc_server_destroy($xmlrpc_server);
--?>
-+?>
-\ No newline at end of file
+ 	$response_xml = xmlrpc_encode(array(
+@@ -310,7 +312,7 @@
+ 	while (($row = mysql_fetch_assoc($result)))
+ 	{
+ 		$data[] = array(
+-				"event_id" => $row["eventID"],
++				"event_id" => $row["EventID"],
+ 				"creator" => $row["Creator"],
+ 				"name" => $row["Name"],
+ 				"category" => $row["Category"],
