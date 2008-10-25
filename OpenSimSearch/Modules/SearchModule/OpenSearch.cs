@@ -461,7 +461,7 @@ namespace OpenSimSearch.Modules.OpenSearch
 			ReqHash["eventID"] = queryEventID.ToString();
 
 			Hashtable result = GenericXMLRPCRequest(ReqHash,
-					"events_info_request");
+					"event_info_query");
 
 			if (!Convert.ToBoolean(result["success"]))
 			{
