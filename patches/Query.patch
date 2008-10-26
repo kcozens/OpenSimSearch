@@ -1,9 +1,66 @@
-Index: query.php
+Index: webroot/query.php
 ===================================================================
---- query.php	(revision 85)
-+++ query.php	(working copy)
-@@ -244,13 +244,15 @@
+--- webroot/query.php	(revision 86)
++++ webroot/query.php	(working copy)
+@@ -215,42 +215,57 @@
+ 	$flags			= $req['flags'];
+ 	$query_start	= $req['query_start'];
+ 
+-	if ($text == "%%%")
+-	{
+-		$response_xml = xmlrpc_encode(array(
+-				'success'	  => False,
+-				'errorMessage' => "Invalid search terms"
+-		));
++    if ($text == "%%%")
++    {
++        $response_xml = xmlrpc_encode(array(
++                'success'      => False,
++                'errorMessage' => "Invalid search terms"
++        ));
+ 
+-		print $response_xml;
++        print $response_xml;
+ 
+-		return;
+-	}
++        return;
++    }
+ 
+-	$terms = array();
++    $pieces = explode("|", $text);
++	
++	$day		=	$pieces[0];
++	$category	=	$pieces[1];
+ 
++	//Setting a variable for NOW
++	$now		=	time();
++	
++    $terms = array();
++
++	if ($day == "u") $terms[] = "dateUTC > ".$now."";
++
++	if ($category <> 0) $terms[] = "category = ".$category."";
++	
+ 	if ($flags & 0x2000) $terms[] = "mature = 'false'";
+ 
+-	$where = "";
+-	if (count($terms) > 0)
+-	$where = " where " . join(" and ", $terms);
++    $where = "";
+ 
+-	$sql = "select * from events". $where.
+-		   " limit " . mysql_escape_string($query_start) . ",101";
++    if (count($terms) > 0)
++    $where = " where " . join(" and ", $terms);
+ 
++    $sql = "select * from events". $where.
++           " limit " . mysql_escape_string($query_start) . ",101";
+ 
+ 	$result = mysql_query($sql);
+ 
  	$data = array();
++
  	while (($row = mysql_fetch_assoc($result)))
  	{
 +		$date = strftime("%m/%d %I:%M %p",$row["dateUTC"]);
@@ -24,7 +81,7 @@ Index: query.php
  	}
  
  	$response_xml = xmlrpc_encode(array(
-@@ -268,18 +270,38 @@
+@@ -268,18 +283,38 @@
  {
  	$req			= $params[0];
  
@@ -69,7 +126,7 @@ Index: query.php
  	}
  
  	$response_xml = xmlrpc_encode(array(
-@@ -309,20 +331,22 @@
+@@ -309,20 +344,22 @@
  	$data = array();
  	while (($row = mysql_fetch_assoc($result)))
  	{

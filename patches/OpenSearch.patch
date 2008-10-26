@@ -1,7 +1,7 @@
-Index: OpenSearch.cs
+Index: OpenSimSearch/Modules/SearchModule/OpenSearch.cs
 ===================================================================
---- OpenSearch.cs	(revision 85)
-+++ OpenSearch.cs	(working copy)
+--- OpenSimSearch/Modules/SearchModule/OpenSearch.cs	(revision 86)
++++ OpenSimSearch/Modules/SearchModule/OpenSearch.cs	(working copy)
 @@ -102,6 +102,7 @@
              client.OnDirClassifiedQuery += DirClassifiedQuery;
  			// Response after Directory Queries
