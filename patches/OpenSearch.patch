@@ -1,6 +1,6 @@
 Index: OpenSimSearch/Modules/SearchModule/OpenSearch.cs
 ===================================================================
---- OpenSimSearch/Modules/SearchModule/OpenSearch.cs	(revision 86)
+--- OpenSimSearch/Modules/SearchModule/OpenSearch.cs	(revision 89)
 +++ OpenSimSearch/Modules/SearchModule/OpenSearch.cs	(working copy)
 @@ -102,6 +102,7 @@
              client.OnDirClassifiedQuery += DirClassifiedQuery;
@@ -10,7 +10,18 @@ Index: OpenSimSearch/Modules/SearchModule/OpenSearch.cs
  
  		}
  
-@@ -485,21 +486,35 @@
+@@ -444,8 +445,8 @@
+ //                data[i].classifiedID = new UUID(d["classifiedid"].ToString());
+ //                data[i].name = d["name"].ToString();
+ //                data[i].classifiedFlags = (byte)d["classifiedflags"];
+-//                data[i].creationDate = Convert.ToUInt32(d["creationdate"]);
+-//				data[i].expirationDate = Convert.ToUInt32(d["expirationdate"]);
++//                data[i].creationDate = Convert.ToUInt32(d["creation_date"]);
++//				data[i].expirationDate = Convert.ToUInt32(d["expiration_date"]);
+ //                data[i].price = Convert.ToInt32(d["priceforlisting"]);
+ //                i++;
+ //                if (i >= count)
+@@ -485,20 +486,35 @@
  			Hashtable d = (Hashtable)dataArray[0];
  			EventData data = new EventData();
  			data.eventID = Convert.ToUInt32(d["event_id"]);
@@ -18,8 +29,7 @@ Index: OpenSimSearch/Modules/SearchModule/OpenSearch.cs
 -			data.name = d["Name"].ToString();
 -			data.category = d["Category"].ToString();
 -			data.description = d["Description"].ToString();
--			data.date = DateTime.ParseExact(d["Date"].ToString(), 
--					"yyyy-MM-dd T", DateTimeFormatInfo.InvariantInfo);
+-			data.date = d["Date"].ToString(); 
 -			data.dateUTC = Convert.ToUInt32(d["DateUTC"]);
 -			data.duration = Convert.ToUInt32(d["Duration"]);
 -			data.cover = Convert.ToUInt32(d["Cover"]);

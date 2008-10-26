@@ -1,6 +1,6 @@
 Index: webroot/query.php
 ===================================================================
---- webroot/query.php	(revision 86)
+--- webroot/query.php	(revision 88)
 +++ webroot/query.php	(working copy)
 @@ -215,42 +215,57 @@
  	$flags			= $req['flags'];
@@ -120,8 +120,8 @@ Index: webroot/query.php
 +				"classifiedid" => $row["classifieduuid"],
 +				"name" => $row["name"],
 +				"classifiedflags" => $row["classifiedflags"],
-+				"creationdate" => $row["creationdate"],
-+				"expirationdate" => $row["expirationdate"],
++				"creation_date" => $row["creationdate"],
++				"expiration_date" => $row["expirationdate"],
 +				"priceforlisting" => $row["priceforlisting"]);
  	}
  
