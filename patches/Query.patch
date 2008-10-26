@@ -1,24 +1,56 @@
-Index: trunk/webroot/query.php
+Index: query.php
 ===================================================================
---- trunk/webroot/query.php	(revision 83)
-+++ trunk/webroot/query.php	(working copy)
-@@ -244,12 +244,14 @@
+--- query.php	(revision 85)
++++ query.php	(working copy)
+@@ -244,13 +244,15 @@
  	$data = array();
  	while (($row = mysql_fetch_assoc($result)))
  	{
-+		$row["Date"] = strftime("%m/%d %I:%M %p",$row["DateUTC"]);
++		$date = strftime("%m/%d %I:%M %p",$row["dateUTC"]);
 +		
  		$data[] = array(
- 				"owner_id" => $row["OwnerID"],
- 				"name" => $row["Name"],
- 				"event_id" => $row["EventID"],
- 				"date" => $row["Date"],
+-				"owner_id" => $row["OwnerID"],
+-				"name" => $row["Name"],
+-				"event_id" => $row["EventID"],
+-				"date" => $row["Date"],
 -				"unix_time" => $row["UnixTime"],
-+				"unix_time" => $row["DateUTC"],
- 				"event_flags" => $row["EventFlags"]);
+-				"event_flags" => $row["EventFlags"]);
++				"owner_id" => $row["owneruuid"],
++				"name" => $row["name"],
++				"event_id" => $row["eventid"],
++				"date" => $date,
++				"unix_time" => $row["dateUTC"],
++				"event_flags" => $row["eventflags"]);
  	}
  
-@@ -274,12 +276,12 @@
+ 	$response_xml = xmlrpc_encode(array(
+@@ -268,18 +270,38 @@
+ {
+ 	$req			= $params[0];
+ 
++	$text 			= $req['text'];
++	$flags			= $req['flags'];
++	$category 		= $req['category'];
++	$query_start 	= $req['query_start'];
++
++	if ($text == "%%%")
++	{
++		$response_xml = xmlrpc_encode(array(
++				'success'	  => False,
++				'errorMessage' => "Invalid search terms"
++		));
++
++		print $response_xml;
++
++		return;
++	}
++
++	$sql = "select * from classifieds". $where.
++		   " limit " . mysql_escape_string($query_start) . ",101";
++
+ 	$result = mysql_query($sql);
+ 
+ 	$data = array();
  	while (($row = mysql_fetch_assoc($result)))
  	{
  		$data[] = array(
@@ -28,21 +60,48 @@ Index: trunk/webroot/query.php
 -				"CreationDate" => $row["CreationDate"],
 -				"ExpirationDate" => $row["ExpirationDate"],
 -				"PriceForListing" => $row["PriceForListing"]);
-+				"classifiedid" => $row["ClassifiedID"],
-+				"name" => $row["Name"],
-+				"classifiedFlags" => $row["ClassifiedFlags"],
-+				"creationdate" => $row["CreationDate"],
-+				"expirationdate" => $row["ExpirationDate"],
-+				"priceforlisting" => $row["PriceForListing"]);
++				"classifiedid" => $row["classifieduuid"],
++				"name" => $row["name"],
++				"classifiedflags" => $row["classifiedflags"],
++				"creationdate" => $row["creationdate"],
++				"expirationdate" => $row["expirationdate"],
++				"priceforlisting" => $row["priceforlisting"]);
  	}
  
  	$response_xml = xmlrpc_encode(array(
-@@ -310,7 +312,7 @@
+@@ -309,20 +331,22 @@
+ 	$data = array();
  	while (($row = mysql_fetch_assoc($result)))
  	{
++		$date = strftime("%G-%m-%d %H:%M:%S",$row["dateUTC"]);
++
  		$data[] = array(
 -				"event_id" => $row["eventID"],
-+				"event_id" => $row["EventID"],
- 				"creator" => $row["Creator"],
- 				"name" => $row["Name"],
- 				"category" => $row["Category"],
+-				"creator" => $row["Creator"],
+-				"name" => $row["Name"],
+-				"category" => $row["Category"],
+-				"description" => $row["Desc"],
+-				"date" => $row["Date"],
+-				"dateUTC" => $row["DateUTC"],
+-				"duration" => $row["Duration"],
+-				"covercharge" => $row["Cover"],
+-				"coveramount" => $row["Amount"],
+-				"simName" => $row["SimName"],
+-				"globalposition" => $row["GlobalPos"],
+-				"eventflags" => $row["EventFlags"]);
++				"event_id" => $row["eventid"],
++				"creator" => $row["creatoruuid"],
++				"name" => $row["name"],
++				"category" => $row["category"],
++				"description" => $row["description"],
++				"date" => $date,
++				"dateUTC" => $row["dateUTC"],
++				"duration" => $row["duration"],
++				"covercharge" => $row["covercharge"],
++				"coveramount" => $row["coveramount"],
++				"simname" => $row["simname"],
++				"globalposition" => $row["globalPos"],
++				"eventflags" => $row["eventflags"]);
+ 	}
+ 
+ 	$response_xml = xmlrpc_encode(array(
