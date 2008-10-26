@@ -215,42 +215,57 @@ function dir_events_query($method_name, $params, $app_data)
 	$flags			= $req['flags'];
 	$query_start	= $req['query_start'];
 
-	if ($text == "%%%")
-	{
-		$response_xml = xmlrpc_encode(array(
-				'success'	  => False,
-				'errorMessage' => "Invalid search terms"
-		));
+    if ($text == "%%%")
+    {
+        $response_xml = xmlrpc_encode(array(
+                'success'      => False,
+                'errorMessage' => "Invalid search terms"
+        ));
 
-		print $response_xml;
+        print $response_xml;
 
-		return;
-	}
+        return;
+    }
 
-	$terms = array();
+    $pieces = explode("|", $text);
+	
+	$day		=	$pieces[0];
+	$category	=	$pieces[1];
 
+	//Setting a variable for NOW
+	$now		=	time();
+	
+    $terms = array();
+
+	if ($day == "u") $terms[] = "dateUTC > ".$now."";
+
+	if ($category <> 0) $terms[] = "category = ".$category."";
+	
 	if ($flags & 0x2000) $terms[] = "mature = 'false'";
 
-	$where = "";
-	if (count($terms) > 0)
-	$where = " where " . join(" and ", $terms);
+    $where = "";
 
-	$sql = "select * from events". $where.
-		   " limit " . mysql_escape_string($query_start) . ",101";
+    if (count($terms) > 0)
+    $where = " where " . join(" and ", $terms);
 
+    $sql = "select * from events". $where.
+           " limit " . mysql_escape_string($query_start) . ",101";
 
 	$result = mysql_query($sql);
 
 	$data = array();
+
 	while (($row = mysql_fetch_assoc($result)))
 	{
+		$date = strftime("%m/%d %I:%M %p",$row["dateUTC"]);
+		
 		$data[] = array(
-				"owner_id" => $row["OwnerID"],
-				"name" => $row["Name"],
-				"event_id" => $row["EventID"],
-				"date" => $row["Date"],
-				"unix_time" => $row["UnixTime"],
-				"event_flags" => $row["EventFlags"]);
+				"owner_id" => $row["owneruuid"],
+				"name" => $row["name"],
+				"event_id" => $row["eventid"],
+				"date" => $date,
+				"unix_time" => $row["dateUTC"],
+				"event_flags" => $row["eventflags"]);
 	}
 
 	$response_xml = xmlrpc_encode(array(
@@ -268,18 +283,38 @@ function dir_classified_query ($method_name, $params, $app_data)
 {
 	$req			= $params[0];
 
+	$text 			= $req['text'];
+	$flags			= $req['flags'];
+	$category 		= $req['category'];
+	$query_start 	= $req['query_start'];
+
+	if ($text == "%%%")
+	{
+		$response_xml = xmlrpc_encode(array(
+				'success'	  => False,
+				'errorMessage' => "Invalid search terms"
+		));
+
+		print $response_xml;
+
+		return;
+	}
+
+	$sql = "select * from classifieds". $where.
+		   " limit " . mysql_escape_string($query_start) . ",101";
+
 	$result = mysql_query($sql);
 
 	$data = array();
 	while (($row = mysql_fetch_assoc($result)))
 	{
 		$data[] = array(
-				"ClassifiedID" => $row["ClassifiedID"],
-				"Name" => $row["Name"],
-				"ClassifiedFlags" => $row["ClassifiedFlags"],
-				"CreationDate" => $row["CreationDate"],
-				"ExpirationDate" => $row["ExpirationDate"],
-				"PriceForListing" => $row["PriceForListing"]);
+				"classifiedid" => $row["classifieduuid"],
+				"name" => $row["name"],
+				"classifiedflags" => $row["classifiedflags"],
+				"creation_date" => $row["creationdate"],
+				"expiration_date" => $row["expirationdate"],
+				"priceforlisting" => $row["priceforlisting"]);
 	}
 
 	$response_xml = xmlrpc_encode(array(
@@ -309,20 +344,22 @@ function event_info_query($method_name, $params, $app_data)
 	$data = array();
 	while (($row = mysql_fetch_assoc($result)))
 	{
+		$date = strftime("%G-%m-%d %H:%M:%S",$row["dateUTC"]);
+
 		$data[] = array(
-				"event_id" => $row["eventID"],
-				"creator" => $row["Creator"],
-				"name" => $row["Name"],
-				"category" => $row["Category"],
-				"description" => $row["Desc"],
-				"date" => $row["Date"],
-				"dateUTC" => $row["DateUTC"],
-				"duration" => $row["Duration"],
-				"covercharge" => $row["Cover"],
-				"coveramount" => $row["Amount"],
-				"simName" => $row["SimName"],
-				"globalposition" => $row["GlobalPos"],
-				"eventflags" => $row["EventFlags"]);
+				"event_id" => $row["eventid"],
+				"creator" => $row["creatoruuid"],
+				"name" => $row["name"],
+				"category" => $row["category"],
+				"description" => $row["description"],
+				"date" => $date,
+				"dateUTC" => $row["dateUTC"],
+				"duration" => $row["duration"],
+				"covercharge" => $row["covercharge"],
+				"coveramount" => $row["coveramount"],
+				"simname" => $row["simname"],
+				"globalposition" => $row["globalPos"],
+				"eventflags" => $row["eventflags"]);
 	}
 
 	$response_xml = xmlrpc_encode(array(

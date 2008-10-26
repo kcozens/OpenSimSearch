@@ -102,6 +102,7 @@ namespace OpenSimSearch.Modules.OpenSearch
             client.OnDirClassifiedQuery += DirClassifiedQuery;
 			// Response after Directory Queries
 			client.OnEventInfoRequest += EventInfoRequest;
+			//client.OnEventLocationRequest += EventLocationRequest;
 
 		}
 
@@ -444,8 +445,8 @@ namespace OpenSimSearch.Modules.OpenSearch
 //                data[i].classifiedID = new UUID(d["classifiedid"].ToString());
 //                data[i].name = d["name"].ToString();
 //                data[i].classifiedFlags = (byte)d["classifiedflags"];
-//                data[i].creationDate = Convert.ToUInt32(d["creationdate"]);
-//				data[i].expirationDate = Convert.ToUInt32(d["expirationdate"]);
+//                data[i].creationDate = Convert.ToUInt32(d["creation_date"]);
+//				data[i].expirationDate = Convert.ToUInt32(d["expiration_date"]);
 //                data[i].price = Convert.ToInt32(d["priceforlisting"]);
 //                i++;
 //                if (i >= count)
@@ -485,20 +486,35 @@ namespace OpenSimSearch.Modules.OpenSearch
 			Hashtable d = (Hashtable)dataArray[0];
 			EventData data = new EventData();
 			data.eventID = Convert.ToUInt32(d["event_id"]);
-			data.creator = d["Creator"].ToString();
-			data.name = d["Name"].ToString();
-			data.category = d["Category"].ToString();
-			data.description = d["Description"].ToString();
-			data.date = d["Date"].ToString(); 
-			data.dateUTC = Convert.ToUInt32(d["DateUTC"]);
-			data.duration = Convert.ToUInt32(d["Duration"]);
-			data.cover = Convert.ToUInt32(d["Cover"]);
-			data.amount = Convert.ToUInt32(d["Amount"]);
-			data.simName = d["SimName"].ToString();
-			Vector3.TryParse(d["GlobalPos"].ToString(), out data.globalPos);
-			data.eventFlags = Convert.ToUInt32(d["EventFlags"]);
+			data.creator = d["creator"].ToString();
+			data.name = d["name"].ToString();
+			data.category = d["category"].ToString();
+			data.description = d["description"].ToString();
+			data.date = d["date"].ToString();
+			data.dateUTC = Convert.ToUInt32(d["dateUTC"]);
+			data.duration = Convert.ToUInt32(d["duration"]);
+			data.cover = Convert.ToUInt32(d["covercharge"]);
+			data.amount = Convert.ToUInt32(d["coveramount"]);
+			data.simName = d["simname"].ToString();
+			Vector3.TryParse(d["globalposition"].ToString(), out data.globalPos);
+			data.eventFlags = Convert.ToUInt32(d["eventflags"]);
 
 			remoteClient.SendEventInfoReply(data);
+		}
+
+		public void EventLocationRequest(IClientAPI remoteClient, UUID queryID, uint queryEventID)
+		{
+			Hashtable ReqHash = new Hashtable();
+			ReqHash["eventID"] = queryEventID.ToString();
+
+			Hashtable result = GenericXMLRPCRequest(ReqHash,
+					"event_location_query");
+			if (!Convert.ToBoolean(result["success"]))
+			{
+				remoteClient.SendAgentAlertMessage(
+						result["errorMessage"].ToString(), false);
+				return;
+			}
 		}
 	}
 }
