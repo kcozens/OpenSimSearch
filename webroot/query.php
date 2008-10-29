@@ -346,11 +346,23 @@ function event_info_query($method_name, $params, $app_data)
 	{
 		$date = strftime("%G-%m-%d %H:%M:%S",$row["dateUTC"]);
 
+		if ($row['category'] == 18)	$category = "Discussion";
+		if ($row['category'] == 19)	$category = "Sports";
+		if ($row['category'] == 20)	$category = "Live Music";
+		if ($row['category'] == 22)	$category = "Commercial";
+		if ($row['category'] == 23)	$category = "Nightlife/Entertainment";
+		if ($row['category'] == 24) $category = "Games/Contests";
+		if ($row['category'] == 25)	$category = "Pageants";
+		if ($row['category'] == 26)	$category = "Education";
+		if ($row['category'] == 27)	$category = "Arts and Culture";
+		if ($row['category'] == 28) $category = "Charity/Support Groups";
+		if ($row['category'] == 29)	$category = "Miscellaneous";
+
 		$data[] = array(
 				"event_id" => $row["eventid"],
 				"creator" => $row["creatoruuid"],
 				"name" => $row["name"],
-				"category" => $row["category"],
+				"category" => $category,
 				"description" => $row["description"],
 				"date" => $date,
 				"dateUTC" => $row["dateUTC"],
