@@ -1,6 +1,9 @@
 <?
 include("databaseinfo.php");
 
+//Supress all Warnings/Errors
+error_reporting(0);
+
 $now = time();
 
 //
@@ -25,6 +28,40 @@ function GetURL($host, $port, $url)
         return $data;
     }
 	return "";
+}
+
+function CheckHost($hostname, $port)
+{
+	$fp = fsockopen ($hostname, $port, $errno, $errstr, 10);
+
+	if(!$fp) 
+	{
+		$sql = "UPDATE hostsregister set failcounter = failcounter + 1 ".
+			"where host = '" . mysql_escape_string($hostname) . "' AND " .
+			"port = '" . mysql_escape_string($port) . "'";
+		
+		$check = mysql_query($sql);
+
+		//Setting a "fake" update time so this host will have time
+		//to get back online
+
+		$next = time() + 600; // 5 mins, so we don't get stuck
+
+		$updater = mysql_query("UPDATE hostsregister set lastcheck = $next " .
+			"where host = '" . mysql_escape_string($hostname) . "' AND " .
+			"port = '" . mysql_escape_string($port) . "'");
+	}
+	else
+	{
+		$sql = "UPDATE hostsregister set failcounter = 0 ".
+				"where host = '" . mysql_escape_string($hostname) . "' AND " .
+				"port = '" . mysql_escape_string($port) . "'";
+		
+		$check = mysql_query($sql);
+
+		parse($hostname, $port);
+	}
+
 }
 
 function parse($hostname, $port)
@@ -279,6 +316,6 @@ $jobsearch = mysql_query("SELECT host, port from hostsregister " .
 
 while ($jobs = mysql_fetch_row($jobsearch))
 {
-	parse($jobs[0], $jobs[1]);
+	CheckHost($jobs[0], $jobs[1]);
 }
 ?>

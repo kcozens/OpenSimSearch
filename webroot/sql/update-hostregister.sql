@@ -1,0 +1,1 @@
+ALTER TABLE `hostsregister` ADD `failcounter` INT( 1 ) NOT NULL ;
