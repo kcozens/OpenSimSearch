@@ -32,6 +32,9 @@ function dir_places_query($method_name, $params, $app_data)
 	$category 		= $req['category'];
 	$query_start 	= $req['query_start'];
 
+    $pieces = split(" ", $text);
+    $text = join("%", $pieces);
+
 	if ($text == "%%%")
 	{
 		$response_xml = xmlrpc_encode(array(
@@ -49,7 +52,7 @@ function dir_places_query($method_name, $params, $app_data)
 		$result = mysql_query("select * from parcels where " .
 				"(searchcategory = -1 or searchcategory = '" .
 				mysql_escape_string($category) ."') and (parcelname like '%" .
-				mysql_escape_string($text) . "%' or description like '" .
+				mysql_escape_string($text) . "%' or description like '%" .
 				mysql_escape_string($text) . "%') order by " .
 				"dwell desc, parcelname" .
 				" limit ".(0+$query_start).",100");
@@ -58,7 +61,7 @@ function dir_places_query($method_name, $params, $app_data)
 	{
 		$result = mysql_query("select * from parcels where " .
 				"parcelname like '%" .
-				mysql_escape_string($text) . "%' or description like '" .
+				mysql_escape_string($text) . "%' or description like '%" .
 				mysql_escape_string($text) . "%' order by " .
 				"dwell desc, parcelname" .
 				" limit ".(0+$query_start).",100");
