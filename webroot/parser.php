@@ -36,32 +36,31 @@ function CheckHost($hostname, $port)
 
 	if(!$fp) 
 	{
-		$sql = "UPDATE hostsregister set failcounter = failcounter + 1 ".
+	$sql = "UPDATE hostsregister set failcounter = failcounter + 1 ".
 			"where host = '" . mysql_escape_string($hostname) . "' AND " .
 			"port = '" . mysql_escape_string($port) . "'";
 		
-		$check = mysql_query($sql);
+	$check = mysql_query($sql);
 
-		//Setting a "fake" update time so this host will have time
-		//to get back online
+	//Setting a "fake" update time so this host will have time
+	//to get back online
 
-		$next = time() + 600; // 5 mins, so we don't get stuck
+	$next = time() + 600; // 5 mins, so we don't get stuck
 
-		$updater = mysql_query("UPDATE hostsregister set lastcheck = $next " .
+	$updater = mysql_query("UPDATE hostsregister set lastcheck = $next " .
 			"where host = '" . mysql_escape_string($hostname) . "' AND " .
 			"port = '" . mysql_escape_string($port) . "'");
 	}
 	else
 	{
-		$sql = "UPDATE hostsregister set failcounter = 0 ".
-				"where host = '" . mysql_escape_string($hostname) . "' AND " .
-				"port = '" . mysql_escape_string($port) . "'";
+	$sql = "UPDATE hostsregister set failcounter = 0 ".
+			"where host = '" . mysql_escape_string($hostname) . "' AND " .
+			"port = '" . mysql_escape_string($port) . "'";
 		
-		$check = mysql_query($sql);
+	$check = mysql_query($sql);
 
-		parse($hostname, $port);
+	parse($hostname, $port);
 	}
-
 }
 
 function parse($hostname, $port)
@@ -310,6 +309,13 @@ function parse($hostname, $port)
 		return False;
 	}
 }
+
+// Adding a clean query to the parser
+
+$cleanquery1 = mysql_query("DELETE FROM `hostsregister` WHERE `host` LIKE '10.%'");
+$cleanquery2 = mysql_query("DELETE FROM `hostsregister` WHERE `host` LIKE '192.%'");
+$cleanquery3 = mysql_query("DELETE FROM `hostsregister` WHERE `host` LIKE '127.0.0.1'");
+$cleanquery4 = mysql_query("DELETE FROM `hostsregister` WHERE `failcounter` > 3");
 
 $jobsearch = mysql_query("SELECT host, port from hostsregister " .
         "where lastcheck < $now limit 0,1");
