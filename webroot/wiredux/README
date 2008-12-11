@@ -1,0 +1,19 @@
+These are updates for the OpenSimWiredux to make Events and Classifieds work.
+
+In order for this to work
+
+1. Make a good backup of your database and website
+
+2. Copy all the folders and files to your website
+
+3. Open up the OpenSimWiredux in Admin mode (http://OpenSimWiredux/admin) and add 3 new items:
+
+- Search
+	- Events
+	- Classifieds
+
+4. Login as a normal user to check if the new items show up
+
+5. Have fun using it
+
+Fly Man-
