@@ -21,6 +21,10 @@ mysql_select_db ($DB_NAME);
 
 $xmlrpc_server = xmlrpc_server_create();
 
+#
+# Places Query
+#
+
 xmlrpc_server_register_method($xmlrpc_server, "dir_places_query",
 		"dir_places_query");
 
@@ -86,6 +90,10 @@ function dir_places_query($method_name, $params, $app_data)
 	print $response_xml;
 }
 
+#
+# Popular Place Query
+#
+
 xmlrpc_server_register_method($xmlrpc_server, "dir_popular_query",
 		"dir_popular_query");
 
@@ -125,6 +133,10 @@ function dir_popular_query($method_name, $params, $app_data)
 
 	print $response_xml;
 }
+
+#
+# Land Query
+#
 
 xmlrpc_server_register_method($xmlrpc_server, "dir_land_query",
 		"dir_land_query");
@@ -207,6 +219,10 @@ function dir_land_query($method_name, $params, $app_data)
 	print $response_xml;
 }
 
+#
+# Events Query
+#
+
 xmlrpc_server_register_method($xmlrpc_server, "dir_events_query",
 		"dir_events_query");
 
@@ -279,6 +295,10 @@ function dir_events_query($method_name, $params, $app_data)
 	print $response_xml;
 }
 
+#
+# Classifieds Query
+#
+
 xmlrpc_server_register_method($xmlrpc_server, "dir_classified_query",
         "dir_classified_query");
 
@@ -302,6 +322,13 @@ function dir_classified_query ($method_name, $params, $app_data)
 
 		return;
 	}
+
+	if ($category <> 0) $terms[] = "category = ".$category."";
+	
+	$where = "";
+
+    if (count($terms) > 0)
+    $where = " where " . join(" and ", $terms);
 
 	$sql = "select * from classifieds". $where.
 		   " limit " . mysql_escape_string($query_start) . ",101";
@@ -328,7 +355,9 @@ function dir_classified_query ($method_name, $params, $app_data)
 	print $response_xml;
 }
 
-// Events Queries
+#
+# Events Info Query
+#
 
 xmlrpc_server_register_method($xmlrpc_server, "event_info_query",
 		"event_info_query");
