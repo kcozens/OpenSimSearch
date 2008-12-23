@@ -437,23 +437,23 @@ namespace OpenSimSearch.Modules.OpenSearch
 
             int i = 0;
 
-//            foreach (Object o in dataArray)
-//            {
-//                Hashtable d = (Hashtable)o;
-//
-//                data[i] = new DirClassifiedReplyData();
-//                data[i].classifiedID = new UUID(d["classifiedid"].ToString());
-//                data[i].name = d["name"].ToString();
-//                data[i].classifiedFlags = (byte)d["classifiedflags"];
-//                data[i].creationDate = Convert.ToUInt32(d["creation_date"]);
-//				data[i].expirationDate = Convert.ToUInt32(d["expiration_date"]);
-//                data[i].price = Convert.ToInt32(d["priceforlisting"]);
-//                i++;
-//                if (i >= count)
-//                    break;
-//            }
-//
-//            remoteClient.SendDirClassifiedReply(queryID, data);
+            foreach (Object o in dataArray)
+            {
+                Hashtable d = (Hashtable)o;
+
+                data[i] = new DirClassifiedReplyData();
+                data[i].classifiedID = new UUID(d["classifiedid"].ToString());
+                data[i].name = d["name"].ToString();
+                data[i].classifiedFlags = Convert.ToByte(d["classifiedflags"]);
+                data[i].creationDate = Convert.ToUInt32(d["creation_date"]);
+				data[i].expirationDate = Convert.ToUInt32(d["expiration_date"]);
+                data[i].price = Convert.ToInt32(d["priceforlisting"]);
+                i++;
+                if (i >= count)
+                    break;
+            }
+
+            remoteClient.SendDirClassifiedReply(queryID, data);
         }
 
 		public void EventInfoRequest(IClientAPI remoteClient, uint queryEventID)
