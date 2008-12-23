@@ -312,10 +312,15 @@ function parse($hostname, $port)
 
 // Adding a clean query to the parser
 
-$cleanquery1 = mysql_query("DELETE FROM `hostsregister` WHERE `host` LIKE '10.%'");
-$cleanquery2 = mysql_query("DELETE FROM `hostsregister` WHERE `host` LIKE '192.%'");
-$cleanquery3 = mysql_query("DELETE FROM `hostsregister` WHERE `host` LIKE '127.0.0.1'");
-$cleanquery4 = mysql_query("DELETE FROM `hostsregister` WHERE `failcounter` > 3");
+//
+// Uncomment the underlaying parts when you don't have local regions
+// This will take care of the cleaning of non-reachables regions from localhost, internal ip's
+// 
+
+// $cleanquery1 = mysql_query("DELETE FROM `hostsregister` WHERE `host` LIKE '10.%'");
+// $cleanquery2 = mysql_query("DELETE FROM `hostsregister` WHERE `host` LIKE '192.%'");
+// $cleanquery3 = mysql_query("DELETE FROM `hostsregister` WHERE `host` LIKE '127.0.0.1'");
+// $cleanquery4 = mysql_query("DELETE FROM `hostsregister` WHERE `failcounter` > 3");
 
 $jobsearch = mysql_query("SELECT host, port from hostsregister " .
         "where lastcheck < $now limit 0,1");
