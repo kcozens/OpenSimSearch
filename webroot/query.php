@@ -415,6 +415,53 @@ function event_info_query($method_name, $params, $app_data)
 }
 
 #
+# Classifieds Info Query
+#
+
+xmlrpc_server_register_method($xmlrpc_server, "classifieds_info_query",
+		"classifieds_info_query");
+
+function classifieds_info_query($method_name, $params, $app_data)
+{
+	$req			= $params[0];
+
+	$classifiedID	= $req['ClassifiedID'];
+
+	$sql =  "select * from classifieds where $classifiedID = '" .
+			mysql_escape_string($classifiedID). "'"; 
+
+	$result = mysql_query($sql);
+
+	$data = array();
+	while (($row = mysql_fetch_assoc($result)))
+	{
+		$data[] = array(
+				"ClassifiedID" => $row["classifiedID"],
+				"CreatorID" => $row["creatoruuid"],
+				"CreationDate" => $row["creationdate"],
+				"ExpirationDate" => $row["expirationdate"],
+				"Category" => $row["category"],
+				"Name" => $row["name"],
+				"Desc" => $row["description"],
+				"ParcelID" => $row["parceluuid"],
+				"ParentEstate" => $row["parentestate"],
+				"SnapshotID" => $row["coveramount"],
+				"SimName" => $row["simname"],
+				"PosGlobal" => $row["posglobal"],
+				"ParcelName" => $row["parcelname"],
+				"ClassifiedFlags" => $row["classifiedflags"].
+				"PriceForListing" => $row["priceforlisting"]);
+	}
+
+	$response_xml = xmlrpc_encode(array(
+			'success'	  => True,
+			'errorMessage' => "",
+			'data' => $data));
+
+	print $response_xml;
+}
+	
+#
 # Process the request
 #
 
