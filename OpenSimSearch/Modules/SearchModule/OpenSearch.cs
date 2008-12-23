@@ -502,7 +502,7 @@ namespace OpenSimSearch.Modules.OpenSearch
 			remoteClient.SendEventInfoReply(data);
 		}
 
-		public void ClassifiedInfoRequest(IClientAPI remoteClient, UUID queryClassifiedID)
+		public void ClassifiedInfoRequest(UUID queryClassifiedID, IClientAPI remoteClient)
 		{
 			Hashtable ReqHash = new Hashtable();
 			ReqHash["classifiedID"] = queryClassifiedID.ToString();
@@ -530,24 +530,26 @@ namespace OpenSimSearch.Modules.OpenSearch
 			}
 
 			Hashtable d = (Hashtable)dataArray[0];
-			ClassifiedsData data = new ClassifiedsData();
-			data.classifiedID = new UUID(d["classifieduuid"].ToString());
-			data.creatorid = new UUID(d["creatoruuid"].ToString());
-			data.creationdate = Convert.ToUInt32(d["creationdate"]);
-			data.expirationdate = Convert.ToUInt32(d["expirationdate"]);
-			data.category = Convert.ToUInt32(d["category"]);
-			data.name = d["name"].ToString();
-			data.desc = d["description"].ToString();
-			data.parcelid = new UUID(d["parceluuid"].ToString());
-			data.parentestate = Convert.ToUInt32(d["parentestate"]);
-			data.snapshotid = new UUID(d["snapshotuuid"].ToString());
-			data.simName = d["simname"].ToString();
-			Vector3.TryParse(d["posglobal"].ToString(), out data.globalPos);
-			data.parcelname = d["parcelname"].ToString();
-			data.classifiedflags = Convert.ToByte(d["classifiedflags"]);
-			data.priceforlisting = Convert.ToInt32(d["priceforlisting"]);
 
-			remoteClient.SendClassifiedInfoReply(data);
+            Vector3 globalPos = new Vector3();
+			Vector3.TryParse(d["posglobal"].ToString(), out globalPos);
+
+			remoteClient.SendClassifiedInfoReply(
+                    new UUID(d["classifieduuid"].ToString()),
+                    new UUID(d["creatoruuid"].ToString()),
+                    Convert.ToUInt32(d["creationdate"]),
+                    Convert.ToUInt32(d["expirationdate"]),
+                    Convert.ToUInt32(d["category"]),
+                    d["name"].ToString(),
+                    d["description"].ToString(),
+                    new UUID(d["parceluuid"].ToString()),
+                    Convert.ToUInt32(d["parentestate"]),
+                    new UUID(d["snapshotuuid"].ToString()),
+                    d["simname"].ToString(),
+                    globalPos,
+                    d["parcelname"].ToString(),
+                    Convert.ToByte(d["classifiedflags"]),
+                    Convert.ToInt32(d["priceforlisting"]));
 		}
 	}
 }
