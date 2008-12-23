@@ -508,7 +508,7 @@ namespace OpenSimSearch.Modules.OpenSearch
 			ReqHash["classifiedID"] = queryClassifiedID.ToString();
 
 			Hashtable result = GenericXMLRPCRequest(ReqHash,
-					"classifieds_info_query"");
+					"classifieds_info_query");
 
 			if (!Convert.ToBoolean(result["success"]))
 			{
