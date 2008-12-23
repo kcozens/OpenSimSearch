@@ -425,9 +425,9 @@ function classifieds_info_query($method_name, $params, $app_data)
 {
 	$req			= $params[0];
 
-	$classifiedID	= $req['ClassifiedID'];
+	$classifiedID	= $req['classifiedID'];
 
-	$sql =  "select * from classifieds where $classifiedID = '" .
+	$sql =  "select * from classifieds where classifieduuid = '" .
 			mysql_escape_string($classifiedID). "'"; 
 
 	$result = mysql_query($sql);
@@ -436,21 +436,21 @@ function classifieds_info_query($method_name, $params, $app_data)
 	while (($row = mysql_fetch_assoc($result)))
 	{
 		$data[] = array(
-				"ClassifiedID" => $row["classifiedID"],
-				"CreatorID" => $row["creatoruuid"],
-				"CreationDate" => $row["creationdate"],
-				"ExpirationDate" => $row["expirationdate"],
-				"Category" => $row["category"],
-				"Name" => $row["name"],
-				"Desc" => $row["description"],
-				"ParcelID" => $row["parceluuid"],
-				"ParentEstate" => $row["parentestate"],
-				"SnapshotID" => $row["coveramount"],
-				"SimName" => $row["simname"],
-				"PosGlobal" => $row["posglobal"],
-				"ParcelName" => $row["parcelname"],
-				"ClassifiedFlags" => $row["classifiedflags"].
-				"PriceForListing" => $row["priceforlisting"]);
+				"classifieduuid" => $row["classifieduuid"],
+				"creatoruuid" => $row["creatoruuid"],
+				"creationdate" => $row["creationdate"],
+				"expirationdate" => $row["expirationdate"],
+				"category" => $row["category"],
+				"name" => $row["name"],
+				"description" => $row["description"],
+				"parceluuid" => $row["parceluuid"],
+				"parentestate" => $row["parentestate"],
+				"snapshotuuid" => $row["snapshotuuid"],
+				"simname" => $row["simname"],
+				"posglobal" => $row["posglobal"],
+				"parcelname" => $row["parcelname"],
+				"classifiedflags" => $row["classifiedflags"],
+				"priceforlisting" => $row["priceforlisting"]);
 	}
 
 	$response_xml = xmlrpc_encode(array(
