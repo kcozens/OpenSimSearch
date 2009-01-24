@@ -3,9 +3,9 @@
 -- http://www.phpmyadmin.net
 -- 
 -- Host: localhost
--- Generatie Tijd: 05 Nov 2008 om 20:26
--- Server versie: 5.0.51
--- PHP Versie: 5.2.4-2ubuntu5.3
+-- Generatie Tijd: 24 Jan 2009 om 15:48
+-- Server versie: 5.0.67
+-- PHP Versie: 5.2.6-2ubuntu5
 -- 
 -- Database: `ossearch`
 -- 
@@ -25,7 +25,8 @@ CREATE TABLE `allparcels` (
   `parcelUUID` char(36) NOT NULL default '00000000-0000-0000-0000-000000000000',
   `infoUUID` char(36) NOT NULL default '00000000-0000-0000-0000-000000000000',
   `parcelarea` int(11) NOT NULL,
-  PRIMARY KEY  (`regionUUID`)
+  PRIMARY KEY  (`parcelUUID`),
+  KEY `regionUUID` (`regionUUID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -66,7 +67,7 @@ CREATE TABLE `events` (
   `creatoruuid` char(40) NOT NULL,
   `category` int(2) NOT NULL,
   `description` text NOT NULL,
-  `dateUTC` int(10) NOT NULL,
+  `dateUTC` int(12) NOT NULL,
   `duration` int(3) NOT NULL,
   `covercharge` int(1) NOT NULL,
   `coveramount` int(10) NOT NULL,
@@ -75,7 +76,7 @@ CREATE TABLE `events` (
   `eventflags` int(10) NOT NULL,
   `mature` enum('true','false') NOT NULL,
   PRIMARY KEY  (`eventid`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
