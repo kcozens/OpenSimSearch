@@ -11,9 +11,8 @@ using log4net;
 using Nini.Config;
 using Nwc.XmlRpc;
 using OpenSim.Framework;
-using OpenSim.Region.Interfaces;
-using OpenSim.Region.Environment.Interfaces;
-using OpenSim.Region.Environment.Scenes;
+using OpenSim.Region.Framework.Interfaces;
+using OpenSim.Region.Framework.Scenes;
 using OpenSim.Framework.Communications.Cache;
 
 namespace OpenSimSearch.Modules.OpenSearch
