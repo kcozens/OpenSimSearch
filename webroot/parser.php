@@ -210,7 +210,15 @@ function parse($hostname, $port)
 				// Adding support for groups
 
 				$group = $value->getElementsByTagName("group")->item(0);
-				$groupuuid = $group->getElementsByTagName("groupuuid")->item(0)->nodeValue;
+				
+				if ($group != "")
+				{
+					$groupuuid = $group->getElementsByTagName("groupuuid")->item(0)->nodeValue;
+				}
+				else
+				{
+					$groupuuid = "00000000-0000-0000-0000-000000000000";
+				}
 
 				//
 				// Check bits on Public, Build, Script
