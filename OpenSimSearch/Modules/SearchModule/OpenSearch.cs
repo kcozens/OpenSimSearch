@@ -605,18 +605,21 @@ namespace OpenSimSearch.Modules.OpenSearch
                 i = 0;
                 uint locX = 0;
                 uint locY = 0;
+
+                List<mapItemReply> mapitems = new List<mapItemReply>();
+
                 foreach (DirLandReplyData landDir in Landdata)
                 {
                     foreach(Scene scene in m_Scenes)
                     {
-                        if(scene.RegionInfo.RegionID == ParcelRegionUUID[i])
+                        if(scene.RegionInfo.RegionID.ToString() == ParcelRegionUUID[i])
                         {
                             locX = scene.RegionInfo.RegionLocX;
                             locY = scene.RegionInfo.RegionLocY;
                         }
                     }
                     string[] landingpoint = ParcelLandingPoint[i].Split('/');
-                    mapitem = new mapItemReply();
+                    mapItemReply mapitem = new mapItemReply();
                     mapitem.x = (uint)(locX + Convert.ToDecimal(landingpoint[0]));
                     mapitem.y = (uint)(locY + Convert.ToDecimal(landingpoint[1]));
                     mapitem.id = landDir.parcelID;
