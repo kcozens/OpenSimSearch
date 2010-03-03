@@ -13,7 +13,7 @@ using Nwc.XmlRpc;
 using OpenSim.Framework;
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
-using OpenSim.Framework.Communications.Cache;
+using OpenSim.Services.Interfaces;
 
 namespace OpenSimSearch.Modules.OpenSearch
 {
@@ -334,22 +334,19 @@ namespace OpenSimSearch.Modules.OpenSearch
         public void DirPeopleQuery(IClientAPI remoteClient, UUID queryID,
                 string queryText, uint queryFlags, int queryStart)
         {
-            List<AvatarPickerAvatar> AvatarResponses =
-                    new List<AvatarPickerAvatar>();
-            AvatarResponses = m_Scenes[0].SceneGridService.
-                    GenerateAgentPickerRequestResponse(queryID, queryText);
+            List<UserAccount> accounts = m_Scenes[0].UserAccountService.GetUserAccounts(m_Scenes[0].RegionInfo.ScopeID, queryText);
 
             DirPeopleReplyData[] data =
-                    new DirPeopleReplyData[AvatarResponses.Count];
+                    new DirPeopleReplyData[accounts.Count];
 
             int i = 0;
-            foreach (AvatarPickerAvatar item in AvatarResponses)
+            foreach (UserAccount item in accounts)
             {
                 data[i] = new DirPeopleReplyData();
 
-                data[i].agentID = item.AvatarID;
-                data[i].firstName = item.firstName;
-                data[i].lastName = item.lastName;
+                data[i].agentID = item.PrincipalID;
+                data[i].firstName = item.FirstName;
+                data[i].lastName = item.LastName;
                 data[i].group = "";
                 data[i].online = false;
                 data[i].reputation = 0;
