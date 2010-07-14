@@ -110,7 +110,7 @@ function parse($hostname, $port)
 
 		foreach( $regionlist as $region )
 		{
-			$regioncategory = $value->getAttributeNode("category")->item(0)->nodeValue;
+			$regioncategory = $region->getAttributeNode("category")->nodeValue;
 
 			//
 			// Start reading the Region info
