@@ -110,22 +110,20 @@ function parse($hostname, $port)
 
 		foreach( $regionlist as $region )
 		{
+			$regioncategory = $value->getAttributeNode("category")->item(0)->nodeValue;
+
 			//
 			// Start reading the Region info
 			//
 			$info = $region->getElementsByTagName("info")->item(0);
 
-			$regionuuid =
-					$info->getElementsByTagName("uuid")->item(0)->nodeValue;
+			$regionuuid = $info->getElementsByTagName("uuid")->item(0)->nodeValue;
 
-			$regionname =
-					$info->getElementsByTagName("name")->item(0)->nodeValue;
+			$regionname = $info->getElementsByTagName("name")->item(0)->nodeValue;
 
-			$regionhandle =
-					$info->getElementsByTagName("handle")->item(0)->nodeValue;
+			$regionhandle = $info->getElementsByTagName("handle")->item(0)->nodeValue;
 
-			$url =
-					$info->getElementsByTagName("url")->item(0)->nodeValue;
+			$url = $info->getElementsByTagName("url")->item(0)->nodeValue;
 
 			//
 			// First, check if we already have a region that is the same
@@ -150,10 +148,10 @@ function parse($hostname, $port)
 			$data = $region->getElementsByTagName("data")->item(0);
 			$estate = $data->getElementsByTagName("estate")->item(0);
 
-            $username =
-                    $estate->getElementsByTagName("name")->item(0)->nodeValue;
-            $useruuid =
-                    $estate->getElementsByTagName("uuid")->item(0)->nodeValue;
+			$username = $estate->getElementsByTagName("name")->item(0)->nodeValue;
+           		$useruuid = $estate->getElementsByTagName("uuid")->item(0)->nodeValue;
+
+           		$estateid = $estate->getElementsByTagName("id")->item(0)->nodeValue;
 
 
 			//
@@ -176,32 +174,23 @@ function parse($hostname, $port)
 
 			foreach( $parcel as $value )
 			{
-				$parcelname =
-						$value->getElementsByTagName("name")->item(0)->nodeValue;
+				$parcelname = $value->getElementsByTagName("name")->item(0)->nodeValue;
 
-				$parceluuid =
-						$value->getElementsByTagName("uuid")->item(0)->nodeValue;
+				$parceluuid = $value->getElementsByTagName("uuid")->item(0)->nodeValue;
 
-				$infouuid =
-						$value->getElementsByTagName("infouuid")->item(0)->nodeValue;
+				$infouuid = $value->getElementsByTagName("infouuid")->item(0)->nodeValue;
 
-				$parcellanding =
-						$value->getElementsByTagName("location")->item(0)->nodeValue;
+				$parcellanding = $value->getElementsByTagName("location")->item(0)->nodeValue;
 
-				$parceldescription =
-						$value->getElementsByTagName("description")->item(0)->nodeValue;
+				$parceldescription = $value->getElementsByTagName("description")->item(0)->nodeValue;
 
-				$parcelarea =
-						$value->getElementsByTagName("area")->item(0)->nodeValue;
+				$parcelarea = $value->getElementsByTagName("area")->item(0)->nodeValue;
 
-				$parcelcategory =
-						$value->getAttributeNode("category")->nodeValue;
+				$parcelcategory = $value->getAttributeNode("category")->nodeValue;
 
-				$parcelsaleprice =
-						$value->getAttributeNode("salesprice")->nodeValue;
+				$parcelsaleprice = $value->getAttributeNode("salesprice")->nodeValue;
 
-				$dwell =
-						$value->getElementsByTagName("dwell")->item(0)->nodeValue;
+				$dwell = $value->getElementsByTagName("dwell")->item(0)->nodeValue;
 
 				$owner = $value->getElementsByTagName("owner")->item(0);
 
@@ -223,10 +212,8 @@ function parse($hostname, $port)
 				//
 				// Check bits on Public, Build, Script
 				//
-				$parcelforsale =
-						$value->getAttributeNode("forsale")->nodeValue;
-				$parceldirectory =
-						$value->getAttributeNode("showinsearch")->nodeValue;
+				$parcelforsale = $value->getAttributeNode("forsale")->nodeValue;
+				$parceldirectory = $value->getAttributeNode("showinsearch")->nodeValue;
 				$parcelbuild = $value->getAttributeNode("build")->nodeValue;
 				$parcelscript = $value->getAttributeNode("scripts")->nodeValue;
 				$parcelpublic = $value->getAttributeNode("public")->nodeValue;
@@ -275,8 +262,8 @@ function parse($hostname, $port)
 							mysql_escape_string($parcellanding) . "','" .
 							mysql_escape_string($infouuid) . "', '" .
 							mysql_escape_string($dwell) . "', '" .
-							mysql_escape_string("1") . "', '" .
-							mysql_escape_string("false") . "')";
+							mysql_escape_string("$estateid") . "', '" .
+							mysql_escape_string("$regioncategory") . "')";
 
 					mysql_query($sql);
 				}
@@ -289,27 +276,24 @@ function parse($hostname, $port)
 
 			foreach( $objects as $value )
 			{
-				$uuid =
-						$value->getElementsByTagName("uuid")->item(0)->nodeValue;
+				$uuid = $value->getElementsByTagName("uuid")->item(0)->nodeValue;
 
-				$regionuuid =
-						$value->getElementsByTagName("regionuuid")->item(0)->nodeValue;
+				$regionuuid = $value->getElementsByTagName("regionuuid")->item(0)->nodeValue;
 
-				$parceluuid =
-						$value->getElementsByTagName("parceluuid")->item(0)->nodeValue;
+				$parceluuid = $value->getElementsByTagName("parceluuid")->item(0)->nodeValue;
 
-				$title =
-						$value->getElementsByTagName("title")->item(0)->nodeValue;
+				$location = $value->getElementsByTagName("location")->item(0)->nodeValue;
 
-				$description =
-						$value->getElementsByTagName("description")->item(0)->nodeValue;
+				$title = $value->getElementsByTagName("title")->item(0)->nodeValue;
 
-				$flags =
-						$value->getElementsByTagName("flags")->item(0)->nodeValue;
+				$description = $value->getElementsByTagName("description")->item(0)->nodeValue;
+
+				$flags = $value->getElementsByTagName("flags")->item(0)->nodeValue;
 
 				mysql_query("insert into objects values('" .
 						mysql_escape_string($uuid) . "','" .
-						mysql_escape_string($parceluuid) . "','','" .
+						mysql_escape_string($parceluuid) . "','" .
+						mysql_escape_string($location) . "','" .
 						mysql_escape_string($title) . "','" .
 						mysql_escape_string($description) . "','" .
 						mysql_escape_string($regionuuid) . "')");

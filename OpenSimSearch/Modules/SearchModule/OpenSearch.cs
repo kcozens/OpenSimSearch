@@ -519,7 +519,7 @@ namespace OpenSimSearch.Modules.OpenSearch
                 // event after the search,
                 // we should be able to find it here
                 // TODO do some (more) sensible error-handling here
-                remoteClient.SendAgentAlertMessage("Couldn't find classified.",
+                remoteClient.SendAgentAlertMessage("Couldn't find any classifieds.",
                         false);
                 return;
             }
