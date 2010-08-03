@@ -137,11 +137,11 @@ function parse($hostname, $port)
 						mysql_escape_string($regionuuid) . "'");
 				mysql_query("DELETE FROM parcels WHERE regionuuid = '" .
 						mysql_escape_string($regionuuid) . "'");
-				mysql_query("DELETE FROM objects WHERE regionuuid = '" .
-						mysql_escape_string($regionuuid) . "'");
 				mysql_query("DELETE FROM allparcels WHERE regionUUID = '" .
 						mysql_escape_string($regionuuid) . "'");
 				mysql_query("DELETE FROM parcelsales WHERE regionUUID = '" .
+						mysql_escape_string($regionuuid) . "'");
+				mysql_query("DELETE FROM objects WHERE regionuuid = '" .
 						mysql_escape_string($regionuuid) . "'");
 			}
 
@@ -149,10 +149,9 @@ function parse($hostname, $port)
 			$estate = $data->getElementsByTagName("estate")->item(0);
 
 			$username = $estate->getElementsByTagName("name")->item(0)->nodeValue;
-           		$useruuid = $estate->getElementsByTagName("uuid")->item(0)->nodeValue;
+			$useruuid = $estate->getElementsByTagName("uuid")->item(0)->nodeValue;
 
-           		$estateid = $estate->getElementsByTagName("id")->item(0)->nodeValue;
-
+			$estateid = $estate->getElementsByTagName("id")->item(0)->nodeValue;
 
 			//
 			// Second, add the new info to the database
@@ -221,7 +220,7 @@ function parse($hostname, $port)
 				//
 				// Save
 				//
-				$sql = "insert into allparcels values('" .
+				$sql = "INSERT INTO allparcels VALUES('" .
 						mysql_escape_string($regionuuid) . "','" .
 						mysql_escape_string($parcelname) . "','" .
 						mysql_escape_string($owneruuid) . "','" .
@@ -235,7 +234,7 @@ function parse($hostname, $port)
 
 				if ($parceldirectory == "true")
 				{
-					$sql = "insert into parcels values('" .
+					$sql = "INSERT INTO parcels VALUES('" .
 							mysql_escape_string($regionuuid) . "','" .
 							mysql_escape_string($parcelname) . "','" .
 							mysql_escape_string($parceluuid) . "','" .
@@ -253,7 +252,7 @@ function parse($hostname, $port)
 
 				if ($parcelforsale == "true")
 				{
-					$sql = "insert into parcelsales values('" .
+					$sql = "INSERT INTO parcelsales VALUES('" .
 							mysql_escape_string($regionuuid) . "','" .
 							mysql_escape_string($parcelname) . "','" .
 							mysql_escape_string($parceluuid) . "','" .
@@ -262,8 +261,8 @@ function parse($hostname, $port)
 							mysql_escape_string($parcellanding) . "','" .
 							mysql_escape_string($infouuid) . "', '" .
 							mysql_escape_string($dwell) . "', '" .
-							mysql_escape_string("$estateid") . "', '" .
-							mysql_escape_string("$regioncategory") . "')";
+							mysql_escape_string($estateid) . "', '" .
+							mysql_escape_string($regioncategory) . "')";
 
 					mysql_query($sql);
 				}
@@ -290,7 +289,7 @@ function parse($hostname, $port)
 
 				$flags = $value->getElementsByTagName("flags")->item(0)->nodeValue;
 
-				mysql_query("insert into objects values('" .
+				mysql_query("INSERT INTO objects VALUES('" .
 						mysql_escape_string($uuid) . "','" .
 						mysql_escape_string($parceluuid) . "','" .
 						mysql_escape_string($location) . "','" .

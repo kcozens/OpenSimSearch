@@ -150,7 +150,7 @@ CREATE TABLE `parcelsales` (
   `infoUUID` char(36) NOT NULL default '00000000-0000-0000-0000-000000000000',
   `dwell` int(11) NOT NULL,
   `parentestate` int(11) NOT NULL default '1',
-  `mature` varchar(32) NOT NULL default 'false',
+  `mature` varchar(32) NOT NULL default 'PG',
   PRIMARY KEY  (`regionUUID`,`parcelUUID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
