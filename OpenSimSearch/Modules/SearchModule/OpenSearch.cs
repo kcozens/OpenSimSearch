@@ -554,7 +554,7 @@ namespace OpenSimSearch.Modules.OpenSearch
                 int tc = Environment.TickCount;
                 Hashtable ReqHash = new Hashtable();
                 ReqHash["flags"] = "163840";
-                ReqHash["type"] = "4294967295 ";
+                ReqHash["type"] = "4294967295";
                 ReqHash["price"] = "0";
                 ReqHash["area"] = "0";
                 ReqHash["query_start"] = "0";
@@ -578,8 +578,8 @@ namespace OpenSimSearch.Modules.OpenSearch
                 DirLandReplyData[] Landdata = new DirLandReplyData[count];
 
                 int i = 0;
-                List<string> ParcelLandingPoint = new List<string>();
-                List<string> ParcelRegionUUID = new List<string>();
+                string[] ParcelLandingPoint = new string[count];
+                string[] ParcelRegionUUID = new string[count];
                 foreach (Object o in dataArray)
                 {
                     Hashtable d = (Hashtable)o;
