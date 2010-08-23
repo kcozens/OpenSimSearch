@@ -21,8 +21,8 @@ $service = $_GET['service'];
 if ($hostname != "" && $port != "" && $service == "online")
 {
     // Check if there is already a database row for this host
-    $checkhost = mysql_query("SELECT register from hostsregister where " .
-			"host = '" . mysql_escape_string($hostname) . "' and " .
+    $checkhost = mysql_query("SELECT register FROM hostsregister WHERE " .
+			"host = '" . mysql_escape_string($hostname) . "' AND " .
 			"port = '" . mysql_escape_string($port) . "'");
 
     // Get the request time as a timestamp for later
@@ -31,8 +31,8 @@ if ($hostname != "" && $port != "" && $service == "online")
     // if greater then 1, check the lastcheck date
     if (mysql_num_rows($checkhost) > 0)
     {
-		$update = "UPDATE hostsregister set " .
-				"register = '" . mysql_escape_string($timestamp) . "' " . 
+		$update = "UPDATE hostsregister SET " .
+				"register = '" . mysql_escape_string($timestamp) . "', " . 
 				"failcounter = '0' " .  
 				"WHERE host = '" . mysql_escape_string($hostname) . "' AND " .
 				"port = '" . mysql_escape_string($port) . "'";
