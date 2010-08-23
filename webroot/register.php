@@ -33,6 +33,7 @@ if ($hostname != "" && $port != "" && $service == "online")
     {
 		$update = "UPDATE hostsregister set " .
 				"register = '" . mysql_escape_string($timestamp) . "' " . 
+				"failcounter = '0' " .  
 				"WHERE host = '" . mysql_escape_string($hostname) . "' AND " .
 				"port = '" . mysql_escape_string($port) . "'";
 

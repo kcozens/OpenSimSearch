@@ -38,8 +38,8 @@ function CheckHost($hostname, $port)
 
     if ($fp == False) 
     {
-        $sql = "UPDATE hostsregister set failcounter = failcounter + 1 ".
-            "where host = '" . mysql_escape_string($hostname) . "' AND " .
+        $sql = "UPDATE hostsregister SET failcounter = failcounter + 1 ".
+            "WHERE host = '" . mysql_escape_string($hostname) . "' AND " .
             "port = '" . mysql_escape_string($port) . "'";
         
         $check = mysql_query($sql);
@@ -49,14 +49,14 @@ function CheckHost($hostname, $port)
 
         $next = time() + 600; // 10 mins, so we don't get stuck
 
-        $updater = mysql_query("UPDATE hostsregister set lastcheck = $next " .
-            "where host = '" . mysql_escape_string($hostname) . "' AND " .
+        $updater = mysql_query("UPDATE hostsregister SET lastcheck = $next " .
+            "WHERE host = '" . mysql_escape_string($hostname) . "' AND " .
             "port = '" . mysql_escape_string($port) . "'");
     }
     else
     {
-        $sql = "UPDATE hostsregister set failcounter = 0 ".
-                "where host = '" . mysql_escape_string($hostname) . "' AND " .
+        $sql = "UPDATE hostsregister SET failcounter = 0 ".
+                "WHERE host = '" . mysql_escape_string($hostname) . "' AND " .
                 "port = '" . mysql_escape_string($port) . "'";
         
         $check = mysql_query($sql);
@@ -80,8 +80,8 @@ function parse($hostname, $port)
     //
     $next = time() + 600; // 10 mins, so we don't get stuck
 
-    $updater = mysql_query("UPDATE hostsregister set lastcheck = $next " .
-            "where host = '" . mysql_escape_string($hostname) . "' AND " .
+    $updater = mysql_query("UPDATE hostsregister SET lastcheck = $next " .
+            "WHERE host = '" . mysql_escape_string($hostname) . "' AND " .
             "port = '" . mysql_escape_string($port) . "'");
 
     //
@@ -93,7 +93,9 @@ function parse($hostname, $port)
     if ($xml == "") //Was any data retrieved? (CURL may have timed out)
         return;     //No, so there is nothing to parse
 
-    $objDOM->loadXML($xml);
+    //Don't try and parse if XML is invalid or we got an HTML 404 error.
+    if ($objDOM->loadXML($xml) == False)
+        return;
 
     //
     // Get the region data to update
@@ -112,8 +114,8 @@ function parse($hostname, $port)
     //
     $next = time() + $expire;
 
-    $updater = mysql_query("UPDATE hostsregister set lastcheck = $next " .
-            "where host = '" . mysql_escape_string($hostname) . "' AND " .
+    $updater = mysql_query("UPDATE hostsregister SET lastcheck = $next " .
+            "WHERE host = '" . mysql_escape_string($hostname) . "' AND " .
             "port = '" . mysql_escape_string($port) . "'");
 
     $regionlist = $regiondata->getElementsByTagName("region");
@@ -311,8 +313,8 @@ function parse($hostname, $port)
     }
 }
 
-$jobsearch = mysql_query("SELECT host, port from hostsregister " .
-        "where lastcheck < $now limit 0,1");
+$jobsearch = mysql_query("SELECT host, port FROM hostsregister " .
+        "WHERE lastcheck < $now LIMIT 0,1");
 
 while ($jobs = mysql_fetch_row($jobsearch))
 {
