@@ -88,9 +88,10 @@ CREATE TABLE `hostsregister` (
   `host` varchar(255) NOT NULL,
   `port` int(5) NOT NULL,
   `register` int(10) NOT NULL,
-  `lastcheck` int(10) NOT NULL,
-  `failcounter` int(1) NOT NULL,
-  PRIMARY KEY  (`host`,`port`)
+  `nextcheck` int(10) NOT NULL,
+  `checked` tinyint(1) NOT NULL,
+  `failcounter` int(10) NOT NULL,
+  PRIMARY KEY (`host`,`port`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------

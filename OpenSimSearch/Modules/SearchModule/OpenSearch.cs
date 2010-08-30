@@ -549,12 +549,16 @@ namespace OpenSimSearch.Modules.OpenSearch
         public void HandleMapItemRequest(IClientAPI remoteClient, uint flags,
                                                  uint EstateID, bool godlike, uint itemtype, ulong regionhandle)
         {
+            //The following constant appears to be from GridLayerType enum
+            //defined in OpenMetaverse/GridManager.cs of libopenmetaverse.
             if (itemtype == 7) //(land sales)
             {
                 int tc = Environment.TickCount;
                 Hashtable ReqHash = new Hashtable();
+
+                //The flags are: SortAsc (1 << 15), PerMeterSort (1 << 17)
                 ReqHash["flags"] = "163840";
-                ReqHash["type"] = "4294967295";
+                ReqHash["type"] = "4294967295"; //This is -1 in 32 bits
                 ReqHash["price"] = "0";
                 ReqHash["area"] = "0";
                 ReqHash["query_start"] = "0";

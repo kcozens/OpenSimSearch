@@ -19,10 +19,11 @@ function GetURL($host, $port, $url)
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
     $data = curl_exec($ch);
-    if (!curl_errno($ch))
+    if (curl_errno($ch) == 0)
     {
         curl_close($ch);
         return $data;
@@ -34,39 +35,28 @@ function GetURL($host, $port, $url)
 
 function CheckHost($hostname, $port)
 {
-    $fp = fsockopen ($hostname, $port, $errno, $errstr, 10);
+    global $now;
 
-    if ($fp == False) 
-    {
-        $sql = "UPDATE hostsregister SET failcounter = failcounter + 1 ".
-            "WHERE host = '" . mysql_escape_string($hostname) . "' AND " .
-            "port = '" . mysql_escape_string($port) . "'";
-        
-        $check = mysql_query($sql);
-
-        //Setting a "fake" update time so this host will have time
-        //to get back online
-
-        $next = time() + 600; // 10 mins, so we don't get stuck
-
-        $updater = mysql_query("UPDATE hostsregister SET lastcheck = $next " .
-            "WHERE host = '" . mysql_escape_string($hostname) . "' AND " .
-            "port = '" . mysql_escape_string($port) . "'");
-    }
+    $xml = GetURL($hostname, $port, "?method=collector");
+    if ($xml == "")	//No data was retrieved? (CURL may have timed out)
+        $failcounter = "failcounter + 1";
     else
-    {
-        $sql = "UPDATE hostsregister SET failcounter = 0 ".
-                "WHERE host = '" . mysql_escape_string($hostname) . "' AND " .
-                "port = '" . mysql_escape_string($port) . "'";
-        
-        $check = mysql_query($sql);
+        $failcounter = "0";
 
-        parse($hostname, $port);
-    }
+    //Update nextcheck to be 10 minutes from now. The current OS instance
+    //won't be checked again until at least this much time has gone by.
+    $next = $now + 600;
 
+    mysql_query("UPDATE hostsregister SET nextcheck = $next," .
+                " checked = 1, failcounter = " . $failcounter .
+                " WHERE host = '" . mysql_escape_string($hostname) . "'" . 
+                " AND port = '" . mysql_escape_string($port) . "'");
+
+    if ($xml != "") 
+        parse($hostname, $port, $xml);
 }
 
-function parse($hostname, $port)
+function parse($hostname, $port, $xml)
 {
     global $now;
 
@@ -76,22 +66,10 @@ function parse($hostname, $port)
     //
 
     //
-    // Read params
-    //
-    $next = time() + 600; // 10 mins, so we don't get stuck
-
-    $updater = mysql_query("UPDATE hostsregister SET lastcheck = $next " .
-            "WHERE host = '" . mysql_escape_string($hostname) . "' AND " .
-            "port = '" . mysql_escape_string($port) . "'");
-
-    //
     // Load XML doc from URL
     //
     $objDOM = new DOMDocument();
     $objDOM->resolveExternals = false;
-    $xml = GetURL($hostname, $port, "?method=collector");
-    if ($xml == "") //Was any data retrieved? (CURL may have timed out)
-        return;     //No, so there is nothing to parse
 
     //Don't try and parse if XML is invalid or we got an HTML 404 error.
     if ($objDOM->loadXML($xml) == False)
@@ -107,20 +85,24 @@ function parse($hostname, $port)
         return;
 
     $regiondata = $regiondata->item(0);
+
+    //
+    // Update nextcheck so this host entry won't be checked again until after
+    // the DataSnapshot module has generated a new set of data to be parsed.
+    //
     $expire = $regiondata->getElementsByTagName("expire")->item(0)->nodeValue;
+    $next = $now + $expire;
 
-    //
-    // Calculate new expire
-    //
-    $next = time() + $expire;
-
-    $updater = mysql_query("UPDATE hostsregister SET lastcheck = $next " .
+    $updater = mysql_query("UPDATE hostsregister SET nextcheck = $next " .
             "WHERE host = '" . mysql_escape_string($hostname) . "' AND " .
             "port = '" . mysql_escape_string($port) . "'");
 
+    //
+    // Get the region data to be saved in the database
+    //
     $regionlist = $regiondata->getElementsByTagName("region");
 
-    foreach( $regionlist as $region )
+    foreach ($regionlist as $region)
     {
         $regioncategory = $region->getAttributeNode("category")->nodeValue;
 
@@ -183,7 +165,7 @@ function parse($hostname, $port)
         //
         $parcel = $data->getElementsByTagName("parcel");
 
-        foreach( $parcel as $value )
+        foreach ($parcel as $value)
         {
             $parcelname = $value->getElementsByTagName("name")->item(0)->nodeValue;
 
@@ -285,7 +267,7 @@ function parse($hostname, $port)
         //
         $objects = $data->getElementsByTagName("object");
 
-        foreach( $objects as $value )
+        foreach ($objects as $value)
         {
             $uuid = $value->getElementsByTagName("uuid")->item(0)->nodeValue;
 
@@ -308,16 +290,26 @@ function parse($hostname, $port)
                     mysql_escape_string($title) . "','" .
                     mysql_escape_string($description) . "','" .
                     mysql_escape_string($regionuuid) . "')");
-
         }
     }
 }
 
-$jobsearch = mysql_query("SELECT host, port FROM hostsregister " .
-        "WHERE lastcheck < $now LIMIT 0,1");
+$sql = "SELECT host, port FROM hostsregister " .
+        "WHERE nextcheck < $now AND checked = 0 LIMIT 0,10";
+
+$jobsearch = mysql_query($sql);
+
+//
+// If the sql query returns no rows, all entries in the hostsregister
+// table have been checked. Reset the checked flag and re-run the
+// query to select the next set of hosts to be checked.
+//
+if (mysql_num_rows($jobsearch) == 0)
+{
+    mysql_query("UPDATE hostsregister SET checked = 0");
+    $jobsearch = mysql_query($sql);
+}
 
 while ($jobs = mysql_fetch_row($jobsearch))
-{
     CheckHost($jobs[0], $jobs[1]);
-}
 ?>
