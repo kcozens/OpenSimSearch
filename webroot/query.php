@@ -1,4 +1,8 @@
 <?PHP
+//The description of the flags used in this file are being based on the
+//DirFindFlags enum which is defined in OpenMetaverse/DirectoryManager.cs
+//of the libopenmetaverse library.
+
 include("databaseinfo.php");
 
 $now = time();
@@ -53,22 +57,22 @@ function dir_places_query($method_name, $params, $app_data)
 
     if ($category != -1)
     {
-        $result = mysql_query("select * from parcels where " .
+        $result = mysql_query("SELECT * FROM parcels WHERE " .
                 "(searchcategory = -1 or searchcategory = '" .
-                mysql_escape_string($category) ."') and (parcelname like '%" .
-                mysql_escape_string($text) . "%' or description like '%" .
-                mysql_escape_string($text) . "%') order by " .
-                "dwell desc, parcelname" .
-                " limit ".(0+$query_start).",100");
+                mysql_escape_string($category) ."') AND (parcelname LIKE '%" .
+                mysql_escape_string($text) . "%' OR description LIKE '%" .
+                mysql_escape_string($text) . "%') ORDER BY " .
+                "dwell DESC, parcelname" .
+                " LIMIT ".(0+$query_start).",100");
     }
     else
     {
-        $result = mysql_query("select * from parcels where " .
+        $result = mysql_query("SELECT * FROM parcels WHERE " .
                 "parcelname like '%" .
-                mysql_escape_string($text) . "%' or description like '%" .
-                mysql_escape_string($text) . "%' order by " .
-                "dwell desc, parcelname" .
-                " limit ".(0+$query_start).",100");
+                mysql_escape_string($text) . "%' OR description LIKE '%" .
+                mysql_escape_string($text) . "%' ORDER BY " .
+                "dwell DESC, parcelname" .
+                " LIMIT ".(0+$query_start).",100");
     }
 
     $data = array();
@@ -105,17 +109,17 @@ function dir_popular_query($method_name, $params, $app_data)
 
     $terms    = array();
 
-    if ($flags & 0x1000)
+    if ($flags & 0x1000)	//PicturesOnly (1 << 12)
         $terms[] = "has_picture = 1";
 
-    if ($flags & 0x0800)
+    if ($flags & 0x0800)	//PgSimsOnly (1 << 11)
         $terms[] = "mature = 0";
 
     $where = "";
     if (count($terms) > 0)
-        $where = " where " . join(" and ", $terms);
+        $where = " WHERE " . join(" AND ", $terms);
 
-    $result = mysql_query("select * from popularplaces" . $where);
+    $result = mysql_query("SELECT * FROM popularplaces" . $where);
 
     $data = array();
     while (($row = mysql_fetch_assoc($result)))
@@ -153,22 +157,22 @@ function dir_land_query($method_name, $params, $app_data)
 
     $terms = array();
     $order = "lsq";
-    if ($flags & 0x80000)
+    if ($flags & 0x80000)	//NameSort (1 << 19)
         $order = "parcelname";
-    if ($flags & 0x10000)
+    if ($flags & 0x10000)	//PriceSort (1 << 16)
         $order = "saleprice";
-    if ($flags & 0x40000)
+    if ($flags & 0x40000)	//AreaSort (1 << 18)
         $order = "area";
-    if (!($flags & 0x8000))
-        $order .= " desc";
+    if (!($flags & 0x8000))	//SortAsc (1 << 15)
+        $order .= " DESC";
 
-    if ($flags & 0x100000)
+    if ($flags & 0x100000)	//LimitByPrice (1 << 20)
         $terms[] = "saleprice <= '" . mysql_escape_string($price) . "'";
 
-    if ($flags & 0x200000)
+    if ($flags & 0x200000)	//LimitByArea (1 << 21)
         $terms[] = "area >= '" . mysql_escape_string($area) . "'";
 
-    if (($type & 26) == 2) // Auction
+    if (($type & 26) == 2) // Auction (from SearchTypeFlags enum)
     {
         $response_xml = xmlrpc_encode(array(
                 'success' => False,
@@ -179,22 +183,22 @@ function dir_land_query($method_name, $params, $app_data)
         return;
     }
 
-    if (($type & 24) == 8)
+    if (($type & 24) == 8)	//Mainland (24=0x18 [bits 3 & 4])
         $terms[] = "parentestate = 1";
-    if (($type & 24) == 16)
+    if (($type & 24) == 16)	//Estate (24=0x18 [bits 3 & 4])
         $terms[] = "parentestate <> 1";
 
-    if ($flags & 0x800)
+    if ($flags & 0x0800)	//PgSimsOnly (1 << 11)
         $terms[] = "mature = 'false'";
-    if ($flags & 0x4000)
+    if ($flags & 0x4000)	//MatureSimsOnly (1 << 14)
         $terms[] = "mature = 'true'";
 
     $where = "";
     if (count($terms) > 0)
-        $where = " where " . join(" and ", $terms);
+        $where = " WHERE " . join(" AND ", $terms);
 
-    $sql = "select *, saleprice/area as lsq from parcelsales" . $where .
-                " order by " . $order . " limit " .
+    $sql = "SELECT *, saleprice/area AS lsq FROM parcelsales" . $where .
+                " ORDER BY " . $order . " LIMIT " .
                 mysql_escape_string($query_start) . ",101";
 
     $result = mysql_query($sql);
@@ -262,15 +266,16 @@ function dir_events_query($method_name, $params, $app_data)
 
     if ($category <> 0) $terms[] = "category = ".$category."";
     
-    if ($flags & 0x2000) $terms[] = "mature = 'false'";
+    if ($flags & 0x2000)	//PgEventsOnly (1 << 13)
+        $terms[] = "mature = 'false'";
 
     $where = "";
 
     if (count($terms) > 0)
-    $where = " where " . join(" and ", $terms);
+    $where = " WHERE " . join(" AND ", $terms);
 
-    $sql = "select * from events". $where.
-           " limit " . mysql_escape_string($query_start) . ",101";
+    $sql = "SELECT * FROM events". $where.
+           " LIMIT " . mysql_escape_string($query_start) . ",101";
 
     $result = mysql_query($sql);
 
@@ -330,10 +335,10 @@ function dir_classified_query ($method_name, $params, $app_data)
     $where = "";
 
     if (count($terms) > 0)
-    $where = " where " . join(" and ", $terms);
+    $where = " WHERE " . join(" AND ", $terms);
 
-    $sql = "select * from classifieds". $where.
-           " limit " . mysql_escape_string($query_start) . ",101";
+    $sql = "SELECT * FROM classifieds". $where.
+           " LIMIT " . mysql_escape_string($query_start) . ",101";
 
     $result = mysql_query($sql);
 
@@ -370,7 +375,7 @@ function event_info_query($method_name, $params, $app_data)
 
     $eventID    = $req['eventID'];
 
-    $sql =  "select * from events where eventID = " .
+    $sql =  "SELECT * FROM events WHERE eventID = " .
             mysql_escape_string($eventID); 
 
     $result = mysql_query($sql);
@@ -429,7 +434,7 @@ function classifieds_info_query($method_name, $params, $app_data)
 
     $classifiedID    = $req['classifiedID'];
 
-    $sql =  "select * from classifieds where classifieduuid = '" .
+    $sql =  "SELECT * FROM classifieds WHERE classifieduuid = '" .
             mysql_escape_string($classifiedID). "'"; 
 
     $result = mysql_query($sql);
