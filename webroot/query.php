@@ -3,6 +3,16 @@
 //DirFindFlags enum which is defined in OpenMetaverse/DirectoryManager.cs
 //of the libopenmetaverse library.
 
+//TODO:
+//classifieds, events, land sales, and places all support region(?) type
+//in search criteria in viewer.
+//
+//SearchTypeFlags -1 (Any)
+//PlacesFlags: 128 (ForSale)
+//
+//ClassifiedFlags only has bit for Mature. It has nothing for Adult.
+//EventFlags is 0 (PG), 1 (Mature), 2 (Adult)
+
 include("databaseinfo.php");
 
 $now = time();
@@ -156,7 +166,7 @@ function dir_land_query($method_name, $params, $app_data)
     $query_start    = $req['query_start'];
 
     $terms = array();
-    $order = "lsq";
+    $order = "lsq";		//PerMeterSort (1 << 17)
     if ($flags & 0x80000)	//NameSort (1 << 19)
         $order = "parcelname";
     if ($flags & 0x10000)	//PriceSort (1 << 16)

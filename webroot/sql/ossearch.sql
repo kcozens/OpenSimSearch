@@ -73,8 +73,7 @@ CREATE TABLE `events` (
   `coveramount` int(10) NOT NULL,
   `simname` varchar(255) NOT NULL,
   `globalPos` varchar(255) NOT NULL,
-  `eventflags` int(10) NOT NULL,
-  `mature` enum('true','false') NOT NULL,
+  `eventflags` int(1) NOT NULL,
   PRIMARY KEY  (`eventid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -128,6 +127,7 @@ CREATE TABLE `parcels` (
   `public` enum('true','false') NOT NULL,
   `dwell` float NOT NULL default '0',
   `infouuid` varchar(255) NOT NULL default '',
+  `mature` varchar(10) NOT NULL,
   PRIMARY KEY  (`regionUUID`,`parcelUUID`),
   KEY `name` (`parcelname`),
   KEY `description` (`description`),
@@ -151,7 +151,7 @@ CREATE TABLE `parcelsales` (
   `infoUUID` char(36) NOT NULL default '00000000-0000-0000-0000-000000000000',
   `dwell` int(11) NOT NULL,
   `parentestate` int(11) NOT NULL default '1',
-  `mature` varchar(32) NOT NULL default 'PG',
+  `mature` varchar(10) NOT NULL default 'PG',
   PRIMARY KEY  (`regionUUID`,`parcelUUID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
@@ -166,7 +166,7 @@ CREATE TABLE `popularplaces` (
   `name` varchar(255) NOT NULL,
   `dwell` float NOT NULL,
   `infoUUID` char(36) NOT NULL,
-  `has_picture` tinyint(4) NOT NULL,
+  `has_picture` tinyint(1) NOT NULL,
   `mature` tinyint(4) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 

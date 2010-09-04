@@ -56,7 +56,6 @@ CREATE TABLE `events` (
   `coveramount` int(10) NOT NULL,
   `simname` varchar(255) NOT NULL,
   `globalPos` varchar(255) NOT NULL,
-  `eventflags` int(10) NOT NULL,
-  `mature` enum('true','false') NOT NULL,
+  `eventflags` int(1) NOT NULL,
   PRIMARY KEY  (`eventid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
