@@ -127,7 +127,7 @@ CREATE TABLE `parcels` (
   `public` enum('true','false') NOT NULL,
   `dwell` float NOT NULL default '0',
   `infouuid` varchar(255) NOT NULL default '',
-  `mature` varchar(10) NOT NULL,
+  `mature` varchar(10) NOT NULL default 'PG',
   PRIMARY KEY  (`regionUUID`,`parcelUUID`),
   KEY `name` (`parcelname`),
   KEY `description` (`description`),

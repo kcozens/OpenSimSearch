@@ -238,8 +238,9 @@ function parse($hostname, $port, $xml)
                         mysql_escape_string($parcelbuild) . "','" .
                         mysql_escape_string($parcelscript) . "','" .
                         mysql_escape_string($parcelpublic) . "','".
-                        mysql_escape_string($dwell) . "','".
-                        mysql_escape_string($infouuid) . "' )";
+                        mysql_escape_string($dwell) . "','" .
+                        mysql_escape_string($infouuid) . "','" .
+                        mysql_escape_string($regioncategory) . "')";
 
                 mysql_query($sql);
             }
