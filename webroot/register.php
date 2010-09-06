@@ -45,7 +45,7 @@ if ($hostname != "" && $port != "" && $service == "online")
         $register = "INSERT INTO hostsregister VALUES ".
                     "('" . mysql_escape_string($hostname) . "', " .
                     "'" . mysql_escape_string($port) . "', " .
-                    "'" . mysql_escape_string($timestamp) . "', 0, 0)";
+                    "'" . mysql_escape_string($timestamp) . "', 0, 0, 0)";
 
         $runupdate = mysql_query($register);
     }
