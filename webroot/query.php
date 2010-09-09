@@ -196,24 +196,36 @@ function dir_land_query($method_name, $params, $app_data)
     $area           = $req['area'];
     $query_start    = $req['query_start'];
 
-    //Do this check first so we can bail out quickly on Auction search
-    if (($type & 26) == 2)	// Auction (from SearchTypeFlags enum)
-    {
-        $response_xml = xmlrpc_encode(array(
-                'success' => False,
-                'errorMessage' => "No auctions listed"));
-
-        print $response_xml;
-
-        return;
-    }
-
     $terms = array();
 
-    if (($type & 24) == 8)	//Mainland (24=0x18 [bits 3 & 4])
-        $terms[] = "parentestate = 1";
-    if (($type & 24) == 16)	//Estate (24=0x18 [bits 3 & 4])
-        $terms[] = "parentestate <> 1";
+    if ($type != 4294967295)	//Include all types of land?
+    {
+        //Do this check first so we can bail out quickly on Auction search
+        if (($type & 26) == 2)	// Auction (from SearchTypeFlags enum)
+        {
+            $response_xml = xmlrpc_encode(array(
+                    'success' => False,
+                    'errorMessage' => "No auctions listed"));
+
+            print $response_xml;
+
+            return;
+        }
+
+        if (($type & 24) == 8)	//Mainland (24=0x18 [bits 3 & 4])
+            $terms[] = "parentestate = 1";
+        if (($type & 24) == 16)	//Estate (24=0x18 [bits 3 & 4])
+            $terms[] = "parentestate <> 1";
+    }
+
+    $s = process_region_type_flags($flags);
+    if ($s != "")
+        $terms[] = $s;
+
+    if ($flags & 0x100000)	//LimitByPrice (1 << 20)
+        $terms[] = "saleprice <= '" . mysql_escape_string($price) . "'";
+    if ($flags & 0x200000)	//LimitByArea (1 << 21)
+        $terms[] = "area >= '" . mysql_escape_string($area) . "'";
 
     //The PerMeterSort flag is always passed from a map item query.
     //It doesn't hurt to have this as the default search order.
@@ -227,13 +239,6 @@ function dir_land_query($method_name, $params, $app_data)
         $order = "area";
     if (!($flags & 0x8000))	//SortAsc (1 << 15)
         $order .= " DESC";
-
-    if ($flags & 0x100000)	//LimitByPrice (1 << 20)
-        $terms[] = "saleprice <= '" . mysql_escape_string($price) . "'";
-    if ($flags & 0x200000)	//LimitByArea (1 << 21)
-        $terms[] = "area >= '" . mysql_escape_string($area) . "'";
-
-    $terms[] = process_region_type_flags($flags);
 
     $where = "";
     if (count($terms) > 0)
