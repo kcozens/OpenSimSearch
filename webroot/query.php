@@ -47,11 +47,11 @@ function process_region_type_flags($flags)
 {
     $terms = array();
 
-    if ($flags & 16777216)	//IncludePG (1 << 24)
+    if ($flags & 16777216)  //IncludePG (1 << 24)
         $terms[] = "mature = 'PG'";
-    if ($flags & 33554432)	//IncludeMature (1 << 25)
+    if ($flags & 33554432)  //IncludeMature (1 << 25)
         $terms[] = "mature = 'Adult'";
-    if ($flags & 67108864)	//IncludeAdult (1 << 26)
+    if ($flags & 67108864)  //IncludeAdult (1 << 26)
         $terms[] = "mature = 'Mature'";
 
     return join_terms(" OR ", $terms, True);
@@ -108,7 +108,7 @@ function dir_places_query($method_name, $params, $app_data)
         $category = "searchcategory = '".mysql_escape_string($category)."' AND ";
     else
         $category = "";
-    
+
     $result = mysql_query("SELECT * FROM parcels WHERE $category " .
             "(parcelname LIKE '%" . mysql_escape_string($text) . "%'" .
             " OR description LIKE '%" . mysql_escape_string($text) . "%')" .
@@ -149,10 +149,10 @@ function dir_popular_query($method_name, $params, $app_data)
 
     $terms = array();
 
-    if ($flags & 0x1000)	//PicturesOnly (1 << 12)
+    if ($flags & 0x1000)    //PicturesOnly (1 << 12)
         $terms[] = "has_picture = 1";
 
-    if ($flags & 0x0800)	//PgSimsOnly (1 << 11)
+    if ($flags & 0x0800)    //PgSimsOnly (1 << 11)
         $terms[] = "mature = 0";
 
     $where = "";
@@ -198,10 +198,10 @@ function dir_land_query($method_name, $params, $app_data)
 
     $terms = array();
 
-    if ($type != 4294967295)	//Include all types of land?
+    if ($type != 4294967295)    //Include all types of land?
     {
         //Do this check first so we can bail out quickly on Auction search
-        if (($type & 26) == 2)	// Auction (from SearchTypeFlags enum)
+        if (($type & 26) == 2)  // Auction (from SearchTypeFlags enum)
         {
             $response_xml = xmlrpc_encode(array(
                     'success' => False,
@@ -212,9 +212,9 @@ function dir_land_query($method_name, $params, $app_data)
             return;
         }
 
-        if (($type & 24) == 8)	//Mainland (24=0x18 [bits 3 & 4])
+        if (($type & 24) == 8)  //Mainland (24=0x18 [bits 3 & 4])
             $terms[] = "parentestate = 1";
-        if (($type & 24) == 16)	//Estate (24=0x18 [bits 3 & 4])
+        if (($type & 24) == 16) //Estate (24=0x18 [bits 3 & 4])
             $terms[] = "parentestate <> 1";
     }
 
@@ -222,22 +222,22 @@ function dir_land_query($method_name, $params, $app_data)
     if ($s != "")
         $terms[] = $s;
 
-    if ($flags & 0x100000)	//LimitByPrice (1 << 20)
+    if ($flags & 0x100000)  //LimitByPrice (1 << 20)
         $terms[] = "saleprice <= '" . mysql_escape_string($price) . "'";
-    if ($flags & 0x200000)	//LimitByArea (1 << 21)
+    if ($flags & 0x200000)  //LimitByArea (1 << 21)
         $terms[] = "area >= '" . mysql_escape_string($area) . "'";
 
     //The PerMeterSort flag is always passed from a map item query.
     //It doesn't hurt to have this as the default search order.
-    $order = "lsq";		//PerMeterSort (1 << 17)
+    $order = "lsq";     //PerMeterSort (1 << 17)
 
-    if ($flags & 0x80000)	//NameSort (1 << 19)
+    if ($flags & 0x80000)   //NameSort (1 << 19)
         $order = "parcelname";
-    if ($flags & 0x10000)	//PriceSort (1 << 16)
+    if ($flags & 0x10000)   //PriceSort (1 << 16)
         $order = "saleprice";
-    if ($flags & 0x40000)	//AreaSort (1 << 18)
+    if ($flags & 0x40000)   //AreaSort (1 << 18)
         $order = "area";
-    if (!($flags & 0x8000))	//SortAsc (1 << 15)
+    if (!($flags & 0x8000)) //SortAsc (1 << 15)
         $order .= " DESC";
 
     $where = "";
@@ -300,13 +300,13 @@ function dir_events_query($method_name, $params, $app_data)
     }
 
     $pieces = explode("|", $text);
-    
+
     $day        =    $pieces[0];
     $category   =    $pieces[1];
 
     //Setting a variable for NOW
     $now        =    time();
-    
+
     $terms = array();
 
     //Is $day a number of days (before or after current date)?
@@ -316,13 +316,13 @@ function dir_events_query($method_name, $params, $app_data)
 
     if ($category <> 0)
         $terms[] = "category = ".$category."";
-    
+
     $type = array();
-    if ($flags & 16777216)	//IncludePG (1 << 24)
+    if ($flags & 16777216)  //IncludePG (1 << 24)
         $type[] = "eventflags = 0";
-    if ($flags & 33554432)	//IncludeMature (1 << 25)
+    if ($flags & 33554432)  //IncludeMature (1 << 25)
         $type[] = "eventflags = 1";
-    if ($flags & 67108864)	//IncludeAdult (1 << 26)
+    if ($flags & 67108864)  //IncludeAdult (1 << 26)
         $type[] = "eventflags = 2";
 
     $terms[] = join_terms(" OR ", $type, True);
@@ -341,7 +341,7 @@ function dir_events_query($method_name, $params, $app_data)
     while (($row = mysql_fetch_assoc($result)))
     {
         $date = strftime("%m/%d %I:%M %p",$row["dateUTC"]);
-        
+
         $data[] = array(
                 "owner_id" => $row["owneruuid"],
                 "name" => $row["name"],
@@ -388,12 +388,12 @@ function dir_classified_query ($method_name, $params, $app_data)
     }
 
     $terms = array();
-    if ($flags & 6)	//PG (1 << 2)
+    if ($flags & 6) //PG (1 << 2)
         $terms[] = "classifiedflags & 2 = 0";
-    if ($flags & 8)	//Mature (1 << 3)
+    if ($flags & 8) //Mature (1 << 3)
         $terms[] = "classifiedflags & 2 <> 0";
 //There is no bit for Adult in classifiedflags
-//    if ($flags & 64)	//Adult (1 << 6)
+//    if ($flags & 64)  //Adult (1 << 6)
 //        $terms[] = "classifiedflags & ? > 0";
 
     $type = "";
@@ -404,7 +404,7 @@ function dir_classified_query ($method_name, $params, $app_data)
         $category = "category = ".$category."";
     else
         $category = "";
- 
+
     if ($type == "" && $category == "")
         $type = "";
     else
@@ -415,7 +415,8 @@ function dir_classified_query ($method_name, $params, $app_data)
             $where = " WHERE " . $type . " AND " . $category;
     }
 
-    $sql = "SELECT * FROM classifieds" . $where.
+    $sql = "SELECT * FROM classifieds" . $where .
+           " ORDER BY priceforlisting DESC" .
            " LIMIT " . mysql_escape_string($query_start) . ",101";
 
     $result = mysql_query($sql);
@@ -454,7 +455,7 @@ function event_info_query($method_name, $params, $app_data)
     $eventID    = $req['eventID'];
 
     $sql =  "SELECT * FROM events WHERE eventID = " .
-            mysql_escape_string($eventID); 
+            mysql_escape_string($eventID);
 
     $result = mysql_query($sql);
 
@@ -513,7 +514,7 @@ function classifieds_info_query($method_name, $params, $app_data)
     $classifiedID    = $req['classifiedID'];
 
     $sql =  "SELECT * FROM classifieds WHERE classifieduuid = '" .
-            mysql_escape_string($classifiedID). "'"; 
+            mysql_escape_string($classifiedID). "'";
 
     $result = mysql_query($sql);
 
@@ -545,7 +546,7 @@ function classifieds_info_query($method_name, $params, $app_data)
 
     print $response_xml;
 }
-    
+
 #
 # Process the request
 #

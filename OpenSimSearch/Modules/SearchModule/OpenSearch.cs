@@ -317,13 +317,13 @@ namespace OpenSimSearch.Modules.OpenSearch
         public void DirFindQuery(IClientAPI remoteClient, UUID queryID,
                 string queryText, uint queryFlags, int queryStart)
         {
-            if ((queryFlags & 1) != 0)
+            if ((queryFlags & 1) != 0)		//People (1 << 0)
             {
                 DirPeopleQuery(remoteClient, queryID, queryText, queryFlags,
                         queryStart);
                 return;
             }
-            else if ((queryFlags & 32) != 0)
+            else if ((queryFlags & 32) != 0)	//DateEvents (1 << 5)
             {
                 DirEventsQuery(remoteClient, queryID, queryText, queryFlags,
                         queryStart);
