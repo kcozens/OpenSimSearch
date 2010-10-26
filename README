@@ -1,0 +1,259 @@
+OpenSimSearch add-on module for Open Simulator
+
+Requirements
+
+The webserver needs PHP support with support for CURL.
+NOTE: Not all webservers may have CURL support for PHP.
+
+
+About the files
+
+README - The file you are currently reading
+
+bin/OpenSimSearch.Modules.dll - A pre-compiled module you can use
+
+OpenSimSearch/ - Source code for OpenSim search module
+
+webroot/*.php - Files to install on webserver
+
+webroot/sql/ossearch.sql - This will create the needed database tables
+webroot/sql/update-*.sql - Files used to update an older installation
+
+webroot/wiredux/ - Files to add to an installation of wiredux
+
+
+How it works
+
+If you are looking for a detailed explanation of how the add-on search system
+works you should study the contents of the files which accompany this README
+file. What follows is a general overview of the search package to give you an
+idea of how the pieces fit together in case you have any problems.
+
+There are three main components to OpenSimSearch which are a database, a DLL
+file, and several PHP files.
+
+Most of the tables in the search database contain details on items which can
+appear in the results of a search. The exception is the hostsregister table. 
+The hostsregister table contains the list of OpenSim instances which will be
+checked periodically for information about searchable items.
+
+When an OpenSim instance starts it accesses the register.php script (using the
+URL of the data_services entry in OpenSim.ini) to record the host address and
+port of the instance in the hostsregister table of the database. The host and
+port entries are used by parser.php to retrieve the data to be indexed from
+the running instances.
+
+Take note of the last part of the previous paragraph where it stated that
+parser.php is used to index the data from an OpenSim instance and not from a
+region. The parser retrieves data from an OpenSim instance. If the instance
+is running a single region the data for a single region will be updated. If
+the instance is running multiple regions the data for all regions hosted by
+that instance will be indexed. 
+
+OpenSim instances use the data snapshot module to create an XML based record
+of all searchable items in the regions they host. The XML record is retrieved
+by parser.php using a URL created from the host, port and the query string
+"?method=collector" (eg. http://127.0.0.1:9001/?method=collector). The
+parser.php file will get one host/port pair from the hostregister table each
+time it is called. It will parse the XML data from the OpenSim instance and
+save the data to the various tables of the search database.
+
+The query.php file is the heart of the search process. It receives an XML
+message from the DLL based on the search request originating in a viewer.
+The XML message is parsed to determine the type of search being performed,
+SQL queries are built and executed to retrieve the data from the database
+tables, and finally, the results are sent to the DLL file as an XML message
+for any final processing before being passed along to the viewer for display.
+
+
+Before you begin
+
+In the information that follows there are references to settings to be made
+in the OpenSim.ini files. As of the release of the 0.7 version of OpenSim
+some of the settings may no longer be in the OpenSim.ini file but may be
+found in the OpenSimDefault.ini file. If a section of the OpenSim.ini file
+mentioned in the information which follows doesn't exist in your copy of
+the file, you will either need to add the section and settings to the main
+OpenSim.ini file or make the changes to the OpenSimDefaults.ini file.
+
+
+Compiling the module
+
+Adding the OpenSimSearch C# source file to the source tree of OpenSim so it
+will be compiled at the same time as OpenSim is compiled is the easiest way
+to create to the DLL file needed by OpenSim.
+
+Copy the OpenSimSearch directory in to the addon-modules directory of your
+OpenSim source tree. After you have done that, compile OpenSim in the usual
+way (runprebuild and nant) to create the DLL file.  When nant finishes, you
+will have an OpenSimSearch.Modules.dll file in the main bin directory of
+your OpenSim source tree along with a matching .pdb (or .mdb) file. These
+two files will be copied to the bin directory of your OpenSim instances
+during the installation or update steps.
+
+
+First time installation
+
+The first installation step is the creation of a database that will hold
+the data to be searched. If you have already installed the add-on module
+osprofile you should use the same database as osprofile as it shares some
+tables in common with ossearch. If you don't have osprofile installed you
+will need to create a new database that will hold the search tables. Having
+decided on the database to be used, use ossearch.sql (located in the
+webroot/sql directory) to create the required tables in the database. The
+name of this database will be needed when configuring one of the PHP files
+in the next steps.
+
+Copy the PHP files (located in the webroot directory) to your webserver.
+Remember to set the permissions on the file so the webserver may access the
+files. Use a text editor to open databaseinfo.php and enter the name or IP
+address of the database server, the name of the database, and the user name
+and password required to access the database.
+
+The next part of the installation process is to set up and configure your
+OpenSim instances.
+
+Copy the two OpenSimSearch.Modules files created during the compile steps
+(above) in to the bin directory of each of your OpenSim instances. The next
+part of the installation process requires some changes to the OpenSim.ini in
+all of your OpenSim instances.
+
+Add the following lines to all OpenSim.ini files:
+
+  [Search]
+  ;///////////////////////////////////////////////////////////////////////////
+  ;// The SearchURL is important. It must be correct or search won't work.  //
+  ;//                                                                       //
+  ;// Change the URL to point to the query.php file on your own HTTP server //
+  ;SearchURL = http://192.168.0.1/query.php
+  ;//                                                                       //
+  ;///////////////////////////////////////////////////////////////////////////
+
+NOTE: You do not need to indent the above lines when adding them to your own
+OpenSim.ini files. The lines were indented to offset them from the rest of the
+text in this file.
+
+Uncomment and edit the SearchURL line so it contains the correct address for
+the webserver and needed path to where the query.php file was installed on
+your webserver.
+
+To allow the Teleport and Show on Map buttons to work properly (for search
+results containing locations) the following two lines must be added to the
+[Modules] section of the OpenSim.ini file:
+
+    LandServices = "RemoteLandServicesConnector"
+    LandServiceInConnector = "true"
+
+The last changes to be made to the OpenSim.ini file are in the [DataSnapshot]
+section. Change index_sims to true. You can have data_exposure set to all but
+it is better to leave it on minimum so users can control what items can appear
+in search results by using the "Show In Search" checkboxes. You can leave
+default_snapshot_period commented out or you can uncomment it and set it to
+whatever value you wish. The section on optimizing the configuration will
+help you to decide an appropriate value for this setting.
+
+The last change for OpenSim.ini is the setting for data_services. This line
+must be uncommented and contain a valid URL for your webserver and the path
+to the register.php file which you installed earlier. If you do not enter a
+valid URL the OS instance will not get listed in the hostsregister table and
+search data for the regions hosted by the OS instance will not be recorded or
+updated. After entering the URL, exit and save the updated OpenSim.ini file.
+
+
+Updating an existing installation
+
+Updating an existing installation of ossearch is just a matter of copying a
+few files to the same places where you had previously installed the files.
+
+Copy all of the PHP files (located in the webroot directory) EXCEPT for
+databaseinfo.php to the directory on your webserver where you place the
+previous copies. If you also copy databaseinfo.php when copying the other
+PHP files you will have to edit databaseinfo.php and reset the information
+used to connect to the database.
+
+Copy the two OpenSimSearch.Modules files created during compilation to the
+bin directory of each of your OpenSim instances.
+
+Finally, execute all of the SQL files located in the webroot/sql directory
+where the filenames start with "update-". This step is very important to
+make certain your database tables are up-to-date.
+
+
+Configuration
+
+With everything in place, the next step is to set up a task on your webserver
+(or some other machine) which will invoke the URL to the parser.php file on
+your webserver on a regular basis to ensure the contents of the database are
+kept up-to-date. For a machine running Linux you can set up a cron job. For
+a machine running Windows you can use Windows Scheduler.
+
+See the section on optimizing the configuration to help you decide how often
+the parser.php should be run.
+
+
+Optimizing the configuration
+
+When you change what items are to be found in search by clicking the checkbox
+"Show In Search" or by removing an item that was set to show in search results
+there is a delay before the change is reflected in the database tables. There
+are four main factors that affect the length of this delay. They are: the
+number of OpenSim instances, the value of default_snapshot_period used by the
+DataSnapshot module, the time between calls to parser.php, and the number of
+OpenSim instances processed each time parser.php is run. You can't easily
+control the number of instances but you can control the other factors.
+
+To explain how the factors affect the delay take a grid with 100 regions. If
+you have one region per instance you have 100 instances. Using the default
+settings and calling parser once an hour it would take 100 hours, or more than
+four days, for changes to appear in search results. A more realistic setup is
+one where you have an average of 4 regions run by each OpenSim instance. This
+reduces the delay to 25 hours. This is a rather long delay for a relatively
+small number of regions and instances. The delay can be reduced substantially.
+
+A simple way to reduce the delay is to run parser.php more frequently. If
+parser.php is run once every 15 minutes instead of once an hour (60 minutes)
+the delay is reduced by a factor of 4 from 25 hours to 6.25 hours. Much better
+but still a long delay. The delay can be reduced even further but to do so
+requires a change to the parser.php file.
+
+Near the end of the parser.php file is a SQL query that ends with "LIMIT 0,1".
+It is the value "1" which is important. That value limits the number of OS
+instances that will be processed each time parser.php is run. If the value is
+changed from 1 to 3 then three OS instances will be processed on each run of
+the parser.php file. This reduces the delay by a factor of 3 to just over
+2 hours. This is a much better delay than the original value of 25 hours.
+
+For those of you who like math, the amount of delay can be expressed using
+the following simple formula:
+  delay = # instances * time between runs of parser / limit value in parser
+
+Three factors affecting the delay have been discussed but earlier it was
+stated that there are four factors. The fourth factor is the value of
+default_snapshot_period value located in the [DataSnapshot] section of the
+OpenSim.ini file. This setting is specified in seconds and controls how often
+the data used by parser.php will be updated. This setting doesn't have any
+direct impact on the delay between updates of the database but if it is set
+incorrecty it can efffectively increase the delay between database updates.
+
+The example grid setup discussed earlier was adjusted to reduce the update
+delay to just over 2 hours (2 hours and 5 minutes to be more precise). If the
+value of default_snapshot_period is set to a value slightly greater than the
+calculated delay it would be possible for parser.php to be called twice before
+the data it retrieves would have been updated. This would turn a delay of two
+hours into a delay of four hours. The proper setting is one that is *less*
+than the delay calculated from the other three factors discussed earlier.
+
+Given a delay of just over 2 hours, a good value for default_snapshot_period
+would be 7200 (2 hours expressed in seconds). By keeping the value of this
+setting close to, but less than, the delay between when parser.php is used
+to get the data for an instance will minimize any overhead imposed on the
+OpenSim instance when it creates the snapshot of searchable items while, at
+the same time, ensures the data will have been updated by the next time the
+parser.php is run to update the database.
+
+A final comment about the setting for the time between runs of parser.php and
+the value in the limit statement in that file. Avoid running parser.php too
+frequently or setting the value in the LIMIT statement too high. Doing either
+can cause unnecessary overhead or high loads on the webserver used to run
+parser.php, or on the database server while it updates all the tables with
+the latest information from the OpenSim instances.
