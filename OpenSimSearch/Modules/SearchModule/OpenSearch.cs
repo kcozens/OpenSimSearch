@@ -621,8 +621,8 @@ namespace OpenSimSearch.Modules.OpenSearch
                     }
                     string[] landingpoint = ParcelLandingPoint[i].Split('/');
                     mapItemReply mapitem = new mapItemReply();
-                    mapitem.x = (uint)(locX + Convert.ToDecimal(landingpoint[0]));
-                    mapitem.y = (uint)(locY + Convert.ToDecimal(landingpoint[1]));
+                    mapitem.x = (uint)((locX * 256 ) + Convert.ToDecimal(landingpoint[0]));
+                    mapitem.y = (uint)((locY * 256 ) + Convert.ToDecimal(landingpoint[1]));
                     mapitem.id = landDir.parcelID;
                     mapitem.name = landDir.name;
                     mapitem.Extra = landDir.actualArea;

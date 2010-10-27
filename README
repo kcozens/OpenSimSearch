@@ -2,8 +2,8 @@ OpenSimSearch add-on module for Open Simulator
 
 Requirements
 
-The webserver needs PHP support with support for CURL.
-NOTE: Not all webservers may have CURL support for PHP.
+The webserver needs PHP support with support for CURL and XMLRPC.
+NOTE: Not all webservers may have CURL and XMLRPC support for PHP.
 
 
 About the files
