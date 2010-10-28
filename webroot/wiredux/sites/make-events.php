@@ -32,49 +32,43 @@ function checklength(obj,warning_div){
 <FORM METHOD="POST" ACTION="index.php?page=save-events">
 <table border="0" cellpadding="2" cellspacing="0" width="100%">
         <tr>
-                <td>Event Name:</td>
-                <td><input type="text" id="event_name" name="event_name" size="35" value="" /></td>
+			<td>Event Name:</td>
+                <td><input type="text" id="event_name" name="event_name" size="35" value="" />
+			</td>
         </tr>
         <tr><td colspan="2"><br/></td></tr>
         <tr>
-                <td valign="top">Description:</td>
-                <td>
+			<td valign="top">Description:</td>
+			<td>
                 <textarea name="event_desc" rows="7" cols="" style="width:90%" wrap="virtual" maxlength="1024" onfocus="return checklength(this,'contact_max_warning')" onkeyup="return checklength(this,'contact_max_warning')"/></textarea><br/>
-                </td>
+			</td>
         </tr>
         <tr>
-                <td></td>
-                <td>        <div>
-                                <div >
-                                        <em id="contact_max_warning">max. <strong>1024</strong> </em>
-
-                                        Characters typed: <em id="counter"></em>
-                                </div>
-                        </div>
-                </td>
-
+			<td></td>
+			<td>
+			<div>
+				<div>
+					<em id="contact_max_warning">max. <strong>1024</strong> </em>
+						Characters typed: <em id="counter"></em>
+				</div>
+			</div>
+			</td>
         </tr>
 
         <tr><td colspan="2"><br/></td></tr>
         <tr>
-                <td>Date:</td>
-                <td>
-                <table border="0" cellspacing="0" cellpadding="3">
+			<td>Date:</td>
+			<td>
+				<table border="0" cellspacing="0" cellpadding="3">
                 <tr>
-                        <td>
+					<td>
                         <select name="event_day">
-
-                                <option value="1" >01</option>
-
-                                <option value="2" >02</option>
-
-                                <option value="3" >03</option>
-
-                                <option value="4" >04</option>
-
-                                <option value="5" >05</option>
-
-                                <option value="6" >06</option>
+							<option value="1" >01</option>
+							<option value="2" >02</option>
+							<option value="3" >03</option>
+							<option value="4" >04</option>
+							<option value="5" >05</option>
+							<option value="6" >06</option>
 
                                 <option value="7" >07</option>
 
@@ -145,11 +139,9 @@ function checklength(obj,warning_div){
                         </td>
                         <td>
                         <select name="event_year">
-
-                                <option value="2008" >2008</option>
-                                <option value="2009" >2009</option>
                                 <option value="2010" >2010</option>
-                                                </select>
+								<option value="2011" >2010</option>
+						</select>
                         </td>
                     </tr>
                 </table>
@@ -210,21 +202,30 @@ function checklength(obj,warning_div){
                 <td>
                 <table border="0" cellspacing="0" cellspadding="1">
                 <tr>
-                        <td>
-                        <select name="duration">
-                                                        <option value="10" >10 minutes</option>
-                                                        <option value="15" >15 minutes</option>
-                                                        <option value="20" >20 minutes</option>
-                                                        <option value="25" >25 minutes</option>
-                                                        <option value="30" >30 minutes</option>
-                                                        <option value="45" >45 minutes</option>
-                                                        <option value="60" >1 hour</option>
-                                                        <option value="90" >1.5 hours</option>
-                                                        <option value="120" >2 hours</option>
-                                                        <option value="150" >2.5 hours</option>
-                                                        <option value="180" >3 hours</option>
-                                                </select>
-                        </td>
+					<td>
+						<select name="duration" id="duration">
+							<option value="10" >10 minutes</option>
+							<option value="15" >15 minutes</option>
+							<option value="20" >20 minutes</option>
+							<option value="25" >25 minutes</option>
+							<option value="30" >30 minutes</option>
+							<option value="45" >45 minutes</option>
+							<option value="60" >1 hour</option>
+							<option value="90" >1.5 hours</option>
+							<option value="120" >2 hours</option>
+							<option value="150" >2.5 hours</option>
+							<option value="180" >3 hours</option>
+							<option value="240" >4 hours</option>
+							<option value="300" >5 hours</option>
+							<option value="360" >6 hours</option>
+							<option value="420" >7 hours</option>
+							<option value="480" >8 hours</option>
+							<option value="540" >9 hours</option>
+							<option value="600" >10 hours</option>
+							<option value="660" >11 hours</option>
+							<option value="720" >12 hours</option>
+						</select>
+					</td>
                 </tr>
                 </table>
                 </td>
@@ -251,14 +252,14 @@ function checklength(obj,warning_div){
         </tr>
         <tr><td colspan="2"><br/></td></tr>
         <tr>
-                <td nowrap>Cover Charge?</td>
+                <td nowrap>Cover Charge</td>
                 <td>
                 <table border="0" cellspacing="0" cellpadding="3">
                 <tr>
                         <td>
                         <select name="cover_charge">
                         <option value="Y" >Yes</option>
-                        <option value="N" >No</option>
+                        <option selected value="N" >No</option>
                         </select>
                         </td>
                         <td>Amount (L$):</td>
@@ -272,30 +273,38 @@ function checklength(obj,warning_div){
                 <td>Location:</td>
                 <td>
                 <select name="parcel_chosen">
-                <option>Pick a parcel</option>
-				<?
-                // Getting the regions you have access to
-                $DbLink->query("SELECT regionUUID, parcelname, landingpoint FROM ossearch.allparcels WHERE owneruuid = '".$_SESSION[USERID]."'");
-                while(list($regionUUID,$parcelname,$landingpoint) = $DbLink->next_record()){
-                echo "<OPTION value = $landingpoint|$regionUUID>".$parcelname."</OPTION>";
-                }
-                ?>
+					<option value="" disabled="disabled">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--- MY PARCELS ---</option>
+					<?
+					// Getting the regions you have access to
+					$DbLink->query("SELECT regionUUID, parcelname, landingpoint, parcelarea FROM osmodules.allparcels WHERE owneruuid = '".$_SESSION[USERID]."'");
+					while(list($regionUUID,$parcelname,$landingpoint, $parcelarea) = $DbLink->next_record())
+					{
+						if($parcelarea > 512)
+						{
+							echo "<option value = $landingpoint|$regionUUID>".$parcelname." (".$parcelarea." m&sup2;)</option>";
+						}
+					}
+					?>
+					<option value="" disabled="disabled">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--- GROUP-OWNED PARCELS ---</option>
+					<option value="" disabled="disabled">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--- PRIVATE ISLAND PARCELS ---</option>
                 </select>
 
         </tr>
                 <tr><td colspan=2><br/></td></tr>
             <tr>
-                    <td>Mature Event?:</td>
+                    <td>Type Event:</td>
                     <td>
                     <table border="0" cellspacing="0" cellspadding="1">
                     <tr>
-                            <td><input type="checkbox" name="access" value="21"  /></td>
-                            <td>Yes, this will be a mature event.</td>
+                            <td><select name="access">
+							<option value="13">PG</option>
+							<option value="21">Mature</option>
+							<option value="42">Adult</option>
+							</td>
                     </tr>
                     </table>
                     </td>
             </tr>
-
         <tr><td colspan="2"><br/></td></tr>
         <tr>
                 <td>&nbsp;</td>

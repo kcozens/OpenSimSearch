@@ -40,10 +40,8 @@ $DbLink->query("SELECT regionName, locX, locY FROM ".C_REGIONS_TBL." WHERE uuid 
 
 while(list($regionname,$locX,$locY) = $DbLink->next_record())
 {
- $RegionX = ($locX * 256);
- $RegionY = ($locY * 256);
- $GlobalX = $RegionX + $ParcelX;
- $GlobalY = $RegionY + $ParcelY;
+ $GlobalX = $locX + $ParcelX;
+ $GlobalY = $locY + $ParcelY;
  $GlobalZ = $ParcelZ;
  $sim_name = $regionname;
 }
@@ -67,7 +65,7 @@ else
 
 if ($event_name != "" && $event_desc != "" && $sim_name != "" && $GlobalPos != "")
 {
-	$query = 'INSERT INTO ossearch.events (owneruuid,name,creatoruuid,category,description,dateUTC,duration,covercharge,coveramount,simname,globalPos,eventflags,mature) VALUES("'.$_SESSION[USERID].'","'.$event_name.'","'.$_SESSION[USERID].'",'.$category.',"'.$event_desc.'",'.$event_date.','.$duration.','.$cover_charge.','.$cover_amount.',"'.$sim_name.'","'.$GlobalPos.'",'.$eventflags.',"'.$access.'")';
+	$query = 'INSERT INTO osmodules.events (owneruuid,name,creatoruuid,category,description,dateUTC,duration,covercharge,coveramount,simname,globalPos,eventflags) VALUES("'.$_SESSION[USERID].'","'.$event_name.'","'.$_SESSION[USERID].'",'.$category.',"'.$event_desc.'",'.$event_date.','.$duration.','.$cover_charge.','.$cover_amount.',"'.$sim_name.'","'.$GlobalPos.'",'.$eventflags.')';
 
 	$DbLink->query($query);
 
