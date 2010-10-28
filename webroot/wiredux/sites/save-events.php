@@ -16,13 +16,13 @@ $cover_charge = $_POST['cover_charge'];
 ## Checking if a Cover Charge is asked
 if ($cover_charge == "Y")
 {
- $cover_charge = 1;
- $cover_amount = $_POST['amount'];
+	$cover_charge = 1;
+	$cover_amount = $_POST['amount'];
 }
 else
 {
- $cover_charge = 0;
- $cover_amount = 0;
+	$cover_charge = 0;
+	$cover_amount = 0;
 }
 
 # The hard part, getting the region and converting that to a GlobalPosition
@@ -40,10 +40,10 @@ $DbLink->query("SELECT regionName, locX, locY FROM ".C_REGIONS_TBL." WHERE uuid 
 
 while(list($regionname,$locX,$locY) = $DbLink->next_record())
 {
- $GlobalX = $locX + $ParcelX;
- $GlobalY = $locY + $ParcelY;
- $GlobalZ = $ParcelZ;
- $sim_name = $regionname;
+	$GlobalX = $locX + $ParcelX;
+	$GlobalY = $locY + $ParcelY;
+	$GlobalZ = $ParcelZ;
+	$sim_name = $regionname;
 }
 
 $GlobalPos = "<".$GlobalX.",".$GlobalY.",".$GlobalZ.">";
@@ -52,13 +52,13 @@ $GlobalPos = "<".$GlobalX.",".$GlobalY.",".$GlobalZ.">";
 $access =  $_POST['access'];
 if ($access == 21)
 {
- $access = "true";
- $eventflags = 1;
+	$access = "true";
+	$eventflags = 1;
 }
 else
 {
- $access = "false";
- $eventflags = 0;
+	$access = "false";
+	$eventflags = 0;
 }
 
 # Check if we have all the info and that there's no fault stuff here
@@ -75,6 +75,6 @@ if ($event_name != "" && $event_desc != "" && $sim_name != "" && $GlobalPos != "
 }
 else
 {
-echo "<CENTER>Your event could not be saved, please check your event submission again<p><a href=# onClick=history.back()>Click here to go back to the page</a></CENTER>";
+	echo "<CENTER>Your event could not be saved, please check your event submission again<p><a href=# onClick=history.back()>Click here to go back to the page</a></CENTER>";
 }
 ?>

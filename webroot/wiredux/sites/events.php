@@ -65,8 +65,9 @@ while(list($creator,$time,$eventid,$eventname,$event_type) = $DbLink->next_recor
 
 
 
- if ($event_type == 0) $event_type = "<img height=25px width=25px title='PG Event' src = ./images/events/pink_star.gif>";
- if ($event_type == 1) $event_type = "<img height=25px width=25px title='Mature Event' src = ./images/events/blue_star.gif>";
+if ($event_type == 0) $event_type = "<img height=25px width=25px title='PG Event' src = ./images/events/event_G.png>";
+if ($event_type == 1) $event_type = "<img height=25px width=25px title='Mature Event' src = ./images/events/event_M.png>";
+if ($event_type == 2) $event_type = "<img height=25px width=25px title='Adult Event' src = ./images/events/event_A.png>";
 
 ?>
     <TR>
