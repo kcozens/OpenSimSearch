@@ -317,13 +317,13 @@ namespace OpenSimSearch.Modules.OpenSearch
         public void DirFindQuery(IClientAPI remoteClient, UUID queryID,
                 string queryText, uint queryFlags, int queryStart)
         {
-            if ((queryFlags & 1) != 0)		//People (1 << 0)
+            if ((queryFlags & 1) != 0)      //People (1 << 0)
             {
                 DirPeopleQuery(remoteClient, queryID, queryText, queryFlags,
                         queryStart);
                 return;
             }
-            else if ((queryFlags & 32) != 0)	//DateEvents (1 << 5)
+            else if ((queryFlags & 32) != 0)    //DateEvents (1 << 5)
             {
                 DirEventsQuery(remoteClient, queryID, queryText, queryFlags,
                         queryStart);
@@ -402,7 +402,7 @@ namespace OpenSimSearch.Modules.OpenSearch
             remoteClient.SendDirEventsReply(queryID, data);
         }
 
-        public void DirClassifiedQuery(IClientAPI remoteClient, UUID queryID, 
+        public void DirClassifiedQuery(IClientAPI remoteClient, UUID queryID,
                 string queryText, uint queryFlags, uint category,
                 int queryStart)
         {
@@ -512,15 +512,17 @@ namespace OpenSimSearch.Modules.OpenSearch
                 return;
             }
 
+            //The viewer seems to issue an info request even when it is
+            //creating a new classified which means the data hasn't been
+            //saved to the database yet so there is no info to find.
             ArrayList dataArray = (ArrayList)result["data"];
             if (dataArray.Count == 0)
             {
-                // something bad happened here, if we could return an
-                // event after the search,
-                // we should be able to find it here
+                // Something bad happened here if we could not return an
+                // event after the search. We should be able to find it here.
                 // TODO do some (more) sensible error-handling here
-                remoteClient.SendAgentAlertMessage("Couldn't find this classifieds.",
-                        false);
+//                remoteClient.SendAgentAlertMessage("Couldn't find data for classified ad.",
+//                        false);
                 return;
             }
 
@@ -546,8 +548,10 @@ namespace OpenSimSearch.Modules.OpenSearch
                     Convert.ToByte(d["classifiedflags"]),
                     Convert.ToInt32(d["priceforlisting"]));
         }
+
         public void HandleMapItemRequest(IClientAPI remoteClient, uint flags,
-                                                 uint EstateID, bool godlike, uint itemtype, ulong regionhandle)
+                                         uint EstateID, bool godlike,
+                                         uint itemtype, ulong regionhandle)
         {
             //The following constant appears to be from GridLayerType enum
             //defined in OpenMetaverse/GridManager.cs of libopenmetaverse.
@@ -603,26 +607,27 @@ namespace OpenSimSearch.Modules.OpenSearch
                     if (i >= count)
                         break;
                 }
-                i = 0;
+
+                List<mapItemReply> mapitems = new List<mapItemReply>();
                 uint locX = 0;
                 uint locY = 0;
 
-                List<mapItemReply> mapitems = new List<mapItemReply>();
-
+                i = 0;
                 foreach (DirLandReplyData landDir in Landdata)
                 {
-                    foreach(Scene scene in m_Scenes)
+                    foreach (Scene scene in m_Scenes)
                     {
-                        if(scene.RegionInfo.RegionID.ToString() == ParcelRegionUUID[i])
+                        if (scene.RegionInfo.RegionID.ToString() == ParcelRegionUUID[i])
                         {
                             locX = scene.RegionInfo.RegionLocX;
                             locY = scene.RegionInfo.RegionLocY;
+                            break;
                         }
                     }
                     string[] landingpoint = ParcelLandingPoint[i].Split('/');
                     mapItemReply mapitem = new mapItemReply();
-                    mapitem.x = (uint)((locX * 256 ) + Convert.ToDecimal(landingpoint[0]));
-                    mapitem.y = (uint)((locY * 256 ) + Convert.ToDecimal(landingpoint[1]));
+                    mapitem.x = (uint)((locX * 256) + Convert.ToDecimal(landingpoint[0]));
+                    mapitem.y = (uint)((locY * 256) + Convert.ToDecimal(landingpoint[1]));
                     mapitem.id = landDir.parcelID;
                     mapitem.name = landDir.name;
                     mapitem.Extra = landDir.actualArea;
