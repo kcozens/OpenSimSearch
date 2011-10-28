@@ -105,13 +105,13 @@ function dir_places_query($method_name, $params, $app_data)
         $order = "dwell DESC,";
 
     if ($category > 0)
-        $category = "searchcategory = '".mysql_escape_string($category)."' AND ";
+        $category = "searchcategory = '".mysql_real_escape_string($category)."' AND ";
     else
         $category = "";
 
     $result = mysql_query("SELECT * FROM parcels WHERE $category " .
-            "(parcelname LIKE '%" . mysql_escape_string($text) . "%'" .
-            " OR description LIKE '%" . mysql_escape_string($text) . "%')" .
+            "(parcelname LIKE '%" . mysql_real_escape_string($text) . "%'" .
+            " OR description LIKE '%" . mysql_real_escape_string($text) . "%')" .
             $type . " ORDER BY $order parcelname" .
             " LIMIT ".(0+$query_start).",101");
 
@@ -223,9 +223,9 @@ function dir_land_query($method_name, $params, $app_data)
         $terms[] = $s;
 
     if ($flags & 0x100000)  //LimitByPrice (1 << 20)
-        $terms[] = "saleprice <= '" . mysql_escape_string($price) . "'";
+        $terms[] = "saleprice <= '" . mysql_real_escape_string($price) . "'";
     if ($flags & 0x200000)  //LimitByArea (1 << 21)
-        $terms[] = "area >= '" . mysql_escape_string($area) . "'";
+        $terms[] = "area >= '" . mysql_real_escape_string($area) . "'";
 
     //The PerMeterSort flag is always passed from a map item query.
     //It doesn't hurt to have this as the default search order.
@@ -246,7 +246,7 @@ function dir_land_query($method_name, $params, $app_data)
 
     $sql = "SELECT *, saleprice/area AS lsq FROM parcelsales" . $where .
                 " ORDER BY " . $order . " LIMIT " .
-                mysql_escape_string($query_start) . ",101";
+                mysql_real_escape_string($query_start) . ",101";
 
     $result = mysql_query($sql);
 
@@ -332,7 +332,7 @@ function dir_events_query($method_name, $params, $app_data)
         $where = " WHERE " . join_terms(" AND ", $terms, False);
 
     $sql = "SELECT * FROM events". $where.
-           " LIMIT " . mysql_escape_string($query_start) . ",101";
+           " LIMIT " . mysql_real_escape_string($query_start) . ",101";
 
     $result = mysql_query($sql);
 
@@ -417,7 +417,7 @@ function dir_classified_query ($method_name, $params, $app_data)
 
     $sql = "SELECT * FROM classifieds" . $where .
            " ORDER BY priceforlisting DESC" .
-           " LIMIT " . mysql_escape_string($query_start) . ",101";
+           " LIMIT " . mysql_real_escape_string($query_start) . ",101";
 
     $result = mysql_query($sql);
 
@@ -455,7 +455,7 @@ function event_info_query($method_name, $params, $app_data)
     $eventID    = $req['eventID'];
 
     $sql =  "SELECT * FROM events WHERE eventID = " .
-            mysql_escape_string($eventID);
+            mysql_real_escape_string($eventID);
 
     $result = mysql_query($sql);
 
@@ -514,7 +514,7 @@ function classifieds_info_query($method_name, $params, $app_data)
     $classifiedID    = $req['classifiedID'];
 
     $sql =  "SELECT * FROM classifieds WHERE classifieduuid = '" .
-            mysql_escape_string($classifiedID). "'";
+            mysql_real_escape_string($classifiedID). "'";
 
     $result = mysql_query($sql);
 

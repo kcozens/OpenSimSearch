@@ -22,8 +22,8 @@ if ($hostname != "" && $port != "" && $service == "online")
 {
     // Check if there is already a database row for this host
     $checkhost = mysql_query("SELECT register FROM hostsregister WHERE " .
-            "host = '" . mysql_escape_string($hostname) . "' AND " .
-            "port = '" . mysql_escape_string($port) . "'");
+            "host = '" . mysql_real_escape_string($hostname) . "' AND " .
+            "port = '" . mysql_real_escape_string($port) . "'");
 
     // Get the request time as a timestamp for later
     $timestamp = $_SERVER['REQUEST_TIME'];
@@ -32,20 +32,20 @@ if ($hostname != "" && $port != "" && $service == "online")
     if (mysql_num_rows($checkhost) > 0)
     {
         $update = "UPDATE hostsregister SET " .
-                "register = '" . mysql_escape_string($timestamp) . "', " . 
+                "register = '" . mysql_real_escape_string($timestamp) . "', " . 
                 "nextcheck = '0', checked = '0', " .
                 "failcounter = '0' " .  
-                "WHERE host = '" . mysql_escape_string($hostname) . "' AND " .
-                "port = '" . mysql_escape_string($port) . "'";
+                "WHERE host = '" . mysql_real_escape_string($hostname) . "' AND " .
+                "port = '" . mysql_real_escape_string($port) . "'";
 
         $runupdate = mysql_query($update);
     }
     else
     {
         $register = "INSERT INTO hostsregister VALUES ".
-                    "('" . mysql_escape_string($hostname) . "', " .
-                    "'" . mysql_escape_string($port) . "', " .
-                    "'" . mysql_escape_string($timestamp) . "', 0, 0, 0)";
+                    "('" . mysql_real_escape_string($hostname) . "', " .
+                    "'" . mysql_real_escape_string($port) . "', " .
+                    "'" . mysql_real_escape_string($timestamp) . "', 0, 0, 0)";
 
         $runupdate = mysql_query($register);
     }
@@ -53,8 +53,8 @@ if ($hostname != "" && $port != "" && $service == "online")
 elseif ($hostname != "" && $port != "" && $service = "offline")
 {
         $delete = "DELETE FROM hostsregister " .
-                "WHERE host = '" . mysql_escape_string($hostname) . "' AND " .
-                "port = '" . mysql_escape_string($port) . "'";
+                "WHERE host = '" . mysql_real_escape_string($hostname) . "' AND " .
+                "port = '" . mysql_real_escape_string($port) . "'";
 
         $rundelete = mysql_query($delete);
 }
