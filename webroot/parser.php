@@ -1,4 +1,4 @@
-<?
+<?php
 include("databaseinfo.php");
 
 //Supress all Warnings/Errors

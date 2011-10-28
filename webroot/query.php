@@ -1,4 +1,4 @@
-<?PHP
+<?php
 //The description of the flags used in this file are being based on the
 //DirFindFlags enum which is defined in OpenMetaverse/DirectoryManager.cs
 //of the libopenmetaverse library.

@@ -1,4 +1,4 @@
-<?
+<?php
 ##
 ## This will make the Event go into the database
 ##

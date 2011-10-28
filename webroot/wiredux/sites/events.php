@@ -1,4 +1,4 @@
-<?
+<?php
 
 if($_SESSION[USERID] == ""){
 
@@ -23,7 +23,7 @@ window.location.href='index.php?page=home';
 <TD align=center width=200px><b><u>Event</u></b></TD>
 <TD align=center width=200px><b><u>Host</u></b></TD>
 </TR>
-<?
+<?php
 function Convert($input)
 {
 	$DbLink->query("SELECT FirstName, LastName FROM ".C_USERS_TBL." WHERE PrincipalID = '".$input."'");
@@ -81,7 +81,7 @@ if ($event_type == 2) $event_type = "<img height=25px width=25px title='Adult Ev
       <TD align=center><B><?=$event_host?></B></TD>
 
     </TR>
-<?
+<?php
   }
 }
 ?>

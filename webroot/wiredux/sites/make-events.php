@@ -1,4 +1,4 @@
-<?
+<?php
 if($_SESSION[USERID] == "")
 {
 echo "<script language='javascript'>
@@ -270,7 +270,7 @@ function checklength(obj,warning_div)
 		<td>
 			<select name="parcel_chosen">
 				<option value="" disabled="disabled">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--- MY PARCELS ---</option>
-					<?
+					<?php
 					// Getting the regions you have access to
 					$DbLink->query("SELECT regionUUID, parcelname, landingpoint, parcelarea FROM osmodules.allparcels WHERE owneruuid = '".$_SESSION[USERID]."'");
 					while(list($regionUUID,$parcelname,$landingpoint, $parcelarea) = $DbLink->next_record())
@@ -282,11 +282,11 @@ function checklength(obj,warning_div)
 					}
 					?>
 					<option value="" disabled="disabled">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--- GROUP-OWNED PARCELS ---</option>
-					<?
+					<?php
 						// TODO: Add possibility to find group parcels
 					?>
 					<option value="" disabled="disabled">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--- PRIVATE ISLAND PARCELS ---</option>
-					<?
+					<?php
 						// TODO: Add possibility to find private island parcels
 					?>
 			</select>
@@ -327,6 +327,6 @@ function checklength(obj,warning_div)
 	</tr>
 </table>
 </FORM>
-<?
+<?php
 }
 ?>
