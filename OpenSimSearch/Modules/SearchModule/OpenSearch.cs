@@ -27,7 +27,6 @@ namespace OpenSimSearch.Modules.OpenSearch
         //
         // Module vars
         //
-        private IConfigSource m_gConfig;
         private List<Scene> m_Scenes = new List<Scene>();
         private string m_SearchServer = "";
         private bool m_Enabled = true;
@@ -63,8 +62,6 @@ namespace OpenSimSearch.Modules.OpenSearch
 
             if (!m_Scenes.Contains(scene))
                 m_Scenes.Add(scene);
-
-            m_gConfig = config;
 
             // Hook up events
             scene.EventManager.OnNewClient += OnNewClient;
@@ -557,7 +554,6 @@ namespace OpenSimSearch.Modules.OpenSearch
             //defined in OpenMetaverse/GridManager.cs of libopenmetaverse.
             if (itemtype == 7) //(land sales)
             {
-                int tc = Environment.TickCount;
                 Hashtable ReqHash = new Hashtable();
 
                 //The flags are: SortAsc (1 << 15), PerMeterSort (1 << 17)
