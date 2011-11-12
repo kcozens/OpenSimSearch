@@ -325,11 +325,19 @@ function dir_events_query($method_name, $params, $app_data)
     if ($flags & 67108864)  //IncludeAdult (1 << 26)
         $type[] = "eventflags = 2";
 
-    $terms[] = join_terms(" OR ", $type, True);
+    //Was there at least one PG, Mature, or Adult flag?
+    if (count($type) > 0)
+    {
+        if (count($type) > 1)
+            $terms[] = join_terms(" OR ", $type, True);
+        else    //Only found one flag
+            $terms[] = $type[0];
+    }
 
-    $where = "";
-    if (count($terms) > 0)
+    if (count($terms) > 1)
         $where = " WHERE " . join_terms(" AND ", $terms, False);
+    else
+        $where = $terms[0];
 
     $sql = "SELECT * FROM events". $where.
            " LIMIT " . mysql_real_escape_string($query_start) . ",101";
@@ -396,9 +404,10 @@ function dir_classified_query ($method_name, $params, $app_data)
 //    if ($flags & 64)  //Adult (1 << 6)
 //        $terms[] = "classifiedflags & ? > 0";
 
-    $type = "";
     if (count($terms) > 0)
         $type = join_terms(" OR ", $terms, True);
+    else
+        $type = "";
 
     if ($category <> 0)
         $category = "category = ".$category."";
@@ -406,7 +415,7 @@ function dir_classified_query ($method_name, $params, $app_data)
         $category = "";
 
     if ($type == "" && $category == "")
-        $type = "";
+        $where = "";
     else
     {
         if ($type == "" || $category == "")
