@@ -209,8 +209,8 @@ namespace OpenSimSearch.Modules.OpenSearch
                 data[i].forSale = Convert.ToBoolean(d["for_sale"]);
                 data[i].auction = Convert.ToBoolean(d["auction"]);
                 data[i].dwell = Convert.ToSingle(d["dwell"]);
-                i++;
-                if (i >= count)
+
+                if (++i >= count)
                     break;
             }
 
@@ -250,8 +250,8 @@ namespace OpenSimSearch.Modules.OpenSearch
                 data[i].parcelID = new UUID(d["parcel_id"].ToString());
                 data[i].name = d["name"].ToString();
                 data[i].dwell = Convert.ToSingle(d["dwell"]);
-                i++;
-                if (i >= count)
+
+                if (++i >= count)
                     break;
             }
 
@@ -303,8 +303,8 @@ namespace OpenSimSearch.Modules.OpenSearch
                 data[i].forSale = Convert.ToBoolean(d["for_sale"]);
                 data[i].salePrice = Convert.ToInt32(d["sale_price"]);
                 data[i].actualArea = Convert.ToInt32(d["area"]);
-                i++;
-                if (i >= count)
+
+                if (++i >= count)
                     break;
             }
 
@@ -337,6 +337,7 @@ namespace OpenSimSearch.Modules.OpenSearch
                     new DirPeopleReplyData[accounts.Count];
 
             int i = 0;
+
             foreach (UserAccount item in accounts)
             {
                 data[i] = new DirPeopleReplyData();
@@ -391,8 +392,8 @@ namespace OpenSimSearch.Modules.OpenSearch
                 data[i].date = d["date"].ToString();
                 data[i].unixTime = Convert.ToUInt32(d["unix_time"]);
                 data[i].eventFlags = Convert.ToUInt32(d["event_flags"]);
-                i++;
-                if (i >= count)
+
+                if (++i >= count)
                     break;
             }
 
@@ -440,8 +441,8 @@ namespace OpenSimSearch.Modules.OpenSearch
                 data[i].creationDate = Convert.ToUInt32(d["creation_date"]);
                 data[i].expirationDate = Convert.ToUInt32(d["expiration_date"]);
                 data[i].price = Convert.ToInt32(d["priceforlisting"]);
-                i++;
-                if (i >= count)
+
+                if (++i >= count)
                     break;
             }
 
@@ -584,6 +585,7 @@ namespace OpenSimSearch.Modules.OpenSearch
                 int i = 0;
                 string[] ParcelLandingPoint = new string[count];
                 string[] ParcelRegionUUID = new string[count];
+
                 foreach (Object o in dataArray)
                 {
                     Hashtable d = (Hashtable)o;
@@ -599,8 +601,8 @@ namespace OpenSimSearch.Modules.OpenSearch
                     Landdata[i].actualArea = Convert.ToInt32(d["area"]);
                     ParcelLandingPoint[i] = d["landing_point"].ToString();
                     ParcelRegionUUID[i] = d["region_UUID"].ToString();
-                    i++;
-                    if (i >= count)
+
+                    if (++i >= count)
                         break;
                 }
 
