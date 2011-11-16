@@ -309,10 +309,17 @@ function dir_events_query($method_name, $params, $app_data)
 
     $terms = array();
 
-    //Is $day a number of days (before or after current date)?
-    if ($day < 0 || $day > 0)
-        $now += $day * (7 * 24 * 60 * 60);
-    $terms[] = "dateUTC > ".$now;
+    if ($day == "u")
+        $terms[] = "dateUTC > ".$now;
+    else
+    {
+        //Is $day a number of days before or after current date?
+        if ($day != 0)
+            $now += $day * 86400;
+        $now -= ($now % 86400);
+        $then = $now + 86400;
+        $terms[] = "(dateUTC > ".$now." AND dateUTC <= ".$then.")";
+    }
 
     if ($category <> 0)
         $terms[] = "category = ".$category."";
@@ -473,6 +480,7 @@ function event_info_query($method_name, $params, $app_data)
     {
         $date = strftime("%G-%m-%d %H:%M:%S",$row["dateUTC"]);
 
+        $category = "*Unspecified*";
         if ($row['category'] == 18)    $category = "Discussion";
         if ($row['category'] == 19)    $category = "Sports";
         if ($row['category'] == 20)    $category = "Live Music";

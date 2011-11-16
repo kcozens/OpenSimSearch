@@ -257,3 +257,38 @@ frequently or setting the value in the LIMIT statement too high. Doing either
 can cause unnecessary overhead or high loads on the webserver used to run
 parser.php, or on the database server while it updates all the tables with
 the latest information from the OpenSim instances.
+
+
+Additional Information
+
+A few words about event listings and the events database table.
+Support is included for events but the event listings need to be created
+using an external webpage. 
+ 
+The category for an event is stored as a number. The numbers for the
+categories are as follows:
+0 - Any  (NOTE: Event information will show "*Unspecified*")
+18- Discussion
+19- Sports
+20- Live Music
+22- Commercial
+23- Nightlife/Entertainment
+24- Games/Contests
+25- Pageants
+26- Education
+27- Arts and Culture
+28- Charity/Support Groups
+29- Miscellaneous
+
+The dateUTC field is a timestamp for the event in UTC time.
+
+The covercharge field is a boolean. Set it to 0 if there is no cover charge
+for the event. When covercharge is not 0, the amount is in the coveramount
+field. (It seems silly to require the boolean but this has been left in to
+avoid any compatability issues.)
+
+The globalPos field is the location of the event as a global grid coordinate.
+The format is "<x, y, z>". where x and y are the grid X and Y positions times
+256 plus the x and y value within the region named by the simname field.
+
+The eventflags field is 0 for a PG event, 1 for Mature, and 2 for Adult.

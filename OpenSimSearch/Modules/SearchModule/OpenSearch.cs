@@ -337,7 +337,6 @@ namespace OpenSimSearch.Modules.OpenSearch
                     new DirPeopleReplyData[accounts.Count];
 
             int i = 0;
-
             foreach (UserAccount item in accounts)
             {
                 data[i] = new DirPeopleReplyData();
@@ -553,7 +552,7 @@ namespace OpenSimSearch.Modules.OpenSearch
         {
             //The following constant appears to be from GridLayerType enum
             //defined in OpenMetaverse/GridManager.cs of libopenmetaverse.
-            if (itemtype == 7) //(land sales)
+            if (itemtype == (uint)OpenMetaverse.GridItemType.LandForSale)
             {
                 Hashtable ReqHash = new Hashtable();
 
@@ -592,6 +591,7 @@ namespace OpenSimSearch.Modules.OpenSearch
 
                     if (d["name"] == null)
                         continue;
+
                     Landdata[i] = new DirLandReplyData();
                     Landdata[i].parcelID = new UUID(d["parcel_id"].ToString());
                     Landdata[i].name = d["name"].ToString();
