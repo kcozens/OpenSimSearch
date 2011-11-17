@@ -303,9 +303,10 @@ function dir_events_query($method_name, $params, $app_data)
 
     $day        =    $pieces[0];
     $category   =    $pieces[1];
+    $search_text=    $pieces[2];
 
-    //Setting a variable for NOW
-    $now        =    time();
+    //Get todays date/time and adjust it to UTC
+    $now        =    time() - date_offset_get();
 
     $terms = array();
 
@@ -339,6 +340,13 @@ function dir_events_query($method_name, $params, $app_data)
             $terms[] = join_terms(" OR ", $type, True);
         else    //Only found one flag
             $terms[] = $type[0];
+    }
+
+    if ($search_text != "")
+    {
+        $search_text = mysql_real_escape_string($search_text);
+        $terms[] = "(name LIKE '%$search_text%' OR " .
+                    "description LIKE '%$search_text%')";
     }
 
     if (count($terms) > 1)
