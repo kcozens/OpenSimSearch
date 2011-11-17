@@ -33,7 +33,7 @@ function join_terms($glue, $terms, $add_paren)
     }
     else
     {
-        if (count($terms) > 0)
+        if (count($terms) == 1)
             $type = $terms[0];
         else
             $type = "";
@@ -155,9 +155,10 @@ function dir_popular_query($method_name, $params, $app_data)
     if ($flags & 0x0800)    //PgSimsOnly (1 << 11)
         $terms[] = "mature = 0";
 
-    $where = "";
     if (count($terms) > 0)
         $where = " WHERE " . join_terms(" AND ", $terms, False);
+    else
+        $where = "";
 
     //FIXME: Should there be a limit on the number of results?
     $result = mysql_query("SELECT * FROM popularplaces" . $where);
@@ -240,9 +241,10 @@ function dir_land_query($method_name, $params, $app_data)
     if (!($flags & 0x8000)) //SortAsc (1 << 15)
         $order .= " DESC";
 
-    $where = "";
     if (count($terms) > 0)
         $where = " WHERE " . join_terms(" AND ", $terms, False);
+    else
+        $where = "";
 
     $sql = "SELECT *, saleprice/area AS lsq FROM parcelsales" . $where .
                 " ORDER BY " . $order . " LIMIT " .
@@ -335,12 +337,7 @@ function dir_events_query($method_name, $params, $app_data)
 
     //Was there at least one PG, Mature, or Adult flag?
     if (count($type) > 0)
-    {
-        if (count($type) > 1)
-            $terms[] = join_terms(" OR ", $type, True);
-        else    //Only found one flag
-            $terms[] = $type[0];
-    }
+        $terms[] = join_terms(" OR ", $type, True);
 
     if ($search_text != "")
     {
@@ -349,10 +346,10 @@ function dir_events_query($method_name, $params, $app_data)
                     "description LIKE '%$search_text%')";
     }
 
-    if (count($terms) > 1)
+    if (count($terms) > 0)
         $where = " WHERE " . join_terms(" AND ", $terms, False);
     else
-        $where = $terms[0];
+        $where = "";
 
     $sql = "SELECT * FROM events". $where.
            " LIMIT " . mysql_real_escape_string($query_start) . ",101";
@@ -420,24 +417,22 @@ function dir_classified_query ($method_name, $params, $app_data)
 //        $terms[] = "classifiedflags & ? > 0";
 
     if (count($terms) > 0)
-        $type = join_terms(" OR ", $terms, True);
-    else
-        $type = "";
+        $terms[] = join_terms(" OR ", $terms, True);
 
     if ($category <> 0)
-        $category = "category = ".$category."";
-    else
-        $category = "";
+        $terms[] = "category = ".$category."";
 
-    if ($type == "" && $category == "")
-        $where = "";
-    else
+    if ($text != "")
     {
-        if ($type == "" || $category == "")
-            $where = " WHERE " . $type . $category;
-        else
-            $where = " WHERE " . $type . " AND " . $category;
+        $text = mysql_real_escape_string($text);
+        $terms[] = "(name LIKE '%$text%' OR " .
+                    "description LIKE '%$text%')";
     }
+
+    if (count($terms) > 0)
+        $where = " WHERE " . join_terms(" AND ", $terms, False);
+    else
+        $where = "";
 
     $sql = "SELECT * FROM classifieds" . $where .
            " ORDER BY priceforlisting DESC" .
