@@ -109,9 +109,10 @@ function dir_places_query($method_name, $params, $app_data)
     else
         $category = "";
 
+    $text = mysql_real_escape_string($text);
     $result = mysql_query("SELECT * FROM parcels WHERE $category " .
-            "(parcelname LIKE '%" . mysql_real_escape_string($text) . "%'" .
-            " OR description LIKE '%" . mysql_real_escape_string($text) . "%')" .
+            "(parcelname LIKE '%$text%'" .
+            " OR description LIKE '%$text%')" .
             $type . " ORDER BY $order parcelname" .
             " LIMIT ".(0+$query_start).",101");
 
@@ -135,7 +136,7 @@ function dir_places_query($method_name, $params, $app_data)
 }
 
 #
-# Popular Place Query
+# Popular Places Query
 #
 
 xmlrpc_server_register_method($xmlrpc_server, "dir_popular_query",
@@ -145,6 +146,7 @@ function dir_popular_query($method_name, $params, $app_data)
 {
     $req      = $params[0];
 
+    $text     = $req['text'];
     $flags    = $req['flags'];
 
     $terms = array();
@@ -154,6 +156,13 @@ function dir_popular_query($method_name, $params, $app_data)
 
     if ($flags & 0x0800)    //PgSimsOnly (1 << 11)
         $terms[] = "mature = 0";
+
+    if ($text != "")
+    {
+        $text = mysql_real_escape_string($text);
+        $terms[] = "(name LIKE '%$text%' OR " .
+                    "description LIKE '%$text%')";
+    }
 
     if (count($terms) > 0)
         $where = " WHERE " . join_terms(" AND ", $terms, False);
