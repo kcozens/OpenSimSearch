@@ -314,10 +314,13 @@ function dir_events_query($method_name, $params, $app_data)
 
     $day        =    $pieces[0];
     $category   =    $pieces[1];
-    $search_text=    $pieces[2];
+    if (count($pieces) < 3)
+        $search_text = "";
+    else
+        $search_text = $pieces[2];
 
     //Get todays date/time and adjust it to UTC
-    $now        =    time() - date_offset_get();
+    $now        =    time() - date_offset_get(new DateTime);
 
     $terms = array();
 
@@ -333,7 +336,7 @@ function dir_events_query($method_name, $params, $app_data)
         $terms[] = "(dateUTC > ".$now." AND dateUTC <= ".$then.")";
     }
 
-    if ($category <> 0)
+    if ($category != 0)
         $terms[] = "category = ".$category."";
 
     $type = array();
@@ -377,7 +380,9 @@ function dir_events_query($method_name, $params, $app_data)
                 "event_id" => $row["eventid"],
                 "date" => $date,
                 "unix_time" => $row["dateUTC"],
-                "event_flags" => $row["eventflags"]);
+                "event_flags" => $row["eventflags"],
+                "landing_point" => $row["globalPos"],
+                "region_UUID" => $row["simname"]);
     }
 
     $response_xml = xmlrpc_encode(array(
@@ -428,7 +433,7 @@ function dir_classified_query ($method_name, $params, $app_data)
     if (count($terms) > 0)
         $terms[] = join_terms(" OR ", $terms, True);
 
-    if ($category <> 0)
+    if ($category != 0)
         $terms[] = "category = ".$category."";
 
     if ($text != "")

@@ -352,6 +352,7 @@ namespace OpenSimSearch.Modules.OpenSearch
 
             remoteClient.SendDirPeopleReply(queryID, data);
         }
+
         public void DirEventsQuery(IClientAPI remoteClient, UUID queryID,
                 string queryText, uint queryFlags, int queryStart)
         {
@@ -630,6 +631,108 @@ namespace OpenSimSearch.Modules.OpenSearch
                     mapitem.name = landDir.name;
                     mapitem.Extra = landDir.actualArea;
                     mapitem.Extra2 = landDir.salePrice;
+                    mapitems.Add(mapitem);
+                    i++;
+                }
+                remoteClient.SendMapItemReply(mapitems.ToArray(), itemtype, flags);
+                mapitems.Clear();
+            }
+
+            if (itemtype == (uint)OpenMetaverse.GridItemType.PgEvent ||
+                itemtype == (uint)OpenMetaverse.GridItemType.MatureEvent ||
+                itemtype == (uint)OpenMetaverse.GridItemType.AdultEvent)
+            {
+                Hashtable ReqHash = new Hashtable();
+
+                //Find the maturity level
+                int maturity = (1 << 24);
+
+                //Find the maturity level
+                if (itemtype == (uint)OpenMetaverse.GridItemType.MatureEvent)
+                    maturity = (1 << 25);
+                else
+                {
+                    if (itemtype == (uint)OpenMetaverse.GridItemType.AdultEvent)
+                        maturity = (1 << 26);
+                }
+
+                //The flags are: SortAsc (1 << 15), PerMeterSort (1 << 17)
+                maturity |= 163840;
+
+                //Character before | is number of days before/after current date
+                //Characters after | is the number for a category
+                ReqHash["text"] = "0|0";
+                ReqHash["flags"] = maturity.ToString();
+                ReqHash["query_start"] = "0";
+
+                Hashtable result = GenericXMLRPCRequest(ReqHash,
+                                                        "dir_events_query");
+
+                if (!Convert.ToBoolean(result["success"]))
+                {
+                    remoteClient.SendAgentAlertMessage(
+                        result["errorMessage"].ToString(), false);
+                    return;
+                }
+
+                ArrayList dataArray = (ArrayList)result["data"];
+
+                int count = dataArray.Count;
+                if (count > 100)
+                    count = 101;
+
+                DirEventsReplyData[] Eventsdata = new DirEventsReplyData[count];
+
+                int i = 0;
+                string[] ParcelLandingPoint = new string[count];
+                string[] ParcelRegionUUID = new string[count];
+
+                foreach (Object o in dataArray)
+                {
+                    Hashtable d = (Hashtable)o;
+
+                    if (d["name"] == null)
+                        continue;
+
+                    Eventsdata[i] = new DirEventsReplyData();
+                    Eventsdata[i].ownerID = new UUID(d["owner_id"].ToString());
+                    Eventsdata[i].name = d["name"].ToString();
+                    Eventsdata[i].eventID = (uint)Convert.ToInt32(d["event_id"]);
+                    Eventsdata[i].date = d["date"].ToString();
+                    Eventsdata[i].unixTime = (uint)Convert.ToInt32(d["unix_time"]);
+                    Eventsdata[i].eventFlags = (uint)Convert.ToInt32(d["event_flags"]);
+                    ParcelLandingPoint[i] = d["landing_point"].ToString();
+                    ParcelRegionUUID[i] = d["region_UUID"].ToString();
+
+                    if (++i >= count)
+                        break;
+                }
+
+                List<mapItemReply> mapitems = new List<mapItemReply>();
+                uint locX = 0;
+                uint locY = 0;
+
+                i = 0;
+
+                foreach (DirEventsReplyData Eventdata in Eventsdata)
+                {
+                    foreach (Scene scene in m_Scenes)
+                    {
+                        if (scene.RegionInfo.RegionID.ToString() == ParcelRegionUUID[i])
+                        {
+                            locX = scene.RegionInfo.RegionLocX;
+                            locY = scene.RegionInfo.RegionLocY;
+                            break;
+                        }
+                    }
+                    string[] landingpoint = ParcelLandingPoint[i].Split('/');
+                    mapItemReply mapitem = new mapItemReply();
+                    mapitem.x = (uint)((locX * 256) + Convert.ToDecimal(landingpoint[0]));
+                    mapitem.y = (uint)((locY * 256) + Convert.ToDecimal(landingpoint[1]));
+                    mapitem.id = UUID.Random();
+                    mapitem.name = Eventdata.name;
+                    mapitem.Extra = (int)Eventdata.unixTime;
+                    mapitem.Extra2 = (int)Eventdata.eventID;
                     mapitems.Add(mapitem);
                     i++;
                 }
