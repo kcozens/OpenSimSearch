@@ -144,10 +144,11 @@ xmlrpc_server_register_method($xmlrpc_server, "dir_popular_query",
 
 function dir_popular_query($method_name, $params, $app_data)
 {
-    $req      = $params[0];
+    $req         = $params[0];
 
-    $text     = $req['text'];
-    $flags    = $req['flags'];
+    $text        = $req['text'];
+    $flags       = $req['flags'];
+    $query_start = $req['query_start'];
 
     $terms = array();
 
@@ -160,8 +161,7 @@ function dir_popular_query($method_name, $params, $app_data)
     if ($text != "")
     {
         $text = mysql_real_escape_string($text);
-        $terms[] = "(name LIKE '%$text%' OR " .
-                    "description LIKE '%$text%')";
+        $terms[] = "(name LIKE '%$text%')";
     }
 
     if (count($terms) > 0)
@@ -169,8 +169,8 @@ function dir_popular_query($method_name, $params, $app_data)
     else
         $where = "";
 
-    //FIXME: Should there be a limit on the number of results?
-    $result = mysql_query("SELECT * FROM popularplaces" . $where);
+    $result = mysql_query("SELECT * FROM popularplaces" . $where .
+                " LIMIT " . mysql_real_escape_string($query_start) . ",101";
 
     $data = array();
     while (($row = mysql_fetch_assoc($result)))
