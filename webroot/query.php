@@ -170,7 +170,7 @@ function dir_popular_query($method_name, $params, $app_data)
         $where = "";
 
     $result = mysql_query("SELECT * FROM popularplaces" . $where .
-                " LIMIT " . mysql_real_escape_string($query_start) . ",101";
+                " LIMIT " . mysql_real_escape_string($query_start) . ",101");
 
     $data = array();
     while (($row = mysql_fetch_assoc($result)))
