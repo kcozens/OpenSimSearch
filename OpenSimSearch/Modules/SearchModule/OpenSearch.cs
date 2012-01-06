@@ -14,10 +14,15 @@ using OpenSim.Framework;
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
 using OpenSim.Services.Interfaces;
+using Mono.Addins;
+
+[assembly: Addin("OpenSearchModule", "0.1")]
+[assembly: AddinDependency("OpenSim", "0.5")]
 
 namespace OpenSimSearch.Modules.OpenSearch
 {
-    public class OpenSearchModule : IRegionModule
+    [Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule")]
+    public class OpenSearchModule : ISearchModule, ISharedRegionModule
     {
         //
         // Log module
@@ -31,46 +36,69 @@ namespace OpenSimSearch.Modules.OpenSearch
         private string m_SearchServer = "";
         private bool m_Enabled = true;
 
-        public void Initialise(Scene scene, IConfigSource config)
+        public void Initialise(IConfigSource config)
+        {
+            IConfig searchConfig = config.Configs["Search"];
+
+            if (searchConfig == null)
+            {
+                m_log.Info("[SEARCH] Not configured, disabling");
+                m_Enabled = false;
+                return;
+            }
+            m_SearchServer = searchConfig.GetString("SearchURL", "");
+            if (m_SearchServer == "")
+            {
+                m_log.Error("[SEARCH] No search server, disabling search");
+                m_Enabled = false;
+                return;
+            }
+            else
+            {
+                m_log.Info("[SEARCH] Search module is activated");
+                m_Enabled = true;
+            }
+        }
+
+        public void AddRegion(Scene scene)
         {
             if (!m_Enabled)
                 return;
 
-            IConfig searchConfig = config.Configs["Search"];
-
-            if (m_Scenes.Count == 0) // First time
-            {
-                if (searchConfig == null)
-                {
-                    m_log.Info("[SEARCH] Not configured, disabling");
-                    m_Enabled = false;
-                    return;
-                }
-                m_SearchServer = searchConfig.GetString("SearchURL", "");
-                if (m_SearchServer == "")
-                {
-                    m_log.Error("[SEARCH] No search server, disabling search");
-                    m_Enabled = false;
-                    return;
-                }
-                else
-                {
-                    m_log.Info("[SEARCH] Search module is activated");
-                    m_Enabled = true;
-                }
-            }
-
-            if (!m_Scenes.Contains(scene))
-                m_Scenes.Add(scene);
-
             // Hook up events
             scene.EventManager.OnNewClient += OnNewClient;
+
+            // Take ownership of the ISearchModule service
+            scene.RegisterModuleInterface<ISearchModule>(this);
+
+            // Add our scene to our list...
+            lock(m_Scenes)
+            {
+                m_Scenes.Add(scene);
+            }
+
+        }
+
+        public void RemoveRegion(Scene scene)
+        {
+            if (!m_Enabled)
+                return;
+
+            scene.UnregisterModuleInterface<ISearchModule>(this);
+            m_Scenes.Remove(scene);
+        }
+
+        public void RegionLoaded(Scene scene)
+        {
+        }
+
+        public Type ReplaceableInterface
+        {
+            get { return null; }
         }
 
         public void PostInitialise()
         {
-            if (!m_Enabled)
-                return;
         }
 
         public void Close()
