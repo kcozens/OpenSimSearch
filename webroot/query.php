@@ -50,9 +50,9 @@ function process_region_type_flags($flags)
     if ($flags & 16777216)  //IncludePG (1 << 24)
         $terms[] = "mature = 'PG'";
     if ($flags & 33554432)  //IncludeMature (1 << 25)
-        $terms[] = "mature = 'Adult'";
-    if ($flags & 67108864)  //IncludeAdult (1 << 26)
         $terms[] = "mature = 'Mature'";
+    if ($flags & 67108864)  //IncludeAdult (1 << 26)
+        $terms[] = "mature = 'Adult'";
 
     return join_terms(" OR ", $terms, True);
 }
