@@ -42,9 +42,26 @@ namespace OpenSimSearch.Modules.OpenSearch
 
             if (searchConfig == null)
             {
-                m_log.Info("[SEARCH] Not configured, disabling");
-                m_Enabled = false;
-                return;
+                if (searchConfig == null)
+                {
+                    m_Enabled = false;
+                    return;
+                }
+                if (searchConfig.GetString("Module", "OpenSimSearch") != "OpenSimSearch")
+                    return;
+
+                m_SearchServer = searchConfig.GetString("SearchURL", "");
+                if (m_SearchServer == "")
+                {
+                    m_log.Error("[SEARCH] No search server, disabling search");
+                    m_Enabled = false;
+                    return;
+                }
+                else
+                {
+                    m_log.Info("[SEARCH] Search module is activated");
+                    m_Enabled = true;
+                }
             }
             m_SearchServer = searchConfig.GetString("SearchURL", "");
             if (m_SearchServer == "")
