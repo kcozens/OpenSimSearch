@@ -421,32 +421,27 @@ function dir_classified_query ($method_name, $params, $app_data)
         return;
     }
 
-    $terms = array();
-    if ($flags & 6) //PG (1 << 2)
-        $terms[] = "classifiedflags & 2 = 0";
-    if ($flags & 8) //Mature (1 << 3)
-        $terms[] = "classifiedflags & 2 <> 0";
-//There is no bit for Adult in classifiedflags
-//    if ($flags & 64)  //Adult (1 << 6)
-//        $terms[] = "classifiedflags & ? > 0";
+    $type = "";
 
-    if (count($terms) > 0)
-        $terms[] = join_terms(" OR ", $terms, True);
-
-    if ($category != 0)
-        $terms[] = "category = ".$category."";
-
-    if ($text != "")
+    //Viewer only allows setting classifieds as PG or Mature but not both.
+    //Restrict search based on classifiedflags when just one flag is set.
+    if (($flags & 12) != 12)
     {
-        $text = mysql_real_escape_string($text);
-        $terms[] = "(name LIKE '%$text%' OR " .
-                    "description LIKE '%$text%')";
+        if ($flags & 4) //PG (1 << 2)
+            $type = "classifiedflags & 8 = 0";
+        if ($flags & 8) //Mature (1 << 3)
+            $type = "classifiedflags & 8 = 8";
     }
 
-    if (count($terms) > 0)
-        $where = " WHERE " . join_terms(" AND ", $terms, False);
+    if ($category <> 0)
+        $category = "category = ".$category."";
     else
-        $where = "";
+        $category = "";
+
+    if ($type == "" || $category == "")
+        $where = " WHERE " . $type . $category;
+    else
+        $where = " WHERE " . $type . " AND " . $category;
 
     $sql = "SELECT * FROM classifieds" . $where .
            " ORDER BY priceforlisting DESC" .
