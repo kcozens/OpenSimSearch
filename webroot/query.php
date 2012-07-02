@@ -423,20 +423,24 @@ function dir_classified_query ($method_name, $params, $app_data)
 
     $type = "";
 
-    //Viewer only allows setting classifieds as PG or Mature but not both.
-    //Restrict search based on classifiedflags when just one flag is set.
-    if (($flags & 12) != 12)
-    {
-        if ($flags & 4) //PG (1 << 2)
-            $type = "classifiedflags & 8 = 0";
-        if ($flags & 8) //Mature (1 << 3)
-            $type = "classifiedflags & 8 = 8";
-    }
+    //Renew Weekly flag is bit 5 (32) in $flags.
+    $terms = array();
+    if ($flags & 4)     //PG (1 << 2)
+        $terms[] = "classifiedflags & 4 = 4";
+    if ($flags & 8)     //Mature (1 << 3)
+        $terms[] = "classifiedflags & 8 = 8";
+    if ($flags & 64)    //Adult (1 << 6)
+        $terms[] = "classifiedflags & 64 = 64";
 
-    if ($category <> 0)
-        $category = "category = ".$category."";
-    else
+    //Was there at least one PG, Mature, or Adult flag?
+    if (count($terms) > 0)
+        $type = join_terms(" OR ", $terms, True);
+
+    //Don't restrict results based on category if it is 0 (Any Category)
+    if ($category == 0)
         $category = "";
+    else
+        $category = "category = " . $category;
 
     if ($type == "" || $category == "")
         $where = " WHERE " . $type . $category;
