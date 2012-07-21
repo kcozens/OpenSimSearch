@@ -421,31 +421,34 @@ function dir_classified_query ($method_name, $params, $app_data)
         return;
     }
 
-    $type = "";
+    $terms = array();
 
     //Renew Weekly flag is bit 5 (32) in $flags.
-    $terms = array();
+    $f = array();
     if ($flags & 4)     //PG (1 << 2)
-        $terms[] = "classifiedflags & 4 = 4";
+        $f[] = "classifiedflags & 4 = 4";
     if ($flags & 8)     //Mature (1 << 3)
-        $terms[] = "classifiedflags & 8 = 8";
+        $f[] = "classifiedflags & 8 = 8";
     if ($flags & 64)    //Adult (1 << 6)
-        $terms[] = "classifiedflags & 64 = 64";
+        $f[] = "classifiedflags & 64 = 64";
 
     //Was there at least one PG, Mature, or Adult flag?
+    if (count($f) > 0)
+        $terms[] = join_terms(" OR ", $f, True);
+
+    //Only restrict results based on category if it is not 0 (Any Category)
+    if ($category != 0)
+        $terms[] = "category = " . $category;
+
+    if ($text != "")
+        $terms[] = "(name LIKE '%$text%'" .
+                   " OR description LIKE '%$text%')";
+
+    //Was there at least condition for the search?
     if (count($terms) > 0)
-        $type = join_terms(" OR ", $terms, True);
-
-    //Don't restrict results based on category if it is 0 (Any Category)
-    if ($category == 0)
-        $category = "";
+        $where = " WHERE " . join_terms(" AND ", $terms, False);
     else
-        $category = "category = " . $category;
-
-    if ($type == "" || $category == "")
-        $where = " WHERE " . $type . $category;
-    else
-        $where = " WHERE " . $type . " AND " . $category;
+        $where = "";
 
     $sql = "SELECT * FROM classifieds" . $where .
            " ORDER BY priceforlisting DESC" .
