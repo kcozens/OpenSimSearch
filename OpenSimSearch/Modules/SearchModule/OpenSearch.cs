@@ -745,5 +745,9 @@ namespace OpenSimSearch.Modules.OpenSearch
                 mapitems.Clear();
             }
         }
+
+        public void Refresh()
+        {
+        }
     }
 }
