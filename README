@@ -125,7 +125,7 @@ Add the following lines to all OpenSim.ini files:
   ;// The SearchURL is important. It must be correct or search won't work.  //
   ;//                                                                       //
   ;// Change the URL to point to the query.php file on your own HTTP server //
-  ;SearchURL = http://192.168.0.1/query.php
+  SearchURL = http://192.168.0.1/query.php
   ;//                                                                       //
   ;///////////////////////////////////////////////////////////////////////////
 
@@ -136,13 +136,6 @@ text in this file.
 Uncomment and edit the SearchURL line so it contains the correct address for
 the webserver and needed path to where the query.php file was installed on
 your webserver.
-
-To allow the Teleport and Show on Map buttons to work properly (for search
-results containing locations) the following two lines must be added to the
-[Modules] section of the OpenSim.ini file:
-
-    LandServices = "RemoteLandServicesConnector"
-    LandServiceInConnector = "true"
 
 The last changes to be made to the OpenSim.ini file are in the [DataSnapshot]
 section. Change index_sims to true. You can have data_exposure set to all but
