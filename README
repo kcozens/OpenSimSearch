@@ -159,9 +159,9 @@ used to connect to the database.
 Copy the two OpenSimSearch.Modules files created during compilation to the
 bin directory of each of your OpenSim instances.
 
-Finally, execute all of the SQL files located in the webroot/sql directory
-where the filenames start with "update-". This step is very important to
-make certain your database tables are up-to-date.
+Finally, execute the ossearch-migrations.sql file located in the webroot/sql
+directory. This step is very important to make certain your database tables
+are up-to-date.
 
 
 Configuration

@@ -34,3 +34,20 @@ BEGIN;
 ALTER TABLE `events` CHANGE `dateUTC` `dateUTC` int(10) NOT NULL;
 ALTER TABLE `events` CHANGE `covercharge` `covercharge` tinyint(1) NOT NULL;
 COMMIT;
+
+#SVN revision 199
+BEGIN;
+ALTER TABLE `allparcels` CHANGE `regionUUID` `regionUUID` char(36) NOT NULL;
+ALTER TABLE `events` CHANGE `owneruuid` `owneruuid` char(36) NOT NULL;
+ALTER TABLE `events` CHANGE `creatoruuid` `creatoruuid` char(36) NOT NULL;
+ALTER TABLE `objects` CHANGE `objectuuid` `objectuuid` char(36) NOT NULL;
+ALTER TABLE `objects` CHANGE `parcelUUID` `parcelUUID` char(36) NOT NULL;
+ALTER TABLE `objects` CHANGE `regionuuid` `regionuuid` char(36) NOT NULL default '';
+ALTER TABLE `parcels` CHANGE `regionUUID` `regionUUID` char(36) NOT NULL;
+ALTER TABLE `parcels` CHANGE `parcelUUID` `parcelUUID` char(36) NOT NULL;
+ALTER TABLE `parcels` CHANGE `infouuid` `infouuid` char(36) NOT NULL default '';
+ALTER TABLE `parcelsales` CHANGE `regionUUID` `regionUUID` char(36) NOT NULL;
+ALTER TABLE `parcelsales` CHANGE `parcelUUID` `parcelUUID` char(36) NOT NULL;
+ALTER TABLE `regions` CHANGE `regionUUID` `regionUUID` char(36) NOT NULL;
+ALTER TABLE `regions` CHANGE `ownerUUID` `ownerUUID` char(36) NOT NULL;
+COMMIT;

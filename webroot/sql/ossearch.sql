@@ -17,7 +17,7 @@
 -- 
 
 CREATE TABLE `allparcels` (
-  `regionUUID` varchar(255) NOT NULL,
+  `regionUUID` char(36) NOT NULL,
   `parcelname` varchar(255) NOT NULL,
   `ownerUUID` char(36) NOT NULL default '00000000-0000-0000-0000-000000000000',
   `groupUUID` char(36) NOT NULL default '00000000-0000-0000-0000-000000000000',
@@ -27,7 +27,7 @@ CREATE TABLE `allparcels` (
   `parcelarea` int(11) NOT NULL,
   PRIMARY KEY  (`parcelUUID`),
   KEY `regionUUID` (`regionUUID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -52,7 +52,7 @@ CREATE TABLE `classifieds` (
   `classifiedflags` int(8) NOT NULL,
   `priceforlisting` int(5) NOT NULL,
   PRIMARY KEY  (`classifieduuid`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -61,10 +61,10 @@ CREATE TABLE `classifieds` (
 -- 
 
 CREATE TABLE `events` (
-  `owneruuid` char(40) NOT NULL,
+  `owneruuid` char(36) NOT NULL,
   `name` varchar(255) NOT NULL,
   `eventid` int(11) NOT NULL auto_increment,
-  `creatoruuid` char(40) NOT NULL,
+  `creatoruuid` char(36) NOT NULL,
   `category` int(2) NOT NULL,
   `description` text NOT NULL,
   `dateUTC` int(10) NOT NULL,
@@ -75,7 +75,7 @@ CREATE TABLE `events` (
   `globalPos` varchar(255) NOT NULL,
   `eventflags` int(1) NOT NULL,
   PRIMARY KEY  (`eventid`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -91,7 +91,7 @@ CREATE TABLE `hostsregister` (
   `checked` tinyint(1) NOT NULL,
   `failcounter` int(10) NOT NULL,
   PRIMARY KEY (`host`,`port`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -100,14 +100,14 @@ CREATE TABLE `hostsregister` (
 -- 
 
 CREATE TABLE `objects` (
-  `objectuuid` varchar(255) NOT NULL,
-  `parceluuid` varchar(255) NOT NULL,
+  `objectuuid` char(36) NOT NULL,
+  `parceluuid` char(36) NOT NULL,
   `location` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
   `description` varchar(255) NOT NULL,
-  `regionuuid` varchar(255) NOT NULL default '',
+  `regionuuid` char(36) NOT NULL default '',
   PRIMARY KEY  (`objectuuid`,`parceluuid`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -116,9 +116,9 @@ CREATE TABLE `objects` (
 -- 
 
 CREATE TABLE `parcels` (
-  `regionUUID` varchar(255) NOT NULL,
+  `regionUUID` char(36) NOT NULL,
   `parcelname` varchar(255) NOT NULL,
-  `parcelUUID` varchar(255) NOT NULL,
+  `parcelUUID` char(36) NOT NULL,
   `landingpoint` varchar(255) NOT NULL,
   `description` varchar(255) NOT NULL,
   `searchcategory` varchar(50) NOT NULL,
@@ -126,14 +126,14 @@ CREATE TABLE `parcels` (
   `script` enum('true','false') NOT NULL,
   `public` enum('true','false') NOT NULL,
   `dwell` float NOT NULL default '0',
-  `infouuid` varchar(255) NOT NULL default '',
+  `infouuid` varchar(36) NOT NULL default '',
   `mature` varchar(10) NOT NULL default 'PG',
   PRIMARY KEY  (`regionUUID`,`parcelUUID`),
   KEY `name` (`parcelname`),
   KEY `description` (`description`),
   KEY `searchcategory` (`searchcategory`),
   KEY `dwell` (`dwell`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -142,9 +142,9 @@ CREATE TABLE `parcels` (
 -- 
 
 CREATE TABLE `parcelsales` (
-  `regionUUID` varchar(255) NOT NULL,
+  `regionUUID` char(36) NOT NULL,
   `parcelname` varchar(255) NOT NULL,
-  `parcelUUID` varchar(255) NOT NULL,
+  `parcelUUID` char(36) NOT NULL,
   `area` int(6) NOT NULL,
   `saleprice` int(11) NOT NULL,
   `landingpoint` varchar(255) NOT NULL,
@@ -153,7 +153,7 @@ CREATE TABLE `parcelsales` (
   `parentestate` int(11) NOT NULL default '1',
   `mature` varchar(10) NOT NULL default 'PG',
   PRIMARY KEY  (`regionUUID`,`parcelUUID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -168,7 +168,7 @@ CREATE TABLE `popularplaces` (
   `infoUUID` char(36) NOT NULL,
   `has_picture` tinyint(1) NOT NULL,
   `mature` tinyint(4) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -178,10 +178,10 @@ CREATE TABLE `popularplaces` (
 
 CREATE TABLE `regions` (
   `regionname` varchar(255) NOT NULL,
-  `regionuuid` varchar(255) NOT NULL,
+  `regionuuid` char(36) NOT NULL,
   `regionhandle` varchar(255) NOT NULL,
   `url` varchar(255) NOT NULL,
   `owner` varchar(255) NOT NULL,
-  `owneruuid` varchar(255) NOT NULL,
+  `owneruuid` char(36) NOT NULL,
   PRIMARY KEY  (`regionuuid`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8_unicode_ci;
