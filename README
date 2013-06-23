@@ -121,6 +121,7 @@ all of your OpenSim instances.
 Add the following lines to all OpenSim.ini files:
 
   [Search]
+  Module = "OpenSimSearch";	//This line is optional and shows the default.
   ;///////////////////////////////////////////////////////////////////////////
   ;// The SearchURL is important. It must be correct or search won't work.  //
   ;//                                                                       //
