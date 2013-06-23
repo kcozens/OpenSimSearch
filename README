@@ -68,9 +68,9 @@ for any final processing before being passed along to the viewer for display.
 
 Compiling the module
 
-Adding the OpenSimSearch C# source file to the source tree of OpenSim so it
-will be compiled at the same time as OpenSim is compiled is the easiest way
-to create to the DLL file needed by OpenSim.
+The easiest way to create the DLL file needed by OpenSim is to add the
+OpenSimSearch C# source file to the source tree of OpenSim so it will
+be compiled at the same time that OpenSim is compiled.
 
 Copy the OpenSimSearch directory in to the addon-modules directory of your
 OpenSim source tree. After you have done that, compile OpenSim in the usual
@@ -84,28 +84,30 @@ during the installation or update steps.
 First time installation
 
 The first installation step is the creation of a database that will hold
-the data to be searched. If you have already installed the add-on module
-osprofile you should use the same database as osprofile as it shares some
-tables in common with ossearch. If you don't have osprofile installed you
-will need to create a new database that will hold the search tables. Having
-decided on the database to be used, use ossearch.sql (located in the
-webroot/sql directory) to create the required tables in the database. The
-name of this database will be needed when configuring one of the PHP files
-in the next steps.
+the data to be searched. If you have already installed the add-on profile
+module you should use the osprofile database as the search and profile
+modules share some tables in common.
+
+If you don't have the osprofile module installed you will need to create a
+new database that will hold the search tables. Once you have know the name
+of the database you will be using for the search data you can use ossearch.sql
+(located in the webroot/sql directory) to create the required tables in the
+database. The name of this database will be needed in a later step when you
+configure one of the PHP files.
 
 Copy the PHP files (located in the webroot directory) to your webserver.
-Remember to set the permissions on the file so the webserver may access the
-files. Use a text editor to open databaseinfo.php and enter the name or IP
-address of the database server, the name of the database, and the user name
-and password required to access the database.
+Remember to set the ownership and permissions on the files so the webserver
+may access the files. Use a text editor to open databaseinfo.php and enter
+the name or IP address of the database server, the name of the database,
+and the user name and password required to access the database.
 
 The next part of the installation process is to set up and configure your
 OpenSim instances.
 
 Copy the two OpenSimSearch.Modules files created during the compile steps
-(above) in to the bin directory of each of your OpenSim instances. The next
-part of the installation process requires some changes to the OpenSim.ini in
-all of your OpenSim instances.
+(above) to the bin directory of each of your OpenSim instances. The next
+part of the installation process requires some changes to the OpenSim.ini
+in all of your OpenSim instances.
 
 Add the following lines to all OpenSim.ini files:
 
@@ -114,7 +116,7 @@ Add the following lines to all OpenSim.ini files:
   ;///////////////////////////////////////////////////////////////////////////
   ;// The SearchURL is important. It must be correct or search won't work.  //
   ;//                                                                       //
-  ;// Change the URL to point to the query.php file on your own HTTP server //
+  ;// Change the URL to point to the query.php file on your own web server  //
   SearchURL = http://192.168.0.1/query.php
   ;//                                                                       //
   ;///////////////////////////////////////////////////////////////////////////
