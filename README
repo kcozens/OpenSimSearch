@@ -66,17 +66,6 @@ tables, and finally, the results are sent to the DLL file as an XML message
 for any final processing before being passed along to the viewer for display.
 
 
-Before you begin
-
-In the information that follows there are references to settings to be made
-in the OpenSim.ini files. As of the release of the 0.7 version of OpenSim
-some of the settings may no longer be in the OpenSim.ini file but may be
-found in the OpenSimDefault.ini file. If a section of the OpenSim.ini file
-mentioned in the information which follows doesn't exist in your copy of
-the file, you will either need to add the section and settings to the main
-OpenSim.ini file or make the changes to the OpenSimDefaults.ini file.
-
-
 Compiling the module
 
 Adding the OpenSimSearch C# source file to the source tree of OpenSim so it
