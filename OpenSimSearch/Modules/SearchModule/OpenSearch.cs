@@ -58,11 +58,9 @@ namespace OpenSimSearch.Modules.OpenSearch
                 m_Enabled = false;
                 return;
             }
-            else
-            {
-                m_log.Info("[SEARCH] Search module is activated");
-                m_Enabled = true;
-            }
+
+            m_log.Info("[SEARCH] Search module is activated");
+            m_Enabled = true;
         }
 
         public void AddRegion(Scene scene)
