@@ -16,7 +16,7 @@ using OpenSim.Region.Framework.Scenes;
 using OpenSim.Services.Interfaces;
 using Mono.Addins;
 
-[assembly: Addin("OpenSearchModule", "0.1")]
+[assembly: Addin("OpenSimSearch", "0.2")]
 [assembly: AddinDependency("OpenSim", "0.5")]
 
 namespace OpenSimSearch.Modules.OpenSearch
@@ -59,7 +59,7 @@ namespace OpenSimSearch.Modules.OpenSearch
                 return;
             }
 
-            m_log.Info("[SEARCH] Search module is activated");
+            m_log.Info("[SEARCH] OpenSimSearch module is active");
             m_Enabled = true;
         }
 
@@ -79,7 +79,6 @@ namespace OpenSimSearch.Modules.OpenSearch
             {
                 m_Scenes.Add(scene);
             }
-
         }
 
         public void RemoveRegion(Scene scene)
