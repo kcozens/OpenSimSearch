@@ -255,7 +255,7 @@ function dir_land_query($method_name, $params, $app_data)
     else
         $where = "";
 
-    $sql = "SELECT *, saleprice/area AS lsq FROM parcelsales" . $where .
+    $sql = "SELECT *,saleprice/area AS lsq FROM parcelsales" . $where .
                 " ORDER BY " . $order . " LIMIT " .
                 mysql_real_escape_string($query_start) . ",101";
 
@@ -319,21 +319,31 @@ function dir_events_query($method_name, $params, $app_data)
     else
         $search_text = $pieces[2];
 
-    //Get todays date/time and adjust it to UTC
-    $now        =    time() - date_offset_get(new DateTime);
-
     $terms = array();
 
     if ($day == "u")
-        $terms[] = "dateUTC > ".$now;
+    {
+        //This condition will include upcoming and in-progress events
+        $terms[] = "dateUTC+duration*60 >= " . time();
+    }
     else
     {
+        date_default_timezone_set('America/Los_Angeles');
+
+        //To search for events in a given day we need to determine the
+        //start time for the day. Get current time, take out UTC offset,
+        //adjust time to start of day, add back the UTC time zone offset.
+        $time_info = gettimeofday();
+        $now = $time_info['sec'] - $time_info['minuteswest'] * 60;
+        $now -= ($now % 86400); //Adjust to start of day
+        $now += $time_info['minuteswest'] * 60;
+
         //Is $day a number of days before or after current date?
         if ($day != 0)
             $now += $day * 86400;
-        $now -= ($now % 86400);
+
         $then = $now + 86400;
-        $terms[] = "(dateUTC > ".$now." AND dateUTC <= ".$then.")";
+        $terms[] = "(dateUTC >= $now AND dateUTC < $then)";
     }
 
     if ($category != 0)

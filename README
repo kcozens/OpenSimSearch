@@ -265,7 +265,11 @@ categories are as follows:
 28- Charity/Support Groups
 29- Miscellaneous
 
-The dateUTC field is a timestamp for the event in UTC time.
+The dateUTC field in the database is a timestamp for the event in UTC time.
+The ossearch module operates on the assumption that the local timezone of
+the grid or standalone is the Pacific timezone. If some other timezone is
+being used, change the parameter of the date_default_timezone_set() call
+in the query.php file.
 
 The covercharge field is a boolean. Set it to 0 if there is no cover charge
 for the event. When covercharge is not 0, the amount is in the coveramount

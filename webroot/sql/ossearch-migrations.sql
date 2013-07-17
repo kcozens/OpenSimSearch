@@ -51,3 +51,9 @@ ALTER TABLE `parcelsales` CHANGE `parcelUUID` `parcelUUID` char(36) NOT NULL;
 ALTER TABLE `regions` CHANGE `regionUUID` `regionUUID` char(36) NOT NULL;
 ALTER TABLE `regions` CHANGE `ownerUUID` `ownerUUID` char(36) NOT NULL;
 COMMIT;
+
+#SVN revision 202
+BEGIN;
+ALTER TABLE `events` CHANGE `eventid` `eventid` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT;
+ALTER TABLE `events` CHANGE `duration` `duration` INT ( 10 ) NOT NULL;
+COMMIT;

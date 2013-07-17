@@ -63,18 +63,18 @@ CREATE TABLE `classifieds` (
 CREATE TABLE `events` (
   `owneruuid` char(36) NOT NULL,
   `name` varchar(255) NOT NULL,
-  `eventid` int(11) NOT NULL auto_increment,
+  `eventid` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `creatoruuid` char(36) NOT NULL,
   `category` int(2) NOT NULL,
   `description` text NOT NULL,
   `dateUTC` int(10) NOT NULL,
-  `duration` int(3) NOT NULL,
+  `duration` int(10) NOT NULL,
   `covercharge` tinyint(1) NOT NULL,
   `coveramount` int(10) NOT NULL,
   `simname` varchar(255) NOT NULL,
   `globalPos` varchar(255) NOT NULL,
   `eventflags` int(1) NOT NULL,
-  PRIMARY KEY  (`eventid`)
+  PRIMARY KEY (`eventid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
