@@ -5,8 +5,6 @@
 
 include("databaseinfo.php");
 
-$now = time();
-
 //
 // Search DB
 //
@@ -328,6 +326,8 @@ function dir_events_query($method_name, $params, $app_data)
     }
     else
     {
+        //Default timezone. Change this value if you use a different
+        //in-world timezone for your local standalone or grid.
         date_default_timezone_set('America/Los_Angeles');
 
         //To search for events in a given day we need to determine the
@@ -373,7 +373,7 @@ function dir_events_query($method_name, $params, $app_data)
     else
         $where = "";
 
-    $sql = "SELECT * FROM events". $where.
+    $sql = "SELECT owneruuid,name,eventid,dateUTC,eventflags,globalPos FROM events". $where.
            " LIMIT " . mysql_real_escape_string($query_start) . ",101";
 
     $result = mysql_query($sql);
@@ -384,6 +384,8 @@ function dir_events_query($method_name, $params, $app_data)
     {
         $date = strftime("%m/%d %I:%M %p",$row["dateUTC"]);
 
+        //The landing point is only needed when this event query is
+        //called to allow placement of event markers on the world map.
         $data[] = array(
                 "owner_id" => $row["owneruuid"],
                 "name" => $row["name"],
@@ -391,8 +393,7 @@ function dir_events_query($method_name, $params, $app_data)
                 "date" => $date,
                 "unix_time" => $row["dateUTC"],
                 "event_flags" => $row["eventflags"],
-                "landing_point" => $row["globalPos"],
-                "region_UUID" => $row["simname"]);
+                "landing_point" => $row["globalPos"]);
     }
 
     $response_xml = xmlrpc_encode(array(

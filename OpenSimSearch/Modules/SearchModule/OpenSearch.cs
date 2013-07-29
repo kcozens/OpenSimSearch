@@ -16,7 +16,7 @@ using OpenSim.Region.Framework.Scenes;
 using OpenSim.Services.Interfaces;
 using Mono.Addins;
 
-[assembly: Addin("OpenSimSearch", "0.2")]
+[assembly: Addin("OpenSimSearch", "0.3")]
 [assembly: AddinDependency("OpenSim", "0.5")]
 
 namespace OpenSimSearch.Modules.OpenSearch
@@ -702,7 +702,7 @@ namespace OpenSimSearch.Modules.OpenSearch
                 ArrayList dataArray = (ArrayList)result["data"];
 
                 List<mapItemReply> mapitems = new List<mapItemReply>();
-                string ParcelRegionUUID;
+                int event_id;
                 string[] landingpoint;
 
                 foreach (Object o in dataArray)
@@ -714,25 +714,20 @@ namespace OpenSimSearch.Modules.OpenSearch
 
                     mapItemReply mapitem = new mapItemReply();
 
-                    ParcelRegionUUID = d["region_UUID"].ToString();
+                    //Events use a comma separator in the landing point
+                    landingpoint = d["landing_point"].ToString().Split(',');
 
-                    foreach (Scene scene in m_Scenes)
-                    {
-                        if (scene.RegionInfo.RegionID.ToString() == ParcelRegionUUID)
-                        {
-                            landingpoint = d["landing_point"].ToString().Split('/');
+                    mapitem.x = Convert.ToUInt32(landingpoint[0]);
+                    mapitem.y = Convert.ToUInt32(landingpoint[1]);
 
-                            mapitem.x = (uint)((scene.RegionInfo.RegionLocX * 256) +
-                                                Convert.ToDecimal(landingpoint[0]));
-                            mapitem.y = (uint)((scene.RegionInfo.RegionLocY * 256) +
-                                                Convert.ToDecimal(landingpoint[1]));
-                            break;
-                        }
-                    }
+                    //This is a crazy way to pass the event ID back to the
+                    //viewer but that is the way it wants the information.
+                    event_id = Convert.ToInt32(d["event_id"]);
+                    mapitem.id = new UUID("00000000-0000-0000-0000-0000" +
+                                            event_id.ToString("X8"));
 
-                    mapitem.id = UUID.Random();
-                    mapitem.Extra = (int)Convert.ToInt32(d["unix_time"]);
-                    mapitem.Extra2 = (int)Convert.ToInt32(d["event_id"]);
+                    mapitem.Extra = Convert.ToInt32(d["unix_time"]);
+                    mapitem.Extra2 = 0; //FIXME: No idea what to do here
                     mapitem.name = d["name"].ToString();
 
                     mapitems.Add(mapitem);
