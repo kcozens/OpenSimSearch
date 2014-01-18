@@ -16,6 +16,8 @@ using OpenSim.Region.Framework.Scenes;
 using OpenSim.Services.Interfaces;
 using Mono.Addins;
 
+using DirFindFlags = OpenMetaverse.DirectoryManager.DirFindFlags;
+
 [assembly: Addin("OpenSimSearch", "0.3")]
 [assembly: AddinDependency("OpenSim", "0.5")]
 
@@ -36,6 +38,9 @@ namespace OpenSimSearch.Modules.OpenSearch
         private string m_SearchServer = "";
         private bool m_Enabled = true;
 
+        private IGroupsModule m_GroupsService = null;
+
+        #region IRegionModuleBase implementation
         public void Initialise(IConfigSource config)
         {
             IConfig searchConfig = config.Configs["Search"];
@@ -92,6 +97,17 @@ namespace OpenSimSearch.Modules.OpenSearch
 
         public void RegionLoaded(Scene scene)
         {
+            if (!m_Enabled)
+                return;
+
+            if (m_GroupsService == null)
+            {
+                m_GroupsService = scene.RequestModuleInterface<IGroupsModule>();
+
+                // No Groups Service Connector, then group search won't work...
+                if (m_GroupsService == null)
+                    m_log.Warn("[SEARCH]: Could not get IGroupsModule");
+            }
         }
 
         public Type ReplaceableInterface
@@ -116,6 +132,7 @@ namespace OpenSimSearch.Modules.OpenSearch
         {
             get { return true; }
         }
+        #endregion
 
         /// New Client Event Handler
         private void OnNewClient(IClientAPI client)
@@ -354,17 +371,32 @@ namespace OpenSimSearch.Modules.OpenSearch
         public void DirFindQuery(IClientAPI remoteClient, UUID queryID,
                 string queryText, uint queryFlags, int queryStart)
         {
-            if ((queryFlags & 1) != 0)      //People (1 << 0)
+            if (((DirFindFlags)queryFlags & DirFindFlags.People) == DirFindFlags.People)
             {
                 DirPeopleQuery(remoteClient, queryID, queryText, queryFlags,
                         queryStart);
                 return;
             }
-            else if ((queryFlags & 32) != 0)    //DateEvents (1 << 5)
+            if (((DirFindFlags)queryFlags & DirFindFlags.Events) == DirFindFlags.Events)
             {
                 DirEventsQuery(remoteClient, queryID, queryText, queryFlags,
                         queryStart);
                 return;
+            }
+            if (((DirFindFlags)queryFlags & DirFindFlags.Groups) == DirFindFlags.Groups)
+            {
+                if (m_GroupsService == null)
+                {
+                    m_log.Warn("[SEARCH]: Groups service is not available. Unable to search groups.");
+                    remoteClient.SendAlertMessage("Groups search is not enabled");
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(queryText))
+                    remoteClient.SendDirGroupsReply(queryID, new DirGroupsReplyData[0]);
+
+                // TODO: This currently ignores pretty much all the query flags including Mature and sort order
+                remoteClient.SendDirGroupsReply(queryID, m_GroupsService.FindGroups(remoteClient, queryText).ToArray());
             }
         }
 
