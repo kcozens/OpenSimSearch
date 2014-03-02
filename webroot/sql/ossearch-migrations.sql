@@ -57,3 +57,8 @@ BEGIN;
 ALTER TABLE `events` CHANGE `eventid` `eventid` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT;
 ALTER TABLE `events` CHANGE `duration` `duration` INT ( 10 ) NOT NULL;
 COMMIT;
+
+#SVN revision 208
+BEGIN;
+ALTER TABLE `events` ADD `parcelUUID` CHAR( 36 ) NOT NULL AFTER `simname`;
+COMMIT;

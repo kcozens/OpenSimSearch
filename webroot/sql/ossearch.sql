@@ -72,6 +72,7 @@ CREATE TABLE `events` (
   `covercharge` tinyint(1) NOT NULL,
   `coveramount` int(10) NOT NULL,
   `simname` varchar(255) NOT NULL,
+  `parcelUUID` char(36) NOT NULL,
   `globalPos` varchar(255) NOT NULL,
   `eventflags` int(1) NOT NULL,
   PRIMARY KEY (`eventid`)
