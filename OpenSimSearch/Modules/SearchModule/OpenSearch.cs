@@ -38,8 +38,6 @@ namespace OpenSimSearch.Modules.OpenSearch
         private string m_SearchServer = "";
         private bool m_Enabled = true;
 
-        private IGroupsModule m_GroupsService = null;
-
         #region IRegionModuleBase implementation
         public void Initialise(IConfigSource config)
         {
@@ -97,17 +95,6 @@ namespace OpenSimSearch.Modules.OpenSearch
 
         public void RegionLoaded(Scene scene)
         {
-            if (!m_Enabled)
-                return;
-
-            if (m_GroupsService == null)
-            {
-                m_GroupsService = scene.RequestModuleInterface<IGroupsModule>();
-
-                // No Groups Service Connector, then group search won't work...
-                if (m_GroupsService == null)
-                    m_log.Warn("[SEARCH]: Could not get IGroupsModule");
-            }
         }
 
         public Type ReplaceableInterface
@@ -371,59 +358,12 @@ namespace OpenSimSearch.Modules.OpenSearch
         public void DirFindQuery(IClientAPI remoteClient, UUID queryID,
                 string queryText, uint queryFlags, int queryStart)
         {
-            if (((DirFindFlags)queryFlags & DirFindFlags.People) == DirFindFlags.People)
-            {
-                DirPeopleQuery(remoteClient, queryID, queryText, queryFlags,
-                        queryStart);
-                return;
-            }
             if (((DirFindFlags)queryFlags & DirFindFlags.Events) == DirFindFlags.Events)
             {
                 DirEventsQuery(remoteClient, queryID, queryText, queryFlags,
                         queryStart);
                 return;
             }
-            if (((DirFindFlags)queryFlags & DirFindFlags.Groups) == DirFindFlags.Groups)
-            {
-                if (m_GroupsService == null)
-                {
-                    m_log.Warn("[SEARCH]: Groups service is not available. Unable to search groups.");
-                    remoteClient.SendAlertMessage("Groups search is not enabled");
-                    return;
-                }
-
-                if (string.IsNullOrEmpty(queryText))
-                    remoteClient.SendDirGroupsReply(queryID, new DirGroupsReplyData[0]);
-
-                // TODO: This currently ignores pretty much all the query flags including Mature and sort order
-                remoteClient.SendDirGroupsReply(queryID, m_GroupsService.FindGroups(remoteClient, queryText).ToArray());
-            }
-        }
-
-        public void DirPeopleQuery(IClientAPI remoteClient, UUID queryID,
-                string queryText, uint queryFlags, int queryStart)
-        {
-            List<UserAccount> accounts = m_Scenes[0].UserAccountService.GetUserAccounts(m_Scenes[0].RegionInfo.ScopeID, queryText);
-
-            DirPeopleReplyData[] data =
-                    new DirPeopleReplyData[accounts.Count];
-
-            int i = 0;
-
-            foreach (UserAccount item in accounts)
-            {
-                data[i] = new DirPeopleReplyData();
-
-                data[i].agentID = item.PrincipalID;
-                data[i].firstName = item.FirstName;
-                data[i].lastName = item.LastName;
-                data[i].group = "";
-                data[i].online = false;
-                data[i].reputation = 0;
-                i++;
-            }
-
-            remoteClient.SendDirPeopleReply(queryID, data);
         }
 
         public void DirEventsQuery(IClientAPI remoteClient, UUID queryID,
