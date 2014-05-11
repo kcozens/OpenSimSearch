@@ -686,9 +686,7 @@ namespace OpenSimSearch.Modules.OpenSearch
 
                     mapItemReply mapitem = new mapItemReply();
 
-                    //Events use a comma separator in the landing point
-                    landingpoint = d["landing_point"].ToString().Split(',');
-
+                    landingpoint = d["landing_point"].ToString().Split('/');
                     mapitem.x = Convert.ToUInt32(landingpoint[0]);
                     mapitem.y = Convert.ToUInt32(landingpoint[1]);
 

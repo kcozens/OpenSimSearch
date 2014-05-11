@@ -346,7 +346,7 @@ function dir_events_query($method_name, $params, $app_data)
         $terms[] = "(dateUTC >= $now AND dateUTC < $then)";
     }
 
-    if ($category != 0)
+    if ($category > 0)
         $terms[] = "category = ".$category."";
 
     $type = array();
@@ -448,7 +448,7 @@ function dir_classified_query ($method_name, $params, $app_data)
         $terms[] = join_terms(" OR ", $f, True);
 
     //Only restrict results based on category if it is not 0 (Any Category)
-    if ($category != 0)
+    if ($category > 0)
         $terms[] = "category = " . $category;
 
     if ($text != "")
