@@ -266,10 +266,7 @@ categories are as follows:
 29- Miscellaneous
 
 The dateUTC field in the database is a timestamp for the event in UTC time.
-The ossearch module operates on the assumption that the local timezone of
-the grid or standalone is the Pacific timezone. If some other timezone is
-being used, change the parameter of the date_default_timezone_set() call
-in the query.php file.
+The duration field is the amount of time the event will run in seconds.
 
 The covercharge field is a boolean. Set it to 0 if there is no cover charge
 for the event. When covercharge is not 0, the amount is in the coveramount
@@ -277,7 +274,7 @@ field. (It seems silly to require the boolean but this has been left in to
 avoid any compatability issues.)
 
 The globalPos field is the location of the event as a global grid coordinate.
-The format is "x/y/z". where x and y are the grid X and Y positions (times
+The format is "x,y,z". where x and y are the grid X and Y positions (times
 256) plus the x and y offset within the region named by the simname field.
 
 The eventflags field is 0 for a PG event, 1 for Mature, and 2 for Adult.

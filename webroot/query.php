@@ -319,31 +319,28 @@ function dir_events_query($method_name, $params, $app_data)
 
     $terms = array();
 
-    if ($day == "u")
+    //The date and time for events are in UTC
+    $time_info = gettimeofday();
+    $now = $time_info['sec'];
+
+    if ($day == "u")    //Searching for current or ongoing events?
     {
         //This condition will include upcoming and in-progress events
-        $terms[] = "dateUTC+duration*60 >= " . time();
+        $terms[] = "dateUTC+duration*60 >= " . $now;
     }
     else
     {
-        //Default timezone. Change this value if you use a different
-        //in-world timezone for your local standalone or grid.
-        date_default_timezone_set('America/Los_Angeles');
-
-        //To search for events in a given day we need to determine the
-        //start time for the day. Get current time, take out UTC offset,
-        //adjust time to start of day, add back the UTC time zone offset.
-        $time_info = gettimeofday();
-        $now = $time_info['sec'] - $time_info['minuteswest'] * 60;
-        $now -= ($now % 86400); //Adjust to start of day
-        $now += $time_info['minuteswest'] * 60;
+        //For events in a given day we need to determine the days start time
+        $now -= ($now % 86400);
 
         //Is $day a number of days before or after current date?
         if ($day != 0)
             $now += $day * 86400;
 
-        $then = $now + 86400;
-        $terms[] = "(dateUTC >= $now AND dateUTC < $then)";
+        $then = $now + 86400;   //Time for end of day
+
+        //This condition will include any in-progress events
+        $terms[] = "(dateUTC+duration*60 >= $now AND dateUTC < $then)";
     }
 
     if ($category > 0)
@@ -382,7 +379,7 @@ function dir_events_query($method_name, $params, $app_data)
 
     while (($row = mysql_fetch_assoc($result)))
     {
-        $date = strftime("%m/%d %I:%M %p",$row["dateUTC"]);
+        $date = strftime("%m/%d %I:%M %p", $row["dateUTC"]);
 
         //The landing point is only needed when this event query is
         //called to allow placement of event markers on the world map.
@@ -599,6 +596,7 @@ function classifieds_info_query($method_name, $params, $app_data)
 #
 
 $request_xml = file_get_contents("php://input");
+
 xmlrpc_server_call_method($xmlrpc_server, $request_xml, '');
 xmlrpc_server_destroy($xmlrpc_server);
 ?>
