@@ -115,7 +115,7 @@ namespace OpenSimSearch.Modules.OpenSearch
 
         public string Name
         {
-            get { return "SearchModule"; }
+            get { return "OpenSimSearch"; }
         }
 
         public bool IsSharedModule
