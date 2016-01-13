@@ -658,9 +658,10 @@ namespace OpenSimSearch.Modules.OpenSearch
                 //The flags are: SortAsc (1 << 15), PerMeterSort (1 << 17)
                 maturity |= 163840;
 
+                //When character before | is a u get upcoming/in-progress events
                 //Character before | is number of days before/after current date
                 //Characters after | is the number for a category
-                ReqHash["text"] = "0|0";
+                ReqHash["text"] = "u|0";
                 ReqHash["flags"] = maturity.ToString();
                 ReqHash["query_start"] = "0";
 
@@ -689,6 +690,7 @@ namespace OpenSimSearch.Modules.OpenSearch
 
                     mapItemReply mapitem = new mapItemReply();
 
+                    //Events use a comma separator in the landing point
                     landingpoint = d["landing_point"].ToString().Split(',');
                     mapitem.x = Convert.ToUInt32(landingpoint[0]);
                     mapitem.y = Convert.ToUInt32(landingpoint[1]);

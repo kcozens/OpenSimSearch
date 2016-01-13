@@ -319,9 +319,8 @@ function dir_events_query($method_name, $params, $app_data)
 
     $terms = array();
 
-    //The date and time for events are in UTC
-    $time_info = gettimeofday();
-    $now = $time_info['sec'];
+    //Event times are in UTC so we need to get the current time in UTC.
+    $now = time();
 
     if ($day == "u")    //Searching for current or ongoing events?
     {
@@ -331,7 +330,8 @@ function dir_events_query($method_name, $params, $app_data)
     else
     {
         //For events in a given day we need to determine the days start time
-        $now -= ($now % 86400);
+        $now -= idate("Z");     //Adjust for timezone
+        $now -= ($now % 86400); //Adjust to start of day
 
         //Is $day a number of days before or after current date?
         if ($day != 0)
@@ -505,7 +505,7 @@ function event_info_query($method_name, $params, $app_data)
     $data = array();
     while (($row = mysql_fetch_assoc($result)))
     {
-        $date = strftime("%G-%m-%d %H:%M:%S",$row["dateUTC"]);
+        $date = strftime("%G-%m-%d %H:%M:%S", $row["dateUTC"]);
 
         $category = "*Unspecified*";
         if ($row['category'] == 18)    $category = "Discussion";
