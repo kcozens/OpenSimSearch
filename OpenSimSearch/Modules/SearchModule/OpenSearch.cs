@@ -60,7 +60,6 @@ namespace OpenSimSearch.Modules.OpenSearch
             m_SearchServer = searchConfig.GetString("SearchURL", "");
             if (m_SearchServer == "")
             {
-                m_log.Error("[SEARCH] No search server, disabling search");
                 m_Enabled = false;
                 return;
             }
