@@ -1,7 +1,6 @@
 <?php
 //////////////////////////////////////////////////////////////////////////////
 // register.php                                                             //
-// (C) 2008, Fly-man-                                                       //
 // This file contains the registration of a simulator to the database       //
 // and checks if the simulator is new in the database or a reconnected one  //
 //                                                                          //
@@ -10,52 +9,64 @@
 //////////////////////////////////////////////////////////////////////////////
 
 include("databaseinfo.php");
-//establish connection to master db server
-mysql_connect ($DB_HOST, $DB_USER, $DB_PASSWORD);
-mysql_select_db ($DB_NAME);
 
-$hostname = $_GET['host'];
-$port = $_GET['port'];
-$service = $_GET['service'];
+$hostname = "";
+$port = "";
+$service = "";
 
-if ($hostname != "" && $port != "" && $service == "online")
+if (isset($_GET['host']))    $hostname = $_GET['host'];
+if (isset($_GET['port']))    $port = $_GET['port'];
+if (isset($_GET['service'])) $service = $_GET['service'];
+
+if ($hostname == "" || $port == "")
+{
+    echo "Missing host name and/or port address\n";
+    exit;
+}
+
+// Attempt to connect to the database
+try {
+  $db = new PDO("mysql:host=$DB_HOST;dbname=$DB_NAME", $DB_USER, $DB_PASSWORD);
+  $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+}
+catch(PDOException $e)
+{
+  echo "Error connecting to database\n";
+  file_put_contents('PDOErrors.txt', $e->getMessage() . "\n-----\n", FILE_APPEND);
+  exit;
+}
+
+if ($service == "online")
 {
     // Check if there is already a database row for this host
-    $checkhost = mysql_query("SELECT register FROM hostsregister WHERE " .
-            "host = '" . mysql_real_escape_string($hostname) . "' AND " .
-            "port = '" . mysql_real_escape_string($port) . "'");
+    $query = $db->prepare("SELECT register FROM hostsregister WHERE host = ? AND port = ?");
+    $query->execute( array($hostname, $port) );
 
     // Get the request time as a timestamp for later
     $timestamp = $_SERVER['REQUEST_TIME'];
 
-    // if greater than 1, check the nextcheck date
-    if (mysql_num_rows($checkhost) > 0)
+    // If a database row was returned check the nextcheck date
+    if ($query->rowCount() > 0)
     {
-        $update = "UPDATE hostsregister SET " .
-                "register = '" . mysql_real_escape_string($timestamp) . "', " . 
-                "nextcheck = '0', checked = '0', " .
-                "failcounter = '0' " .  
-                "WHERE host = '" . mysql_real_escape_string($hostname) . "' AND " .
-                "port = '" . mysql_real_escape_string($port) . "'";
-
-        $runupdate = mysql_query($update);
+        $query = $db->prepare("UPDATE hostsregister SET " .
+                     "register = ?, " .
+                     "nextcheck = 0, checked = 0, failcounter = 0 " .
+                     "WHERE host = ? AND port = ?");
+        $query->execute( array($timestamp, $hostname, $port) );
     }
     else
     {
-        $register = "INSERT INTO hostsregister VALUES ".
-                    "('" . mysql_real_escape_string($hostname) . "', " .
-                    "'" . mysql_real_escape_string($port) . "', " .
-                    "'" . mysql_real_escape_string($timestamp) . "', 0, 0, 0)";
-
-        $runupdate = mysql_query($register);
+        // The SELECT did not return a result. Insert a new record.
+        $query = $db->prepare("INSERT INTO hostsregister VALUES (?, ?, ?, 0, 0, 0)");
+        $query->execute( array($hostname, $port, $timestamp) );
     }
 }
-elseif ($hostname != "" && $port != "" && $service = "offline")
-{
-        $delete = "DELETE FROM hostsregister " .
-                "WHERE host = '" . mysql_real_escape_string($hostname) . "' AND " .
-                "port = '" . mysql_real_escape_string($port) . "'";
 
-        $rundelete = mysql_query($delete);
+if ($service == "offline")
+{
+    $query = $db->prepare("DELETE FROM hostsregister WHERE host = ? AND port = ?");
+    $query->execute( array($hostname, $port) );
 }
+
+$db = NULL;
 ?>

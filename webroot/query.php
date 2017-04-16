@@ -5,11 +5,17 @@
 
 include("databaseinfo.php");
 
-//
-// Search DB
-//
-mysql_connect ($DB_HOST, $DB_USER, $DB_PASSWORD);
-mysql_select_db ($DB_NAME);
+// Attempt to connect to the database
+try {
+  $db = new PDO("mysql:host=$DB_HOST;dbname=$DB_NAME", $DB_USER, $DB_PASSWORD);
+  $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+}
+catch(PDOException $e)
+{
+  echo "Error connecting to database\n";
+  file_put_contents('PDOErrors.txt', $e->getMessage() . "\n-----\n", FILE_APPEND);
+  exit;
+}
 
 #
 #  Copyright (c)Melanie Thielker (http://opensimulator.org/)
@@ -71,6 +77,8 @@ xmlrpc_server_register_method($xmlrpc_server, "dir_places_query",
 
 function dir_places_query($method_name, $params, $app_data)
 {
+    global $db;
+
     $req             = $params[0];
 
     $flags           = $req['flags'];
@@ -78,10 +86,12 @@ function dir_places_query($method_name, $params, $app_data)
     $category        = $req['category'];
     $query_start     = $req['query_start'];
 
-    $pieces = split(" ", $text);
+    $pieces = explode(" ", $text);
     $text = join("%", $pieces);
 
-    if ($text == "%%%")
+    if ($text != "%%%")
+        $text = "%$text%";
+    else
     {
         $response_xml = xmlrpc_encode(array(
                 'success'      => False,
@@ -94,6 +104,7 @@ function dir_places_query($method_name, $params, $app_data)
     }
 
     $terms = array();
+    $sqldata = array();
 
     $type = process_region_type_flags($flags);
     if ($type != "")
@@ -102,20 +113,32 @@ function dir_places_query($method_name, $params, $app_data)
     if ($flags & 1024)
         $order = "dwell DESC,";
 
-    if ($category > 0)
-        $category = "searchcategory = '".mysql_real_escape_string($category)."' AND ";
+    if ($category <= 0)
+        $cat_where = "";
     else
-        $category = "";
+    {
+        $cat_where = "searchcategory = :cat AND ";
 
-    $text = mysql_real_escape_string($text);
-    $result = mysql_query("SELECT * FROM parcels WHERE $category " .
-            "(parcelname LIKE '%$text%'" .
-            " OR description LIKE '%$text%')" .
-            $type . " ORDER BY $order parcelname" .
-            " LIMIT ".(0+$query_start).",101");
+        $sqldata['cat'] = $category;
+    }
+
+    $sqldata['text1'] = $text;
+    $sqldata['text2'] = $text;
+
+    //Prevent SQL injection by checking that $query_start is a number
+    if (!is_int($query_start))
+         $query_start = 0;
+
+    $sql = "SELECT * FROM parcels WHERE $cat_where" .
+           " (parcelname LIKE :text1" .
+           " OR description LIKE :text2)" .
+           $type . " ORDER BY $order parcelname" .
+           " LIMIT $query_start,101";
+    $query = $db->prepare($sql);
+    $result = $query->execute($sqldata);
 
     $data = array();
-    while (($row = mysql_fetch_assoc($result)))
+    while ($row = $query->fetch(PDO::FETCH_ASSOC))
     {
         $data[] = array(
                 "parcel_id" => $row["infouuid"],
@@ -142,6 +165,8 @@ xmlrpc_server_register_method($xmlrpc_server, "dir_popular_query",
 
 function dir_popular_query($method_name, $params, $app_data)
 {
+    global $db;
+
     $req         = $params[0];
 
     $text        = $req['text'];
@@ -149,6 +174,7 @@ function dir_popular_query($method_name, $params, $app_data)
     $query_start = $req['query_start'];
 
     $terms = array();
+    $sqldata = array();
 
     if ($flags & 0x1000)    //PicturesOnly (1 << 12)
         $terms[] = "has_picture = 1";
@@ -158,8 +184,10 @@ function dir_popular_query($method_name, $params, $app_data)
 
     if ($text != "")
     {
-        $text = mysql_real_escape_string($text);
-        $terms[] = "(name LIKE '%$text%')";
+        $terms[] = "(name LIKE :text)";
+
+        $text = "%text%";
+        $sqldata['text'] = $text;
     }
 
     if (count($terms) > 0)
@@ -167,11 +195,16 @@ function dir_popular_query($method_name, $params, $app_data)
     else
         $where = "";
 
-    $result = mysql_query("SELECT * FROM popularplaces" . $where .
-                " LIMIT " . mysql_real_escape_string($query_start) . ",101");
+    //Prevent SQL injection by checking that $query_start is a number
+    if (!is_int($query_start))
+         $query_start = 0;
+
+    $query = $db->prepare("SELECT * FROM popularplaces" . $where .
+                          " LIMIT $query_start,101");
+    $result = $query->execute($sqldata);
 
     $data = array();
-    while (($row = mysql_fetch_assoc($result)))
+    while ($row = $query->fetch(PDO::FETCH_ASSOC))
     {
         $data[] = array(
                 "parcel_id" => $row["infoUUID"],
@@ -196,6 +229,8 @@ xmlrpc_server_register_method($xmlrpc_server, "dir_land_query",
 
 function dir_land_query($method_name, $params, $app_data)
 {
+    global $db;
+
     $req            = $params[0];
 
     $flags          = $req['flags'];
@@ -205,6 +240,7 @@ function dir_land_query($method_name, $params, $app_data)
     $query_start    = $req['query_start'];
 
     $terms = array();
+    $sqldata = array();
 
     if ($type != 4294967295)    //Include all types of land?
     {
@@ -231,9 +267,17 @@ function dir_land_query($method_name, $params, $app_data)
         $terms[] = $s;
 
     if ($flags & 0x100000)  //LimitByPrice (1 << 20)
-        $terms[] = "saleprice <= '" . mysql_real_escape_string($price) . "'";
+    {
+        $terms[] = "saleprice <= :price";
+
+        $sqldata['price'] = $price;
+    }
     if ($flags & 0x200000)  //LimitByArea (1 << 21)
-        $terms[] = "area >= '" . mysql_real_escape_string($area) . "'";
+    {
+        $terms[] = "area >= :area";
+
+        $sqldata['area'] = $area;
+    }
 
     //The PerMeterSort flag is always passed from a map item query.
     //It doesn't hurt to have this as the default search order.
@@ -253,14 +297,17 @@ function dir_land_query($method_name, $params, $app_data)
     else
         $where = "";
 
-    $sql = "SELECT *,saleprice/area AS lsq FROM parcelsales" . $where .
-                " ORDER BY " . $order . " LIMIT " .
-                mysql_real_escape_string($query_start) . ",101";
+    //Prevent SQL injection by checking that $query_start is a number
+    if (!is_int($query_start))
+         $query_start = 0;
 
-    $result = mysql_query($sql);
+    $sql = "SELECT *,saleprice/area AS lsq FROM parcelsales" . $where .
+           " ORDER BY " . $order . " LIMIT $query_start,101";
+    $query = $db->prepare($sql);
+    $result = $query->execute($sqldata);
 
     $data = array();
-    while (($row = mysql_fetch_assoc($result)))
+    while ($row = $query->fetch(PDO::FETCH_ASSOC))
     {
         $data[] = array(
                 "parcel_id" => $row["infoUUID"],
@@ -290,6 +337,8 @@ xmlrpc_server_register_method($xmlrpc_server, "dir_events_query",
 
 function dir_events_query($method_name, $params, $app_data)
 {
+    global $db;
+
     $req            = $params[0];
 
     $text           = $req['text'];
@@ -318,6 +367,7 @@ function dir_events_query($method_name, $params, $app_data)
         $search_text = $pieces[2];
 
     $terms = array();
+    $sqldata = array();
 
     //Event times are in UTC so we need to get the current time in UTC.
     $now = time();
@@ -344,7 +394,11 @@ function dir_events_query($method_name, $params, $app_data)
     }
 
     if ($category > 0)
-        $terms[] = "category = ".$category."";
+    {
+        $terms[] = "category = :category";
+
+        $sqldata['category'] = $category;
+    }
 
     $type = array();
     if ($flags & 16777216)  //IncludePG (1 << 24)
@@ -360,9 +414,12 @@ function dir_events_query($method_name, $params, $app_data)
 
     if ($search_text != "")
     {
-        $search_text = mysql_real_escape_string($search_text);
-        $terms[] = "(name LIKE '%$search_text%' OR " .
-                    "description LIKE '%$search_text%')";
+        $terms[] = "(name LIKE :text1 OR " .
+                    "description LIKE :text2)";
+
+        $search_text = "%$search_text%";
+        $sqldata['text1'] = $search_text;
+        $sqldata['text2'] = $search_text;
     }
 
     if (count($terms) > 0)
@@ -370,14 +427,17 @@ function dir_events_query($method_name, $params, $app_data)
     else
         $where = "";
 
-    $sql = "SELECT owneruuid,name,eventid,dateUTC,eventflags,globalPos FROM events". $where.
-           " LIMIT " . mysql_real_escape_string($query_start) . ",101";
+    //Prevent SQL injection by checking that $query_start is a number
+    if (!is_int($query_start))
+         $query_start = 0;
 
-    $result = mysql_query($sql);
+    $sql = "SELECT owneruuid,name,eventid,dateUTC,eventflags,globalPos" .
+           " FROM events". $where. " LIMIT $query_start,101";
+    $query = $db->prepare($sql);
+    $result = $query->execute($sqldata);
 
     $data = array();
-
-    while (($row = mysql_fetch_assoc($result)))
+    while ($row = $query->fetch(PDO::FETCH_ASSOC))
     {
         $date = strftime("%m/%d %I:%M %p", $row["dateUTC"]);
 
@@ -410,6 +470,8 @@ xmlrpc_server_register_method($xmlrpc_server, "dir_classified_query",
 
 function dir_classified_query ($method_name, $params, $app_data)
 {
+    global $db;
+
     $req            = $params[0];
 
     $text           = $req['text'];
@@ -430,6 +492,7 @@ function dir_classified_query ($method_name, $params, $app_data)
     }
 
     $terms = array();
+    $sqldata = array();
 
     //Renew Weekly flag is bit 5 (32) in $flags.
     $f = array();
@@ -446,11 +509,21 @@ function dir_classified_query ($method_name, $params, $app_data)
 
     //Only restrict results based on category if it is not 0 (Any Category)
     if ($category > 0)
-        $terms[] = "category = " . $category;
+    {
+        $terms[] = "category = :category";
+
+        $sqldata['category'] = $category;
+    }
 
     if ($text != "")
-        $terms[] = "(name LIKE '%$text%'" .
-                   " OR description LIKE '%$text%')";
+    {
+        $terms[] = "(name LIKE :text1" .
+                   " OR description LIKE :text2)";
+
+        $text = "%$text%";
+        $sqldata['text1'] = $text;
+        $sqldata['text2'] = $text;
+    }
 
     //Was there at least condition for the search?
     if (count($terms) > 0)
@@ -458,14 +531,19 @@ function dir_classified_query ($method_name, $params, $app_data)
     else
         $where = "";
 
+    //Prevent SQL injection by checking that $query_start is a number
+    if (!is_int($query_start))
+         $query_start = 0;
+
     $sql = "SELECT * FROM classifieds" . $where .
            " ORDER BY priceforlisting DESC" .
-           " LIMIT " . mysql_real_escape_string($query_start) . ",101";
+           " LIMIT $query_start,101";
+    $query = $db->prepare($sql);
 
-    $result = mysql_query($sql);
+    $result = $query->execute($sqldata);
 
     $data = array();
-    while (($row = mysql_fetch_assoc($result)))
+    while ($row = $query->fetch(PDO::FETCH_ASSOC))
     {
         $data[] = array(
                 "classifiedid" => $row["classifieduuid"],
@@ -493,17 +571,17 @@ xmlrpc_server_register_method($xmlrpc_server, "event_info_query",
 
 function event_info_query($method_name, $params, $app_data)
 {
+    global $db;
+
     $req        = $params[0];
 
     $eventID    = $req['eventID'];
 
-    $sql =  "SELECT * FROM events WHERE eventID = " .
-            mysql_real_escape_string($eventID);
-
-    $result = mysql_query($sql);
+    $query = $db->prepare("SELECT * FROM events WHERE eventID = ?");
+    $result = $query->execute( array($eventID) );
 
     $data = array();
-    while (($row = mysql_fetch_assoc($result)))
+    while ($row = $query->fetch(PDO::FETCH_ASSOC))
     {
         $date = strftime("%G-%m-%d %H:%M:%S", $row["dateUTC"]);
 
@@ -553,17 +631,17 @@ xmlrpc_server_register_method($xmlrpc_server, "classifieds_info_query",
 
 function classifieds_info_query($method_name, $params, $app_data)
 {
+    global $db;
+
     $req            = $params[0];
 
-    $classifiedID    = $req['classifiedID'];
+    $classifiedID   = $req['classifiedID'];
 
-    $sql =  "SELECT * FROM classifieds WHERE classifieduuid = '" .
-            mysql_real_escape_string($classifiedID). "'";
-
-    $result = mysql_query($sql);
+    $query = $db->prepare("SELECT * FROM classifieds WHERE classifieduuid = ?");
+    $result = $query->execute( array($classifiedID) );
 
     $data = array();
-    while (($row = mysql_fetch_assoc($result)))
+    while ($row = $query->fetch(PDO::FETCH_ASSOC))
     {
         $data[] = array(
                 "classifieduuid" => $row["classifieduuid"],
@@ -599,4 +677,6 @@ $request_xml = file_get_contents("php://input");
 
 xmlrpc_server_call_method($xmlrpc_server, $request_xml, '');
 xmlrpc_server_destroy($xmlrpc_server);
+
+$db = NULL;
 ?>

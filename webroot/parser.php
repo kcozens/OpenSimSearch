@@ -6,11 +6,18 @@ include("databaseinfo.php");
 
 $now = time();
 
-//
-// Search DB
-//
-mysql_connect ($DB_HOST, $DB_USER, $DB_PASSWORD);
-mysql_select_db ($DB_NAME);
+// Attempt to connect to the search database
+try {
+  $db = new PDO("mysql:host=$DB_HOST;dbname=$DB_NAME", $DB_USER, $DB_PASSWORD);
+  $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+}
+catch(PDOException $e)
+{
+  echo "Error connecting to the search database\n";
+  file_put_contents('PDOErrors.txt', $e->getMessage() . "\n-----\n", FILE_APPEND);
+  exit;
+}
+
 
 function GetURL($host, $port, $url)
 {
@@ -35,10 +42,10 @@ function GetURL($host, $port, $url)
 
 function CheckHost($hostname, $port)
 {
-    global $now;
+    global $db, $now;
 
     $xml = GetURL($hostname, $port, "?method=collector");
-    if ($xml == "")	//No data was retrieved? (CURL may have timed out)
+    if ($xml == "") //No data was retrieved? (CURL may have timed out)
         $failcounter = "failcounter + 1";
     else
         $failcounter = "0";
@@ -47,18 +54,18 @@ function CheckHost($hostname, $port)
     //won't be checked again until at least this much time has gone by.
     $next = $now + 600;
 
-    mysql_query("UPDATE hostsregister SET nextcheck = $next," .
-                " checked = 1, failcounter = " . $failcounter .
-                " WHERE host = '" . mysql_real_escape_string($hostname) . "'" . 
-                " AND port = '" . mysql_real_escape_string($port) . "'");
+    $query = $db->prepare("UPDATE hostsregister SET nextcheck = ?," .
+                          " checked = 1, failcounter = $failcounter" .
+                          " WHERE host = ? AND port = ?");
+    $query->execute( array($next, $hostname, $port) );
 
-    if ($xml != "") 
+    if ($xml != "")
         parse($hostname, $port, $xml);
 }
 
 function parse($hostname, $port, $xml)
 {
-    global $now;
+    global $db, $now;
 
     ///////////////////////////////////////////////////////////////////////
     //
@@ -93,9 +100,9 @@ function parse($hostname, $port, $xml)
     $expire = $regiondata->getElementsByTagName("expire")->item(0)->nodeValue;
     $next = $now + $expire;
 
-    $updater = mysql_query("UPDATE hostsregister SET nextcheck = $next " .
-            "WHERE host = '" . mysql_real_escape_string($hostname) . "' AND " .
-            "port = '" . mysql_real_escape_string($port) . "'");
+    $query = $db->prepare("UPDATE hostsregister SET nextcheck = ?" .
+                          " WHERE host = ? AND port = ?");
+    $query->execute( array($next, $hostname, $port) );
 
     //
     // Get the region data to be saved in the database
@@ -122,21 +129,21 @@ function parse($hostname, $port, $xml)
         //
         // First, check if we already have a region that is the same
         //
-        $check = mysql_query("SELECT * FROM regions WHERE regionuuid = '" .
-                mysql_real_escape_string($regionuuid) . "'");
+        $check = $db->prepare("SELECT * FROM regions WHERE regionuuid = ?");
+        $check->execute( array($regionuuid) );
 
-        if (mysql_num_rows($check) > 0)
+        if ($check->rowCount() > 0)
         {
-            mysql_query("DELETE FROM regions WHERE regionuuid = '" .
-                    mysql_real_escape_string($regionuuid) . "'");
-            mysql_query("DELETE FROM parcels WHERE regionuuid = '" .
-                    mysql_real_escape_string($regionuuid) . "'");
-            mysql_query("DELETE FROM allparcels WHERE regionUUID = '" .
-                    mysql_real_escape_string($regionuuid) . "'");
-            mysql_query("DELETE FROM parcelsales WHERE regionUUID = '" .
-                    mysql_real_escape_string($regionuuid) . "'");
-            mysql_query("DELETE FROM objects WHERE regionuuid = '" .
-                    mysql_real_escape_string($regionuuid) . "'");
+            $query = $db->prepare("DELETE FROM regions WHERE regionuuid = ?");
+            $query->execute( array($regionuuid) );
+            $query = $db->prepare("DELETE FROM parcels WHERE regionuuid = ?");
+            $query->execute( array($regionuuid) );
+            $query = $db->prepare("DELETE FROM allparcels WHERE regionuuid = ?");
+            $query->execute( array($regionuuid) );
+            $query = $db->prepare("DELETE FROM parcelsales WHERE regionuuid = ?");
+            $query->execute( array($regionuuid) );
+            $query = $db->prepare("DELETE FROM objects WHERE regionuuid = ?");
+            $query->execute( array($regionuuid) );
         }
 
         $data = $region->getElementsByTagName("data")->item(0);
@@ -150,15 +157,11 @@ function parse($hostname, $port, $xml)
         //
         // Second, add the new info to the database
         //
-        $sql = "INSERT INTO regions VALUES('" .
-                mysql_real_escape_string($regionname) . "','" .
-                mysql_real_escape_string($regionuuid) . "','" .
-                mysql_real_escape_string($regionhandle) . "','" .
-                mysql_real_escape_string($url) . "','" .
-                mysql_real_escape_string($username) ."','" .
-                mysql_real_escape_string($useruuid) ."')";
-
-        mysql_query($sql);
+        $query = $db->prepare("INSERT INTO regions VALUES(:r_name, :r_uuid, " .
+                              ":r_handle, :url, :u_name, :u_uuid)");
+        $query->execute( array("r_name" => $regionname, "r_uuid" => $regionuuid,
+                                "r_handle" => $regionhandle, "url" => $url,
+                                "u_name" => $username, "u_uuid" => $useruuid) );
 
         //
         // Start reading the parcel info
@@ -192,7 +195,7 @@ function parse($hostname, $port, $xml)
             // Adding support for groups
 
             $group = $value->getElementsByTagName("group")->item(0);
-            
+
             if ($group != "")
             {
                 $groupuuid = $group->getElementsByTagName("groupuuid")->item(0)->nodeValue;
@@ -214,52 +217,54 @@ function parse($hostname, $port, $xml)
             //
             // Save
             //
-            $sql = "INSERT INTO allparcels VALUES('" .
-                    mysql_real_escape_string($regionuuid) . "','" .
-                    mysql_real_escape_string($parcelname) . "','" .
-                    mysql_real_escape_string($owneruuid) . "','" .
-                    mysql_real_escape_string($groupuuid) . "','" .
-                    mysql_real_escape_string($parcellanding) . "','" .
-                    mysql_real_escape_string($parceluuid) . "','" .
-                    mysql_real_escape_string($infouuid) . "','" .
-                    mysql_real_escape_string($parcelarea) . "' )";
-
-            mysql_query($sql);
+            $query = $db->prepare("INSERT INTO allparcels VALUES(" .
+                                    ":r_uuid, :p_name, :o_uuid, :g_uuid, " .
+                                    ":landing, :p_uuid, :i_uuid, :area)");
+            $query->execute( array("r_uuid"  => $regionuuid,
+                                   "p_name"  => $parcelname,
+                                   "o_uuid"  => $owneruuid,
+                                   "g_uuid"  => $groupuuid,
+                                   "landing" => $parcellanding,
+                                   "p_uuid"  => $parceluuid,
+                                   "i_uuid"  => $infouuid,
+                                   "area"    => $parcelarea) );
 
             if ($parceldirectory == "true")
             {
-                $sql = "INSERT INTO parcels VALUES('" .
-                        mysql_real_escape_string($regionuuid) . "','" .
-                        mysql_real_escape_string($parcelname) . "','" .
-                        mysql_real_escape_string($parceluuid) . "','" .
-                        mysql_real_escape_string($parcellanding) . "','" .
-                        mysql_real_escape_string($parceldescription) . "','" .
-                        mysql_real_escape_string($parcelcategory) . "','" .
-                        mysql_real_escape_string($parcelbuild) . "','" .
-                        mysql_real_escape_string($parcelscript) . "','" .
-                        mysql_real_escape_string($parcelpublic) . "','".
-                        mysql_real_escape_string($dwell) . "','" .
-                        mysql_real_escape_string($infouuid) . "','" .
-                        mysql_real_escape_string($regioncategory) . "')";
-
-                mysql_query($sql);
+                $query = $db->prepare("INSERT INTO parcels VALUES(" .
+                                       ":r_uuid, :p_name, :p_uuid, :landing, " .
+                                       ":desc, :cat, :build, :script, :public, ".
+                                       ":dwell, :i_uuid, :r_cat)");
+                $query->execute( array("r_uuid"  => $regionuuid,
+                                       "p_name"  => $parcelname,
+                                       "p_uuid"  => $parceluuid,
+                                       "landing" => $parcellanding,
+                                       "desc"    => $parceldescription,
+                                       "cat"     => $parcelcategory,
+                                       "build"   => $parcelbuild,
+                                       "script"  => $parcelscript,
+                                       "public"  => $parcelpublic,
+                                       "dwell"   => $dwell,
+                                       "i_uuid"  => $infouuid,
+                                       "r_cat"   => $regioncategory) );
             }
 
             if ($parcelforsale == "true")
             {
-                $sql = "INSERT INTO parcelsales VALUES('" .
-                        mysql_real_escape_string($regionuuid) . "','" .
-                        mysql_real_escape_string($parcelname) . "','" .
-                        mysql_real_escape_string($parceluuid) . "','" .
-                        mysql_real_escape_string($parcelarea) . "','" .
-                        mysql_real_escape_string($parcelsaleprice) . "','" .
-                        mysql_real_escape_string($parcellanding) . "','" .
-                        mysql_real_escape_string($infouuid) . "', '" .
-                        mysql_real_escape_string($dwell) . "', '" .
-                        mysql_real_escape_string($estateid) . "', '" .
-                        mysql_real_escape_string($regioncategory) . "')";
-
-                mysql_query($sql);
+                $query = $db->prepare("INSERT INTO parcelsales VALUES(" .
+                                       ":r_uuid, :p_name, :p_uuid, :area, " .
+                                       ":price, :landing, :i_uuid, :dwell, " .
+                                       ":e_id, :r_cat)");
+                $query->execute( array("r_uuid"  => $regionuuid,
+                                       "p_name"  => $parcelname,
+                                       "p_uuid"  => $parceluuid,
+                                       "area"    => $parcelarea,
+                                       "price"   => $parcelsaleprice,
+                                       "landing" => $parcellanding,
+                                       "i_uuid"  => $infouuid,
+                                       "dwell"   => $dwell,
+                                       "e_id"    => $estateid,
+                                       "r_cat"   => $regioncategory) );
             }
         }
 
@@ -284,33 +289,37 @@ function parse($hostname, $port, $xml)
 
             $flags = $value->getElementsByTagName("flags")->item(0)->nodeValue;
 
-            mysql_query("INSERT INTO objects VALUES('" .
-                    mysql_real_escape_string($uuid) . "','" .
-                    mysql_real_escape_string($parceluuid) . "','" .
-                    mysql_real_escape_string($location) . "','" .
-                    mysql_real_escape_string($title) . "','" .
-                    mysql_real_escape_string($description) . "','" .
-                    mysql_real_escape_string($regionuuid) . "')");
+            $query = $db->prepare("INSERT INTO objects VALUES(" .
+                                   ":uuid, :p_uuid, :location, " .
+                                   ":title, :desc, :r_uuid)");
+            $query->execute( array("uuid"     => $uuid,
+                                   "p_uuid"   => $parceluuid,
+                                   "location" => $location,
+                                   "title"    => $title,
+                                   "desc"     => $description,
+                                   "r_uuid"   => $regionuuid) );
         }
     }
 }
 
 $sql = "SELECT host, port FROM hostsregister " .
-        "WHERE nextcheck < $now AND checked = 0 LIMIT 0,10";
-
-$jobsearch = mysql_query($sql);
+       "WHERE nextcheck<$now AND checked=0 AND failcounter<10 LIMIT 0,10";
+$jobsearch = $db->query($sql);
 
 //
 // If the sql query returns no rows, all entries in the hostsregister
 // table have been checked. Reset the checked flag and re-run the
 // query to select the next set of hosts to be checked.
 //
-if (mysql_num_rows($jobsearch) == 0)
+if ($jobsearch->rowCount() == 0)
 {
-    mysql_query("UPDATE hostsregister SET checked = 0");
-    $jobsearch = mysql_query($sql);
+    $jobsearch = $db->query("UPDATE hostsregister SET checked = 0");
+
+    $jobsearch = $db->query($sql);
 }
 
-while ($jobs = mysql_fetch_row($jobsearch))
+while ($jobs = $jobsearch->fetch(PDO::FETCH_NUM))
     CheckHost($jobs[0], $jobs[1]);
+
+$db = NULL;
 ?>
