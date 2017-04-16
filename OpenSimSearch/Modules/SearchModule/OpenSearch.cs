@@ -92,7 +92,13 @@ namespace OpenSimSearch.Modules.OpenSearch
                 return;
 
             scene.UnregisterModuleInterface<ISearchModule>(this);
-            m_Scenes.Remove(scene);
+
+            scene.EventManager.OnNewClient -= OnNewClient;
+
+            lock(m_Scenes)
+            {
+                m_Scenes.Remove(scene);
+            }
         }
 
         public void RegionLoaded(Scene scene)
