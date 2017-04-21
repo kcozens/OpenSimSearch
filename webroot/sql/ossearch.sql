@@ -179,10 +179,10 @@ CREATE TABLE `popularplaces` (
 
 CREATE TABLE `regions` (
   `regionname` varchar(255) NOT NULL,
-  `regionuuid` char(36) NOT NULL,
+  `regionUUID` char(36) NOT NULL,
   `regionhandle` varchar(255) NOT NULL,
   `url` varchar(255) NOT NULL,
   `owner` varchar(255) NOT NULL,
   `owneruuid` char(36) NOT NULL,
-  PRIMARY KEY  (`regionuuid`)
+  PRIMARY KEY  (`regionUUID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

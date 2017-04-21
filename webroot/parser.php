@@ -129,18 +129,18 @@ function parse($hostname, $port, $xml)
         //
         // First, check if we already have a region that is the same
         //
-        $check = $db->prepare("SELECT * FROM regions WHERE regionuuid = ?");
+        $check = $db->prepare("SELECT * FROM regions WHERE regionUUID = ?");
         $check->execute( array($regionuuid) );
 
         if ($check->rowCount() > 0)
         {
-            $query = $db->prepare("DELETE FROM regions WHERE regionuuid = ?");
+            $query = $db->prepare("DELETE FROM regions WHERE regionUUID = ?");
             $query->execute( array($regionuuid) );
-            $query = $db->prepare("DELETE FROM parcels WHERE regionuuid = ?");
+            $query = $db->prepare("DELETE FROM parcels WHERE regionUUID = ?");
             $query->execute( array($regionuuid) );
-            $query = $db->prepare("DELETE FROM allparcels WHERE regionuuid = ?");
+            $query = $db->prepare("DELETE FROM allparcels WHERE regionUUID = ?");
             $query->execute( array($regionuuid) );
-            $query = $db->prepare("DELETE FROM parcelsales WHERE regionuuid = ?");
+            $query = $db->prepare("DELETE FROM parcelsales WHERE regionUUID = ?");
             $query->execute( array($regionuuid) );
             $query = $db->prepare("DELETE FROM objects WHERE regionuuid = ?");
             $query->execute( array($regionuuid) );
