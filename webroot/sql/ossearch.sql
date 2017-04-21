@@ -16,7 +16,7 @@
 -- Tabel structuur voor tabel `allparcels`
 -- 
 
-CREATE TABLE `allparcels` (
+CREATE TABLE IF NOT EXISTS `allparcels` (
   `regionUUID` char(36) NOT NULL,
   `parcelname` varchar(255) NOT NULL,
   `ownerUUID` char(36) NOT NULL default '00000000-0000-0000-0000-000000000000',
@@ -35,7 +35,7 @@ CREATE TABLE `allparcels` (
 -- Tabel structuur voor tabel `classifieds`
 -- 
 
-CREATE TABLE `classifieds` (
+CREATE TABLE IF NOT EXISTS `classifieds` (
   `classifieduuid` char(36) NOT NULL,
   `creatoruuid` char(36) NOT NULL,
   `creationdate` int(20) NOT NULL,
@@ -60,7 +60,7 @@ CREATE TABLE `classifieds` (
 -- Tabel structuur voor tabel `events`
 -- 
 
-CREATE TABLE `events` (
+CREATE TABLE IF NOT EXISTS `events` (
   `owneruuid` char(36) NOT NULL,
   `name` varchar(255) NOT NULL,
   `eventid` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -84,7 +84,7 @@ CREATE TABLE `events` (
 -- Tabel structuur voor tabel `hostsregister`
 -- 
 
-CREATE TABLE `hostsregister` (
+CREATE TABLE IF NOT EXISTS `hostsregister` (
   `host` varchar(255) NOT NULL,
   `port` int(5) NOT NULL,
   `register` int(10) NOT NULL,
@@ -100,7 +100,7 @@ CREATE TABLE `hostsregister` (
 -- Tabel structuur voor tabel `objects`
 -- 
 
-CREATE TABLE `objects` (
+CREATE TABLE IF NOT EXISTS `objects` (
   `objectuuid` char(36) NOT NULL,
   `parceluuid` char(36) NOT NULL,
   `location` varchar(255) NOT NULL,
@@ -116,7 +116,7 @@ CREATE TABLE `objects` (
 -- Tabel structuur voor tabel `parcels`
 -- 
 
-CREATE TABLE `parcels` (
+CREATE TABLE IF NOT EXISTS `parcels` (
   `regionUUID` char(36) NOT NULL,
   `parcelname` varchar(255) NOT NULL,
   `parcelUUID` char(36) NOT NULL,
@@ -142,7 +142,7 @@ CREATE TABLE `parcels` (
 -- Tabel structuur voor tabel `parcelsales`
 -- 
 
-CREATE TABLE `parcelsales` (
+CREATE TABLE IF NOT EXISTS `parcelsales` (
   `regionUUID` char(36) NOT NULL,
   `parcelname` varchar(255) NOT NULL,
   `parcelUUID` char(36) NOT NULL,
@@ -162,7 +162,7 @@ CREATE TABLE `parcelsales` (
 -- Tabel structuur voor tabel `popularplaces`
 -- 
 
-CREATE TABLE `popularplaces` (
+CREATE TABLE IF NOT EXISTS `popularplaces` (
   `parcelUUID` char(36) NOT NULL,
   `name` varchar(255) NOT NULL,
   `dwell` float NOT NULL,
@@ -177,7 +177,7 @@ CREATE TABLE `popularplaces` (
 -- Tabel structuur voor tabel `regions`
 -- 
 
-CREATE TABLE `regions` (
+CREATE TABLE IF NOT EXISTS `regions` (
   `regionname` varchar(255) NOT NULL,
   `regionUUID` char(36) NOT NULL,
   `regionhandle` varchar(255) NOT NULL,
