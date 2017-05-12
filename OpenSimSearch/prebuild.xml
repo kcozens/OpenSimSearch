@@ -14,18 +14,12 @@
    <ReferencePath>../../../bin/</ReferencePath>
    <Reference localCopy="false" name="System"/>
    <Reference name="System.Xml"/>
-   <Reference name="System.Drawing"/>
-   <Reference name="System.Runtime.Remoting"/>
    <Reference name="OpenMetaverseTypes"/>
    <Reference name="OpenMetaverse"/>
-   <Reference name="Axiom.MathLib"/>
    <Reference name="OpenSim.Framework"/>
-   <Reference name="OpenSim.Data"/>
    <Reference name="OpenSim.Region.Framework"/>
-   <Reference name="OpenSim.Framework.Console"/>
-   <Reference name="OpenSim.Framework.Servers"/>
-   <Reference name="OpenSim.Framework.Communications"/>
-   <Reference name="OpenSim.Region.Physics.Manager"/>
+   <Reference name="OpenSim.Region.Framework.Interfaces"/>
+   <Reference name="OpenSim.Region.Framework.Scenes"/>
    <Reference name="OpenSim.Services.Interfaces"/>
    <Reference name="Nini"/>
    <Reference name="log4net"/>
