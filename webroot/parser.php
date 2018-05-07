@@ -188,6 +188,18 @@ function parse($hostname, $port, $xml)
 
             $dwell = $value->getElementsByTagName("dwell")->item(0)->nodeValue;
 
+            //The image tag will only exist if the parcel has a snapshot image
+            $has_pic = 0;
+            $image_node = $value->getElementsByTagName("image");
+
+            if ($image_node->length > 0)
+            {
+                $image = $image_node->item(0)->nodeValue;
+
+                if ($image != "00000000-0000-0000-0000-000000000000")
+                    $has_pic = 1;
+            }
+
             $owner = $value->getElementsByTagName("owner")->item(0);
 
             $owneruuid = $owner->getElementsByTagName("uuid")->item(0)->nodeValue;
@@ -213,6 +225,11 @@ function parse($hostname, $port, $xml)
             $parcelbuild = $value->getAttributeNode("build")->nodeValue;
             $parcelscript = $value->getAttributeNode("scripts")->nodeValue;
             $parcelpublic = $value->getAttributeNode("public")->nodeValue;
+
+            //Prepare for the insert of data in to the popularplaces table. This gets
+            //rid of any obsolete data for parcels no longer set to show in search.
+            $query = $db->prepare("DELETE FROM popularplaces WHERE parcelUUID = ?");
+            $query->execute( array($parceluuid) );
 
             //
             // Save
@@ -246,6 +263,16 @@ function parse($hostname, $port, $xml)
                                        "public"  => $parcelpublic,
                                        "dwell"   => $dwell,
                                        "i_uuid"  => $infouuid,
+                                       "r_cat"   => $regioncategory) );
+
+                $query = $db->prepare("INSERT INTO popularplaces VALUES(" .
+                                       ":p_uuid, :p_name, :dwell, " .
+                                       ":i_uuid, :has_pic, :r_cat)");
+                $query->execute( array("p_uuid"  => $parceluuid,
+                                       "p_name"  => $parcelname,
+                                       "dwell"   => $dwell,
+                                       "i_uuid"  => $infouuid,
+                                       "has_pic" => $has_pic,
                                        "r_cat"   => $regioncategory) );
             }
 
