@@ -62,3 +62,9 @@ COMMIT;
 BEGIN;
 ALTER TABLE `events` ADD `parcelUUID` CHAR( 36 ) NOT NULL AFTER `simname`;
 COMMIT;
+
+#Revision 9
+BEGIN;
+ALTER TABLE `popularplaces` CHANGE `mature` `mature` varchar(10) COLLATE utf8_unicode_ci NOT NULL;
+ALTER TABLE `popularplaces` ADD PRIMARY KEY  (`parcelUUID`);
+COMMIT;

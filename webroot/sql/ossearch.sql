@@ -168,7 +168,8 @@ CREATE TABLE IF NOT EXISTS `popularplaces` (
   `dwell` float NOT NULL,
   `infoUUID` char(36) NOT NULL,
   `has_picture` tinyint(1) NOT NULL,
-  `mature` tinyint(4) NOT NULL
+  `mature` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY  (`parcelUUID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
