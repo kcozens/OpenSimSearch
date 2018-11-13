@@ -18,8 +18,6 @@
    <Reference name="OpenMetaverse"/>
    <Reference name="OpenSim.Framework"/>
    <Reference name="OpenSim.Region.Framework"/>
-   <Reference name="OpenSim.Region.Framework.Interfaces"/>
-   <Reference name="OpenSim.Region.Framework.Scenes"/>
    <Reference name="OpenSim.Services.Interfaces"/>
    <Reference name="Nini"/>
    <Reference name="log4net"/>
