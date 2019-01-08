@@ -117,7 +117,7 @@ Add the following lines to all OpenSim.ini files:
   ;// The SearchURL is important. It must be correct or search won't work.  //
   ;//                                                                       //
   ;// Change the URL to point to the query.php file on your own web server  //
-  SearchURL = http://192.168.0.1/query.php
+  SearchURL = "http://192.168.0.1/query.php"
   ;//                                                                       //
   ;///////////////////////////////////////////////////////////////////////////
 
