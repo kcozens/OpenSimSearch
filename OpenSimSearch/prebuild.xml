@@ -25,6 +25,8 @@
    <Reference name="Mono.Addins"/>
 
    <Files>
-     <Match pattern="*.cs" recurse="true"/>
+     <Match pattern="*.cs" recurse="true">
+       <Exclude name="obj" pattern="obj"/>
+     </Match>
    </Files>
 </Project>
