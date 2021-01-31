@@ -495,17 +495,18 @@ function dir_classified_query ($method_name, $params, $app_data)
     $sqldata = array();
 
     //Renew Weekly flag is bit 5 (32) in $flags.
-    $f = array();
-    if ($flags & 4)     //PG (1 << 2)
-        $f[] = "classifiedflags & 4 = 4";
-    if ($flags & 8)     //Mature (1 << 3)
-        $f[] = "classifiedflags & 8 = 8";
-    if ($flags & 64)    //Adult (1 << 6)
-        $f[] = "classifiedflags & 64 = 64";
+    //Bit 0 (PG) and bit 1 (Mature) are deprecated.
+    //Bit 2 is PG, bit 3 is Mature, bit 5 is Adult.
+    $maturity = 0;
+    if ($flags & 5)     //Legacy or current PG bit?
+        $maturity |= 5;
+    if ($flags & 10)    //Legacy or current Mature bit?
+        $maturity |= 8;
+    if ($flags & 64)    //Adult bit (1 << 6)
+        $maturity |= 64;
 
-    //Was there at least one PG, Mature, or Adult flag?
-    if (count($f) > 0)
-        $terms[] = join_terms(" OR ", $f, True);
+    if ($maturity)
+        $terms[] = "classifiedflags & $maturity";
 
     //Only restrict results based on category if it is not 0 (Any Category)
     if ($category > 0)
@@ -545,11 +546,18 @@ function dir_classified_query ($method_name, $params, $app_data)
     $data = array();
     while ($row = $query->fetch(PDO::FETCH_ASSOC))
     {
+        /* Test for legacy maturity bits and set current bits */
+        $flags = $row["classifiedflags"];
+        if ($flags & 1)
+            $flags |= 4;
+        if ($flags & 2)
+            $flags |= 8;
+
         $data[] = array(
                 "classifiedid" => $row["classifieduuid"],
                 "name" => $row["name"],
-                "classifiedflags" => $row["classifiedflags"],
-                "creation_date" => $row["creationdate"],
+                "classifiedflags" => $flags,
+                "creation_date"   => $row["creationdate"],
                 "expiration_date" => $row["expirationdate"],
                 "priceforlisting" => $row["priceforlisting"]);
     }
