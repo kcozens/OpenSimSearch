@@ -46,7 +46,7 @@ while(list($regionname,$locX,$locY) = $DbLink->next_record())
 	$sim_name = $regionname;
 }
 
-$GlobalPos = "<".$GlobalX.",".$GlobalY.",".$GlobalZ.">";
+$GlobalPos = $GlobalX.",".$GlobalY.",".$GlobalZ;
 
 # Checking if it's a event with Maturity
 $access =  $_POST['access'];

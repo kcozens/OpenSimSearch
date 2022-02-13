@@ -275,6 +275,6 @@ avoid any compatability issues.)
 
 The globalPos field is the location of the event as a global grid coordinate.
 The format is "x,y,z". where x and y are the grid X and Y positions (times
-256) plus the x and y offset within the region named by the simname field.
+256) plus the X and Y offset within the region named by the simname field.
 
 The eventflags field is 0 for a PG event, 1 for Mature, and 2 for Adult.
