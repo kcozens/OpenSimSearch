@@ -123,7 +123,7 @@ namespace OpenSimSearch.Modules.OpenSearch
             get { return "OpenSimSearch"; }
         }
 
-        public bool IsSharedModule
+        public static bool IsSharedModule
         {
             get { return true; }
         }
@@ -523,7 +523,7 @@ namespace OpenSimSearch.Modules.OpenSearch
                 amount = Convert.ToUInt32(d["coveramount"]),
                 simName = d["simname"].ToString()
             };
-            Vector3.TryParse(d["globalposition"].ToString(), out data.globalPos);
+            data.globalPos = (Vector3.TryParse(d["globalposition"].ToString(), out data.globalPos)) ? data.globalPos : new();
             data.eventFlags = Convert.ToUInt32(d["eventflags"]);
 
             remoteClient.SendEventInfoReply(data);
@@ -560,8 +560,7 @@ namespace OpenSimSearch.Modules.OpenSearch
 
             Hashtable d = (Hashtable)dataArray[0];
 
-            Vector3 globalPos = new();
-            Vector3.TryParse(d["posglobal"].ToString(), out globalPos);
+            Vector3 globalPos = (Vector3.TryParse(d["posglobal"].ToString(), out globalPos)) ? globalPos : new();
 
             remoteClient.SendClassifiedInfoReply(
                     new UUID(d["classifieduuid"].ToString()),
