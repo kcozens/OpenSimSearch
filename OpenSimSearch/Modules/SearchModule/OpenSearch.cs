@@ -243,9 +243,7 @@ namespace OpenSimSearch.Modules.OpenSearch
 
             ArrayList dataArray = (ArrayList)result["data"];
 
-            int count = dataArray.Count;
-            if (count > 100)
-                count = 101;
+            int count = (dataArray.Count > 100) ? 101 : dataArray.Count;
 
             DirPlacesReplyData[] data = new DirPlacesReplyData[count];
 
@@ -288,9 +286,7 @@ namespace OpenSimSearch.Modules.OpenSearch
 
             ArrayList dataArray = (ArrayList)result["data"];
 
-            int count = dataArray.Count;
-            if (count > 100)
-                count = 101;
+            int count = (dataArray.Count > 100) ? 101 : dataArray.Count;
 
             DirPopularReplyData[] data = new DirPopularReplyData[count];
 
@@ -344,12 +340,11 @@ namespace OpenSimSearch.Modules.OpenSearch
             {
                 Hashtable d = (Hashtable)o;
 
-                if (d["name"] != null)
+                if (d["name"] is not null)
                     ++count;
             }
 
-            if (count > 100)
-                count = 101;
+            count = (count > 100) ? 101 : count;
 
             DirLandReplyData[] data = new DirLandReplyData[count];
 
@@ -359,7 +354,7 @@ namespace OpenSimSearch.Modules.OpenSearch
             {
                 Hashtable d = (Hashtable)o;
 
-                if (d["name"] == null)
+                if (d["name"] is null)
                     continue;
 
                 data[i] = new DirLandReplyData
@@ -410,9 +405,7 @@ namespace OpenSimSearch.Modules.OpenSearch
 
             ArrayList dataArray = (ArrayList)result["data"];
 
-            int count = dataArray.Count;
-            if (count > 100)
-                count = 101;
+            int count = (dataArray.Count > 100) ? 101 : dataArray.Count;
 
             DirEventsReplyData[] data = new DirEventsReplyData[count];
 
@@ -461,9 +454,7 @@ namespace OpenSimSearch.Modules.OpenSearch
 
             ArrayList dataArray = (ArrayList)result["data"];
 
-            int count = dataArray.Count;
-            if (count > 100)
-                count = 101;
+            int count = (dataArray.Count > 100) ? 101 : dataArray.Count;
 
             DirClassifiedReplyData[] data = new DirClassifiedReplyData[count];
 
@@ -618,10 +609,6 @@ namespace OpenSimSearch.Modules.OpenSearch
 
                 ArrayList dataArray = (ArrayList)result["data"];
 
-                int count = dataArray.Count;
-                if (count > 100)
-                    count = 101;
-
                 List<mapItemReply> mapitems = new();
                 string ParcelRegionUUID;
                 string[] landingpoint;
@@ -630,7 +617,7 @@ namespace OpenSimSearch.Modules.OpenSearch
                 {
                     Hashtable d = (Hashtable)o;
 
-                    if (d["name"] == null)
+                    if (d["name"] is null)
                         continue;
 
                     mapItemReply mapitem = new();
@@ -711,7 +698,7 @@ namespace OpenSimSearch.Modules.OpenSearch
                 {
                     Hashtable d = (Hashtable)o;
 
-                    if (d["name"] == null)
+                    if (d["name"] is null)
                         continue;
 
                     mapItemReply mapitem = new();
